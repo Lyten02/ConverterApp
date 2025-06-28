@@ -117,33 +117,31 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <metadata name="menuStrip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+  <data name="lblFileOpen.Text" xml:space="preserve">
+    <value>Открыть файл/папку</value>
+  </data>
+  <data name="lblFormat.Text" xml:space="preserve">
+    <value>Формат конвертации:</value>
+  </data>
+  <data name="lblQuality.Text" xml:space="preserve">
+    <value>Качество изображения:</value>
+  </data>
+  <data name="btnClear.Text" xml:space="preserve">
+    <value>Очистить</value>
+  </data>
+  <data name="btnStart.Text" xml:space="preserve">
+    <value>Старт</value>
+  </data>
+  <data name="$this.Text" xml:space="preserve">
+    <value>Быстрое конвертирование изображений</value>
+  </data>
+  <metadata name="openFileDialog.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>
   </metadata>
-  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
-  <data name="btnPrint.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-    <value>
-        iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
-        wgAADsIBFShKgAAAAv1JREFUWEfVl0toE1EUhu+iGxeB0kU3Xbh1kYWb+khiLU1pFMRAsLWitfHR2qQ+
-        Cm2EgotulUBwoQ2ixgcoRamCC22rjRiDT0iyL3TpsovsczznzplkZpKZuRPNoj/8EO7ce75/7pzMQ+wq
-        RSKRbvQSuoQGi2mMjnXz9P8rLDyH3gkfj8K+8SXoubQClUpFuvzsKCzfGoJYdISC7KDjvOzfRGdDxdDb
-        aAnumv0C4upPaV21zyHp6oeQDEJzeQ2tVdsRnDhoMG3lG7Qs5h9dhD0z6yCuaWDp2R+M1wMENeeD8Odt
-        CNIL9SBkqkU16wzGNoSD9QWBaBz8Y4vQN/kAz7iggS1wkTQGaMBr+YDmzQBU3wdg7e4ApOeHIDExbAwE
-        jG1IDs791nzjF4jrbBt4UwALvLZ5WPMn8iHNH8kHXQIowkXCEMAD3DmAB7hIfGc8BVCHOwfwABczlgCK
-        8NrGAZcAinBTAA9w5wAe4OKKMYA63DEA3d1U4WL6G+M5gCK8/DigEEABbgqgCJcBHjkE6I0/VYaLKWMA
-        NXhtvR+K94O2AfLZbJZLdk7EIBZjG8LBTDKZ5GmdEzGIxdiGcHA/GrZWBmzv7dZu1yUuFkFcYMfJX0FM
-        ss+T8XkyUQDfmddy+4nFWLPwQCm9EFa+t+tSgZP90ZsELzGuWXiQnt/yceoGp4bTpQL3jdfP3vllBSfk
-        U1PDrnDqcl1ucHGuAP0npgne3HxW4STZC6t3Bh3h5gDO8L2xtH72ra+9VTiR3v+g/OSILdwUwAHeM/Zc
-        h89xeTXhglzs5AhsvcRmbAGnG4suO7jv9CsIH4sSPMdlvQkX5mWIFxjCAjcFcIa7X3c74WJ6K5Yhisv4
-        zzDAzQHM8N7Rh3U41eBy7QuL5NCwehtvUq0CGOCGhmtv2+2EBWVjpi6HofoOdwIfLLoI3nV2Q/+rkb01
-        nKqwML3Tb9MlWcuEGA/Qd+qevuX0MaL2V2tXCKC+yKAhlUpJ028e68x3YSshjHaDPkjJzV86u0NC/AWZ
-        05RV/xaWkwAAAABJRU5ErkJggg==
-</value>
-  </data>
-  <metadata name="statusStrip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>126, 17</value>
+  <metadata name="saveFileDialog.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>157, 17</value>
   </metadata>
-  <metadata name="$this.TrayHeight" type="System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>25</value>
+  <metadata name="folderBrowserDialog.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>293, 17</value>
   </metadata>
 </root>
