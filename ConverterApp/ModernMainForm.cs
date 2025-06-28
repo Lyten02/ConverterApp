@@ -552,7 +552,7 @@ namespace ConverterApp
         {
             if (arrowLabel == null) return;
             
-            Timer timer = new Timer();
+            System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer();
             timer.Interval = 50;
             int angle = 0;
             
@@ -597,7 +597,7 @@ namespace ConverterApp
             {
                 currentDisplay = calcTabDisplay;
             }
-            else if (sender.Parent == calcButtonPanel)
+            else if (button.Parent == calcButtonPanel)
             {
                 currentDisplay = calcDisplay;
             }
