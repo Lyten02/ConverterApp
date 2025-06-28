@@ -68,6 +68,7 @@ namespace ConverterApp
         // Flag to prevent recursive text changes
         private bool isUpdatingText = false;
         private bool isInitialized = false;
+        private bool isUpdatingComboBox = false;
         
         private enum CalculatorMode
         {
@@ -291,24 +292,34 @@ namespace ConverterApp
         
         private void CboType_SelectedIndexChanged(object sender, EventArgs e)
         {
-            string type = cboType.SelectedItem?.ToString() ?? "";
-            cboFromUnit.Items.Clear();
-            cboToUnit.Items.Clear();
+            if (isUpdatingComboBox) return;
             
-            if (unitCategories.ContainsKey(type))
+            isUpdatingComboBox = true;
+            try
             {
-                cboFromUnit.Items.AddRange(unitCategories[type].ToArray());
-                cboToUnit.Items.AddRange(unitCategories[type].ToArray());
+                string type = cboType.SelectedItem?.ToString() ?? "";
+                cboFromUnit.Items.Clear();
+                cboToUnit.Items.Clear();
                 
-                if (cboFromUnit.Items.Count > 0) cboFromUnit.SelectedIndex = 0;
-                if (cboToUnit.Items.Count > 1) cboToUnit.SelectedIndex = 1;
-                else if (cboToUnit.Items.Count > 0) cboToUnit.SelectedIndex = 0;
-                
-                // Update UI based on type
-                if (type.Contains("Валюта"))
+                if (unitCategories.ContainsKey(type))
                 {
-                    UpdateCurrencyRates();
+                    cboFromUnit.Items.AddRange(unitCategories[type].ToArray());
+                    cboToUnit.Items.AddRange(unitCategories[type].ToArray());
+                    
+                    if (cboFromUnit.Items.Count > 0) cboFromUnit.SelectedIndex = 0;
+                    if (cboToUnit.Items.Count > 1) cboToUnit.SelectedIndex = 1;
+                    else if (cboToUnit.Items.Count > 0) cboToUnit.SelectedIndex = 0;
+                    
+                    // Update UI based on type
+                    if (type.Contains("Валюта"))
+                    {
+                        UpdateCurrencyRates();
+                    }
                 }
+            }
+            finally
+            {
+                isUpdatingComboBox = false;
             }
             
             if (isAutoConvertEnabled && !string.IsNullOrEmpty(txtInput.Text))
@@ -319,10 +330,24 @@ namespace ConverterApp
         
         private void CboUnit_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (cboFromUnit.SelectedItem != null && cboToUnit.SelectedItem != null &&
-                cboFromUnit.SelectedIndex == cboToUnit.SelectedIndex && cboFromUnit.Items.Count > 1)
+            if (isUpdatingComboBox) return;
+            
+            isUpdatingComboBox = true;
+            try
             {
-                cboToUnit.SelectedIndex = (cboToUnit.SelectedIndex + 1) % cboToUnit.Items.Count;
+                // Only change if sender is cboFromUnit and items are identical
+                if (sender == cboFromUnit && 
+                    cboFromUnit.SelectedItem != null && 
+                    cboToUnit.SelectedItem != null &&
+                    cboFromUnit.SelectedIndex == cboToUnit.SelectedIndex && 
+                    cboFromUnit.Items.Count > 1)
+                {
+                    cboToUnit.SelectedIndex = (cboToUnit.SelectedIndex + 1) % cboToUnit.Items.Count;
+                }
+            }
+            finally
+            {
+                isUpdatingComboBox = false;
             }
             
             if (isAutoConvertEnabled && !string.IsNullOrEmpty(txtInput.Text))

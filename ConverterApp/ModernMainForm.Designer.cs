@@ -303,8 +303,8 @@ namespace ConverterApp
             var inputPanel = new TableLayoutPanel();
             inputPanel.Dock = DockStyle.Fill;
             inputPanel.RowCount = 2;
-            inputPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 60F));
-            inputPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 40F));
+            inputPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
+            inputPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
             
             this.txtInput = new TextBox();
             this.txtInput.Dock = DockStyle.Fill;
@@ -315,7 +315,8 @@ namespace ConverterApp
             this.cboFromUnit = new ComboBox();
             this.cboFromUnit.Dock = DockStyle.Fill;
             this.cboFromUnit.DropDownStyle = ComboBoxStyle.DropDownList;
-            this.cboFromUnit.Font = new Font("Segoe UI", 11F);
+            this.cboFromUnit.Font = new Font("Segoe UI", 12F);
+            this.cboFromUnit.DropDownHeight = 200;
             
             inputPanel.Controls.Add(this.txtInput, 0, 0);
             inputPanel.Controls.Add(this.cboFromUnit, 0, 1);
@@ -338,8 +339,8 @@ namespace ConverterApp
             var outputPanel = new TableLayoutPanel();
             outputPanel.Dock = DockStyle.Fill;
             outputPanel.RowCount = 2;
-            outputPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 60F));
-            outputPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 40F));
+            outputPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
+            outputPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
             
             this.txtOutput = new TextBox();
             this.txtOutput.Dock = DockStyle.Fill;
@@ -352,7 +353,8 @@ namespace ConverterApp
             this.cboToUnit = new ComboBox();
             this.cboToUnit.Dock = DockStyle.Fill;
             this.cboToUnit.DropDownStyle = ComboBoxStyle.DropDownList;
-            this.cboToUnit.Font = new Font("Segoe UI", 11F);
+            this.cboToUnit.Font = new Font("Segoe UI", 12F);
+            this.cboToUnit.DropDownHeight = 200;
             
             outputPanel.Controls.Add(this.txtOutput, 0, 0);
             outputPanel.Controls.Add(this.cboToUnit, 0, 1);
