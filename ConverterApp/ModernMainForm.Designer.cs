@@ -69,14 +69,8 @@ namespace ConverterApp
             
             this.conversionPanel = new System.Windows.Forms.TableLayoutPanel();
             this.inputGroupBox = new System.Windows.Forms.GroupBox();
-            this.txtInput = new System.Windows.Forms.TextBox();
-            this.cboFromUnit = new System.Windows.Forms.ComboBox();
-            
             this.arrowLabel = new System.Windows.Forms.Label();
-            
             this.outputGroupBox = new System.Windows.Forms.GroupBox();
-            this.txtOutput = new System.Windows.Forms.TextBox();
-            this.cboToUnit = new System.Windows.Forms.ComboBox();
             
             this.buttonPanel = new System.Windows.Forms.FlowLayoutPanel();
             this.btnConvert = new System.Windows.Forms.Button();

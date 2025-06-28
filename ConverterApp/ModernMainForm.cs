@@ -65,6 +65,10 @@ namespace ConverterApp
         private bool calcNewNumber = true;
         private CalculatorMode currentCalcMode = CalculatorMode.Basic;
         
+        // Flag to prevent recursive text changes
+        private bool isUpdatingText = false;
+        private bool isInitialized = false;
+        
         private enum CalculatorMode
         {
             Basic,
@@ -115,15 +119,49 @@ namespace ConverterApp
         
         private void SetupEventHandlers()
         {
-            // Converter events
-            if (cboType != null) cboType.SelectedIndexChanged += CboType_SelectedIndexChanged;
-            if (cboFromUnit != null) cboFromUnit.SelectedIndexChanged += CboUnit_SelectedIndexChanged;
-            if (cboToUnit != null) cboToUnit.SelectedIndexChanged += CboUnit_SelectedIndexChanged;
-            if (txtInput != null) txtInput.TextChanged += TxtInput_TextChanged;
-            if (btnConvert != null) btnConvert.Click += BtnConvert_Click;
-            if (btnClear != null) btnClear.Click += BtnClear_Click;
-            if (btnExport != null) btnExport.Click += BtnExport_Click;
-            if (btnExportPrint != null) btnExportPrint.Click += BtnExportPrint_Click;
+            if (isInitialized) return;
+            
+            // Unsubscribe first to prevent double subscription
+            if (cboType != null)
+            {
+                cboType.SelectedIndexChanged -= CboType_SelectedIndexChanged;
+                cboType.SelectedIndexChanged += CboType_SelectedIndexChanged;
+            }
+            if (cboFromUnit != null)
+            {
+                cboFromUnit.SelectedIndexChanged -= CboUnit_SelectedIndexChanged;
+                cboFromUnit.SelectedIndexChanged += CboUnit_SelectedIndexChanged;
+            }
+            if (cboToUnit != null)
+            {
+                cboToUnit.SelectedIndexChanged -= CboUnit_SelectedIndexChanged;
+                cboToUnit.SelectedIndexChanged += CboUnit_SelectedIndexChanged;
+            }
+            if (txtInput != null)
+            {
+                txtInput.TextChanged -= TxtInput_TextChanged;
+                txtInput.TextChanged += TxtInput_TextChanged;
+            }
+            if (btnConvert != null)
+            {
+                btnConvert.Click -= BtnConvert_Click;
+                btnConvert.Click += BtnConvert_Click;
+            }
+            if (btnClear != null)
+            {
+                btnClear.Click -= BtnClear_Click;
+                btnClear.Click += BtnClear_Click;
+            }
+            if (btnExport != null)
+            {
+                btnExport.Click -= BtnExport_Click;
+                btnExport.Click += BtnExport_Click;
+            }
+            if (btnExportPrint != null)
+            {
+                btnExportPrint.Click -= BtnExportPrint_Click;
+                btnExportPrint.Click += BtnExportPrint_Click;
+            }
             
             // Calculator events - fix null reference
             if (calcButtonPanel != null && calcButtonPanel.Controls != null)
@@ -169,6 +207,9 @@ namespace ConverterApp
             
             // Enable drag & drop for unit swapping
             EnableDragDrop();
+            
+            // Mark as initialized
+            isInitialized = true;
         }
         
         private void SetupKeyboardShortcuts()
@@ -301,11 +342,15 @@ namespace ConverterApp
         
         private void TxtInput_TextChanged(object sender, EventArgs e)
         {
+            if (isUpdatingText) return;
+            
             // Validate input length to prevent overflow
             if (txtInput.Text.Length > 15)
             {
+                isUpdatingText = true;
                 txtInput.Text = txtInput.Text.Substring(0, 15);
                 txtInput.SelectionStart = txtInput.Text.Length;
+                isUpdatingText = false;
             }
             
             if (isAutoConvertEnabled && !string.IsNullOrEmpty(txtInput.Text))
