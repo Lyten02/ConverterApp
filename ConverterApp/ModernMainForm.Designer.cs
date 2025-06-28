@@ -592,28 +592,6 @@ namespace ConverterApp
             InitializeBasicCalculatorButtons();
         }
         
-        private void InitializeBasicCalculatorButtons()
-        {
-            string[,] scientificLayout = {
-                { "(", ")", "sin", "cos", "tan", "π", "e", "x²" },
-                { "7", "8", "9", "÷", "log", "ln", "x³", "√" },
-                { "4", "5", "6", "×", "xʸ", "10ˣ", "eˣ", "1/x" },
-                { "1", "2", "3", "-", "n!", "%", "mod", "|x|" },
-                { "0", ".", "+", "=", "C", "CE", "←", "±" }
-            };
-            
-            this.calcTabButtonPanel.Controls.Clear();
-            for (int row = 0; row < 5; row++)
-            {
-                for (int col = 0; col < 8; col++)
-                {
-                    var btn = CreateCalculatorButton(scientificLayout[row, col]);
-                    btn.Font = new Font("Segoe UI", 11F);
-                    this.calcTabButtonPanel.Controls.Add(btn, col, row);
-                }
-            }
-        }
-        
         private void InitializeSettingsTab()
         {
             this.settingsPanel = new TableLayoutPanel();
@@ -774,33 +752,6 @@ namespace ConverterApp
             {
                 button.BackColor = originalColor;
             }
-        }
-        
-        private Button CreateCalculatorButton(string text)
-        {
-            var button = new Button();
-            button.Text = text;
-            button.Dock = DockStyle.Fill;
-            button.Font = new Font("Segoe UI", 14F);
-            button.FlatStyle = FlatStyle.Flat;
-            button.BackColor = Color.White;
-            button.FlatAppearance.BorderColor = Color.FromArgb(200, 200, 200);
-            button.Cursor = Cursors.Hand;
-            button.Margin = new Padding(2);
-            
-            // Special styling for operation buttons
-            if ("+-×÷=%".Contains(text))
-            {
-                button.BackColor = Color.FromArgb(33, 150, 243);
-                button.ForeColor = Color.White;
-            }
-            else if (text == "CE" || text == "C")
-            {
-                button.BackColor = Color.FromArgb(244, 67, 54);
-                button.ForeColor = Color.White;
-            }
-            
-            return button;
         }
         
         // Control declarations
