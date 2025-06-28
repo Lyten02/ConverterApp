@@ -18,6 +18,9 @@ namespace ConverterApp
 {
     public partial class ModernMainForm : Form
     {
+        // Static HttpClient to prevent socket exhaustion
+        private static readonly HttpClient httpClient = new HttpClient();
+        
         private List<HistoryEntry> conversionHistory = new List<HistoryEntry>();
         private List<string> calcHistory = new List<string>();
         private Dictionary<string, List<string>> unitCategories = new Dictionary<string, List<string>>
@@ -69,6 +72,15 @@ namespace ConverterApp
             public string Result { get; set; }
             public string Type { get; set; }
         }
+        
+        private class AppSettings
+        {
+            public int DecimalPlaces { get; set; } = 2;
+            public bool UseThousandsSeparator { get; set; } = true;
+            public bool AnimationsEnabled { get; set; } = true;
+            public bool AutoConvert { get; set; } = false;
+            public string Theme { get; set; } = "Светлая";
+        }
 
         public ModernMainForm()
         {
@@ -83,21 +95,24 @@ namespace ConverterApp
         private void SetupEventHandlers()
         {
             // Converter events
-            cboType.SelectedIndexChanged += CboType_SelectedIndexChanged;
-            cboFromUnit.SelectedIndexChanged += CboUnit_SelectedIndexChanged;
-            cboToUnit.SelectedIndexChanged += CboUnit_SelectedIndexChanged;
-            txtInput.TextChanged += TxtInput_TextChanged;
-            btnConvert.Click += BtnConvert_Click;
-            btnClear.Click += BtnClear_Click;
-            btnExport.Click += BtnExport_Click;
-            btnExportPrint.Click += BtnExportPrint_Click;
+            if (cboType != null) cboType.SelectedIndexChanged += CboType_SelectedIndexChanged;
+            if (cboFromUnit != null) cboFromUnit.SelectedIndexChanged += CboUnit_SelectedIndexChanged;
+            if (cboToUnit != null) cboToUnit.SelectedIndexChanged += CboUnit_SelectedIndexChanged;
+            if (txtInput != null) txtInput.TextChanged += TxtInput_TextChanged;
+            if (btnConvert != null) btnConvert.Click += BtnConvert_Click;
+            if (btnClear != null) btnClear.Click += BtnClear_Click;
+            if (btnExport != null) btnExport.Click += BtnExport_Click;
+            if (btnExportPrint != null) btnExportPrint.Click += BtnExportPrint_Click;
             
-            // Calculator events
-            foreach (Control control in calcButtonPanel.Controls)
+            // Calculator events - fix null reference
+            if (calcButtonPanel != null && calcButtonPanel.Controls != null)
             {
-                if (control is Button btn)
+                foreach (Control control in calcButtonPanel.Controls)
                 {
-                    btn.Click += CalcButton_Click;
+                    if (control is Button btn)
+                    {
+                        btn.Click += CalcButton_Click;
+                    }
                 }
             }
             
@@ -183,16 +198,29 @@ namespace ConverterApp
         {
             try
             {
-                using (var client = new HttpClient())
+                // Simulated API call - in real implementation, use actual exchange rate API
+                await Task.Delay(100);
+                
+                // Fix: Use thread-safe UI update
+                if (InvokeRequired)
                 {
-                    // Simulated API call - in real implementation, use actual exchange rate API
-                    await Task.Delay(100);
+                    Invoke(new Action(() => lblStatus.Text = "Курсы валют обновлены"));
+                }
+                else
+                {
                     lblStatus.Text = "Курсы валют обновлены";
                 }
             }
             catch
             {
-                lblStatus.Text = "Используются офлайн курсы валют";
+                if (InvokeRequired)
+                {
+                    Invoke(new Action(() => lblStatus.Text = "Используются офлайн курсы валют"));
+                }
+                else
+                {
+                    lblStatus.Text = "Используются офлайн курсы валют";
+                }
             }
         }
         
@@ -250,7 +278,9 @@ namespace ConverterApp
         {
             if (string.IsNullOrEmpty(txtInput.Text)) return;
             
-            if (!double.TryParse(txtInput.Text, out double value))
+            // Fix: Use current culture for number parsing
+            if (!double.TryParse(txtInput.Text, NumberStyles.Any, CultureInfo.CurrentCulture, out double value) &&
+                !double.TryParse(txtInput.Text, NumberStyles.Any, CultureInfo.InvariantCulture, out value))
             {
                 MessageBox.Show("Введите корректное число!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
@@ -295,6 +325,17 @@ namespace ConverterApp
         
         private double ConvertUnit(double value, string type, string fromUnit, string toUnit)
         {
+            return ConvertUnitInternal(value, type, fromUnit, toUnit, 0);
+        }
+        
+        private double ConvertUnitInternal(double value, string type, string fromUnit, string toUnit, int recursionDepth)
+        {
+            // Prevent infinite recursion
+            if (recursionDepth > 3)
+            {
+                return value; // Return original value if recursion is too deep
+            }
+            
             if (type.Contains("Валюта"))
             {
                 return ConvertCurrency(value, fromUnit, toUnit);
@@ -323,7 +364,7 @@ namespace ConverterApp
             }
             
             // Try through base unit conversion
-            return ConvertThroughBase(value, type, fromUnit, toUnit);
+            return ConvertThroughBase(value, type, fromUnit, toUnit, recursionDepth + 1);
         }
         
         private double ConvertCurrency(double value, string from, string to)
@@ -403,7 +444,7 @@ namespace ConverterApp
             };
         }
         
-        private double ConvertThroughBase(double value, string type, string from, string to)
+        private double ConvertThroughBase(double value, string type, string from, string to, int recursionDepth)
         {
             // Define base units for each type
             var baseUnits = new Dictionary<string, string>
@@ -418,14 +459,16 @@ namespace ConverterApp
             string baseUnit = baseUnits[type];
             
             // Convert to base unit
-            double baseValue = ConvertUnit(value, type, from, baseUnit);
+            double baseValue = ConvertUnitInternal(value, type, from, baseUnit, recursionDepth);
             
             // Convert from base unit to target
-            return ConvertUnit(baseValue, type, baseUnit, to);
+            return ConvertUnitInternal(baseValue, type, baseUnit, to, recursionDepth);
         }
         
         private void AnimateArrow()
         {
+            if (arrowLabel == null) return;
+            
             Timer timer = new Timer();
             timer.Interval = 50;
             int angle = 0;
@@ -436,6 +479,7 @@ namespace ConverterApp
                 if (angle >= 360)
                 {
                     timer.Stop();
+                    timer.Dispose(); // Fix: Dispose timer to prevent memory leak
                     arrowLabel.Text = "➡️";
                 }
                 else
@@ -641,7 +685,14 @@ namespace ConverterApp
                     result = Math.Log(value);
                     break;
                 case "1/x":
-                    result = 1 / value;
+                    if (value != 0)
+                        result = 1 / value;
+                    else
+                    {
+                        calcDisplay.Text = "Ошибка: деление на ноль";
+                        calcNewNumber = true;
+                        return;
+                    }
                     break;
                 case "|x|":
                     result = Math.Abs(value);
@@ -722,17 +773,41 @@ namespace ConverterApp
         
         private void UpdateHistoryGrid()
         {
+            if (historyDataGrid == null) return;
+            
             historyDataGrid.Rows.Clear();
             
-            var filter = cboHistoryFilter.SelectedItem?.ToString() ?? "Все";
-            var searchText = txtHistorySearch.Text.ToLower();
+            var filter = cboHistoryFilter?.SelectedItem?.ToString() ?? "Все";
+            var searchText = txtHistorySearch?.Text?.ToLower() ?? "";
             
-            var filteredHistory = conversionHistory.Where(h =>
-                (filter == "Все" || h.Type == filter) &&
-                (string.IsNullOrEmpty(searchText) || 
-                 h.Operation.ToLower().Contains(searchText) ||
-                 h.Result.ToLower().Contains(searchText))
-            ).OrderByDescending(h => h.DateTime);
+            // Optimize: pre-compute lowercase search text once
+            bool hasSearchText = !string.IsNullOrEmpty(searchText);
+            
+            // Optimize: use pagination for large histories
+            const int maxDisplayItems = 100;
+            
+            var filteredHistory = conversionHistory
+                .Where(h =>
+                {
+                    // Filter by type
+                    if (filter != "Все" && h.Type != filter)
+                        return false;
+                    
+                    // Filter by search text (optimized)
+                    if (hasSearchText)
+                    {
+                        // Cache lowercase versions to avoid multiple ToLower calls
+                        var operationLower = h.Operation?.ToLower() ?? "";
+                        var resultLower = h.Result?.ToLower() ?? "";
+                        
+                        if (!operationLower.Contains(searchText) && !resultLower.Contains(searchText))
+                            return false;
+                    }
+                    
+                    return true;
+                })
+                .OrderByDescending(h => h.DateTime)
+                .Take(maxDisplayItems); // Limit displayed items for performance
             
             foreach (var entry in filteredHistory)
             {
@@ -741,6 +816,12 @@ namespace ConverterApp
                     entry.Operation,
                     entry.Result
                 );
+            }
+            
+            // Show info if results are limited
+            if (conversionHistory.Count > maxDisplayItems)
+            {
+                lblStatus.Text = $"Показаны последние {maxDisplayItems} записей из {conversionHistory.Count}";
             }
         }
         
@@ -827,21 +908,29 @@ namespace ConverterApp
             
             cboFromUnit.DragDrop += (s, e) =>
             {
-                if (e.Data.GetData(DataFormats.Text) != null)
+                var data = e.Data.GetData(DataFormats.Text)?.ToString();
+                if (!string.IsNullOrEmpty(data) && cboFromUnit.Items.Contains(data))
                 {
                     string temp = cboFromUnit.SelectedItem?.ToString();
-                    cboFromUnit.SelectedItem = e.Data.GetData(DataFormats.Text);
-                    cboToUnit.SelectedItem = temp;
+                    cboFromUnit.SelectedItem = data;
+                    if (!string.IsNullOrEmpty(temp) && cboToUnit.Items.Contains(temp))
+                    {
+                        cboToUnit.SelectedItem = temp;
+                    }
                 }
             };
             
             cboToUnit.DragDrop += (s, e) =>
             {
-                if (e.Data.GetData(DataFormats.Text) != null)
+                var data = e.Data.GetData(DataFormats.Text)?.ToString();
+                if (!string.IsNullOrEmpty(data) && cboToUnit.Items.Contains(data))
                 {
                     string temp = cboToUnit.SelectedItem?.ToString();
-                    cboToUnit.SelectedItem = e.Data.GetData(DataFormats.Text);
-                    cboFromUnit.SelectedItem = temp;
+                    cboToUnit.SelectedItem = data;
+                    if (!string.IsNullOrEmpty(temp) && cboFromUnit.Items.Contains(temp))
+                    {
+                        cboFromUnit.SelectedItem = temp;
+                    }
                 }
             };
         }
@@ -926,7 +1015,7 @@ namespace ConverterApp
         {
             try
             {
-                var settings = new
+                var settings = new AppSettings
                 {
                     DecimalPlaces = decimalPlaces,
                     UseThousandsSeparator = useThousandsSeparator,
@@ -952,26 +1041,38 @@ namespace ConverterApp
                 if (File.Exists("settings.json"))
                 {
                     string json = File.ReadAllText("settings.json");
-                    dynamic settings = Newtonsoft.Json.JsonConvert.DeserializeObject(json);
+                    var settings = Newtonsoft.Json.JsonConvert.DeserializeObject<AppSettings>(json);
                     
-                    numDecimalPlaces.Value = settings.DecimalPlaces;
-                    chkThousandsSeparator.Checked = settings.UseThousandsSeparator;
-                    chkAnimations.Checked = settings.AnimationsEnabled;
-                    chkScientificNotation.Checked = settings.AutoConvert;
-                    
-                    for (int i = 0; i < cboTheme.Items.Count; i++)
+                    if (settings != null)
                     {
-                        if (cboTheme.Items[i].ToString() == settings.Theme.ToString())
+                        decimalPlaces = settings.DecimalPlaces;
+                        useThousandsSeparator = settings.UseThousandsSeparator;
+                        isAnimationEnabled = settings.AnimationsEnabled;
+                        isAutoConvertEnabled = settings.AutoConvert;
+                        
+                        if (numDecimalPlaces != null) numDecimalPlaces.Value = settings.DecimalPlaces;
+                        if (chkThousandsSeparator != null) chkThousandsSeparator.Checked = settings.UseThousandsSeparator;
+                        if (chkAnimations != null) chkAnimations.Checked = settings.AnimationsEnabled;
+                        if (chkScientificNotation != null) chkScientificNotation.Checked = settings.AutoConvert;
+                        
+                        if (cboTheme != null && !string.IsNullOrEmpty(settings.Theme))
                         {
-                            cboTheme.SelectedIndex = i;
-                            break;
+                            for (int i = 0; i < cboTheme.Items.Count; i++)
+                            {
+                                if (cboTheme.Items[i].ToString() == settings.Theme)
+                                {
+                                    cboTheme.SelectedIndex = i;
+                                    break;
+                                }
+                            }
                         }
                     }
                 }
             }
-            catch
+            catch (Exception ex)
             {
                 // Use default settings if loading fails
+                System.Diagnostics.Debug.WriteLine($"Failed to load settings: {ex.Message}");
             }
         }
         
@@ -1081,6 +1182,7 @@ namespace ConverterApp
                 
                 PdfDocument document = new PdfDocument();
                 document.Info.Title = "ConverterApp Report";
+                
                 PdfPage page = document.AddPage();
                 page.Size = PdfSharp.PageSize.A4;
                 XGraphics gfx = XGraphics.FromPdfPage(page);
@@ -1126,13 +1228,23 @@ namespace ConverterApp
                     
                     if (yPos > page.Height - 100)
                     {
+                        // Dispose current graphics
+                        gfx.Dispose();
+                        
+                        // Add new page
                         page = document.AddPage();
                         gfx = XGraphics.FromPdfPage(page);
                         yPos = 50;
                     }
                 }
                 
+                // Dispose graphics
+                gfx.Dispose();
+                
+                // Save document
                 document.Save(fileName);
+                document.Dispose();
+                
                 lblStatus.Text = "PDF сохранен";
             }
             catch (Exception ex)
@@ -1232,6 +1344,96 @@ namespace ConverterApp
                 "О программе", 
                 MessageBoxButtons.OK, 
                 MessageBoxIcon.Information);
+        }
+        
+        private void InitializeBasicCalculatorButtons()
+        {
+            string[,] basicLayout = {
+                { "7", "8", "9", "÷" },
+                { "4", "5", "6", "×" },
+                { "1", "2", "3", "-" },
+                { "0", ".", "=", "+" },
+                { "C", "CE", "←", "±" }
+            };
+            
+            if (calcTabButtonPanel != null)
+            {
+                calcTabButtonPanel.Controls.Clear();
+                calcTabButtonPanel.ColumnCount = 4;
+                calcTabButtonPanel.RowCount = 5;
+                
+                for (int i = 0; i < 4; i++)
+                {
+                    if (i < calcTabButtonPanel.ColumnStyles.Count)
+                        calcTabButtonPanel.ColumnStyles[i] = new ColumnStyle(SizeType.Percent, 25F);
+                    else
+                        calcTabButtonPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));
+                }
+                for (int i = 0; i < 5; i++)
+                {
+                    if (i < calcTabButtonPanel.RowStyles.Count)
+                        calcTabButtonPanel.RowStyles[i] = new RowStyle(SizeType.Percent, 20F);
+                    else
+                        calcTabButtonPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 20F));
+                }
+                
+                for (int row = 0; row < 5; row++)
+                {
+                    for (int col = 0; col < 4; col++)
+                    {
+                        var btn = CreateCalculatorButton(basicLayout[row, col]);
+                        btn.Font = new Font("Segoe UI", 14F);
+                        calcTabButtonPanel.Controls.Add(btn, col, row);
+                    }
+                }
+            }
+        }
+        
+        private Button CreateCalculatorButton(string text)
+        {
+            var button = new Button();
+            button.Text = text;
+            button.Dock = DockStyle.Fill;
+            button.Font = new Font("Segoe UI", 14F);
+            button.FlatStyle = FlatStyle.Flat;
+            button.BackColor = Color.White;
+            button.FlatAppearance.BorderColor = Color.FromArgb(200, 200, 200);
+            button.Cursor = Cursors.Hand;
+            button.Margin = new Padding(2);
+            
+            // Special styling for operation buttons
+            if ("+-×÷=%".Contains(text) && text.Length == 1)
+            {
+                button.BackColor = Color.FromArgb(33, 150, 243);
+                button.ForeColor = Color.White;
+            }
+            else if (text == "CE" || text == "C" || text == "AC")
+            {
+                button.BackColor = Color.FromArgb(244, 67, 54);
+                button.ForeColor = Color.White;
+            }
+            else if (IsScientificFunction(text))
+            {
+                button.BackColor = Color.FromArgb(76, 175, 80);
+                button.ForeColor = Color.White;
+                button.Font = new Font("Segoe UI", 11F);
+            }
+            
+            // Add click handler for calculator tab buttons
+            if (mainTabControl != null && mainTabControl.SelectedTab == tabCalculator)
+            {
+                button.Click += CalcButton_Click;
+            }
+            
+            return button;
+        }
+        
+        private bool IsScientificFunction(string text)
+        {
+            string[] scientificFunctions = { "sin", "cos", "tan", "log", "ln", "x²", "x³", 
+                                            "√", "∛", "π", "e", "xʸ", "10ˣ", "eˣ", "1/x", 
+                                            "|x|", "n!", "mod", "(" , ")" };
+            return scientificFunctions.Contains(text);
         }
     }
 }
