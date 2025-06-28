@@ -508,7 +508,8 @@ namespace ConverterApp
                 Console.WriteLine($"Записей в истории калькулятора: {calcHistory.Count}");
                 
                 // Show last 3 conversion history entries
-                var lastConversions = conversionHistory.TakeLast(3);
+                var allEntries = conversionHistory.ToList();
+                var lastConversions = allEntries.Skip(Math.Max(0, allEntries.Count - 3));
                 foreach (var entry in lastConversions)
                 {
                     Console.WriteLine($"  {entry.DateTime:HH:mm:ss} - {entry.Operation} = {entry.Result}");
@@ -550,7 +551,7 @@ namespace ConverterApp
                 // Test CSV export preparation
                 StringBuilder csvData = new StringBuilder();
                 csvData.AppendLine("DateTime,Operation,Result,Type");
-                foreach (var entry in conversionHistory.Take(3))
+                foreach (var entry in conversionHistory.ToList().Take(3))
                 {
                     csvData.AppendLine($"{entry.DateTime:yyyy-MM-dd HH:mm:ss},{entry.Operation},{entry.Result},{entry.Type}");
                 }
@@ -574,7 +575,7 @@ namespace ConverterApp
                 Console.WriteLine("\n=== ИСТОРИЯ КОНВЕРТАЦИЙ ===");
                 Console.WriteLine($"Всего записей: {conversionHistory.Count}");
                 
-                var sortedHistory = conversionHistory.OrderBy(h => h.DateTime).ToList();
+                var sortedHistory = conversionHistory.ToList().OrderBy(h => h.DateTime).ToList();
                 foreach (var entry in sortedHistory)
                 {
                     Console.WriteLine($"{entry.DateTime:yyyy-MM-dd HH:mm:ss} | {entry.Type} | {entry.Operation} = {entry.Result}");
@@ -851,11 +852,11 @@ namespace ConverterApp
             Console.WriteLine($"  Записей в истории: {conversionHistory.Count} (лимит работает: {(conversionHistory.Count <= 100 ? "✓" : "✗")})");
             
             // Test history filtering
-            var filtered = conversionHistory.Where(h => h.Type == "Test").Count();
+            var filtered = conversionHistory.ToList().Where(h => h.Type == "Test").Count();
             Console.WriteLine($"  Фильтрация истории: {filtered} записей типа 'Test' ✓");
             
             // Test history search
-            var searchResult = conversionHistory.Where(h => h.Operation.Contains("Test 5")).Count();
+            var searchResult = conversionHistory.ToList().Where(h => h.Operation.Contains("Test 5")).Count();
             Console.WriteLine($"  Поиск в истории: найдено {searchResult} записей ✓");
         }
         
@@ -971,7 +972,7 @@ namespace ConverterApp
             var csv = new StringBuilder();
             csv.AppendLine("DateTime,Type,Operation,Result");
             
-            foreach (var entry in conversionHistory.Take(10))
+            foreach (var entry in conversionHistory.ToList().Take(10))
             {
                 csv.AppendLine($"{entry.DateTime:yyyy-MM-dd HH:mm:ss},{entry.Type},{entry.Operation},{entry.Result}");
             }
@@ -1171,6 +1172,7 @@ namespace ConverterApp
                 if (conversionHistory.Count > maxHistorySize)
                 {
                     var itemsToRemove = conversionHistory
+                        .ToList()
                         .OrderBy(h => h.DateTime)
                         .Take(conversionHistory.Count - maxHistorySize)
                         .ToList();
@@ -2248,7 +2250,7 @@ namespace ConverterApp
                 gfx.DrawString("История операций:", headerFont, XBrushes.Black, new XPoint(50, yPos));
                 yPos += 20;
                 
-                foreach (var entry in conversionHistory.Take(20)) // Limit to prevent overflow
+                foreach (var entry in conversionHistory.ToList().Take(20)) // Limit to prevent overflow
                 {
                     gfx.DrawString($"{entry.DateTime:yyyy-MM-dd HH:mm:ss} - {entry.Operation} = {entry.Result}", 
                         normalFont, XBrushes.Black, new XPoint(70, yPos));
