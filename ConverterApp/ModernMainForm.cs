@@ -32,25 +32,25 @@ namespace ConverterApp
         private CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
         private Dictionary<string, List<string>> unitCategories = new Dictionary<string, List<string>>
         {
-            { "🌡️ Температура", new List<string> { "°C", "°F", "K", "°R" } },
-            { "💰 Валюта", new List<string> { "USD", "EUR", "RUB", "GBP", "JPY" } },
-            { "⚖️ Масса", new List<string> { "g", "kg", "t", "lb", "oz" } },
-            { "📏 Длина", new List<string> { "cm", "m", "km", "in", "ft", "yd", "mi" } },
-            { "📐 Площадь", new List<string> { "cm²", "m²", "km²", "ft²", "ac" } },
-            { "📊 Объем", new List<string> { "ml", "l", "m³", "gal", "pt" } },
-            { "🕐 Время", new List<string> { "s", "min", "h", "d", "week" } },
-            { "⚡ Энергия", new List<string> { "J", "kJ", "cal", "kWh" } },
-            { "💪 Мощность", new List<string> { "W", "kW", "hp" } },
-            { "🌊 Давление", new List<string> { "Pa", "kPa", "atm", "bar" } }
+            ["🌡️ Температура"] = new List<string> { "°C", "°F", "K", "°R" },
+            ["💰 Валюта"] = new List<string> { "USD", "EUR", "RUB", "GBP", "JPY" },
+            ["⚖️ Масса"] = new List<string> { "g", "kg", "t", "lb", "oz" },
+            ["📏 Длина"] = new List<string> { "cm", "m", "km", "in", "ft", "yd", "mi" },
+            ["📐 Площадь"] = new List<string> { "cm²", "m²", "km²", "ft²", "ac" },
+            ["📊 Объем"] = new List<string> { "ml", "l", "m³", "gal", "pt" },
+            ["🕐 Время"] = new List<string> { "s", "min", "h", "d", "week" },
+            ["⚡ Энергия"] = new List<string> { "J", "kJ", "cal", "kWh" },
+            ["💪 Мощность"] = new List<string> { "W", "kW", "hp" },
+            ["🌊 Давление"] = new List<string> { "Pa", "kPa", "atm", "bar" }
         };
         
         private Dictionary<string, double> currencyRates = new Dictionary<string, double>
         {
-            { "USD", 1.0 },
-            { "EUR", 0.92 },
-            { "RUB", 92.5 },
-            { "GBP", 0.79 },
-            { "JPY", 149.5 }
+            ["USD"] = 1.0,
+            ["EUR"] = 0.92,
+            ["RUB"] = 92.5,
+            ["GBP"] = 0.79,
+            ["JPY"] = 149.5
         };
         
         private PrintDocument printDocument = new PrintDocument();
@@ -497,33 +497,42 @@ namespace ConverterApp
             return new Dictionary<(string, string), double>
             {
                 // Length
-                {("cm", "m"), 0.01}, {("m", "km"), 0.001}, {("in", "cm"), 2.54},
-                {("ft", "m"), 0.3048}, {("yd", "m"), 0.9144}, {("mi", "km"), 1.60934},
+                [("cm", "m")] = 0.01, [("m", "km")] = 0.001, [("in", "cm")] = 2.54,
+                [("ft", "m")] = 0.3048, [("yd", "m")] = 0.9144, [("mi", "km")] = 1.60934,
+                [("m", "cm")] = 100, [("km", "m")] = 1000, [("cm", "in")] = 0.393701,
+                [("m", "ft")] = 3.28084, [("m", "yd")] = 1.09361, [("km", "mi")] = 0.621371,
                 
                 // Mass
-                {("g", "kg"), 0.001}, {("kg", "t"), 0.001}, {("lb", "kg"), 0.453592},
-                {("oz", "g"), 28.3495},
+                [("g", "kg")] = 0.001, [("kg", "t")] = 0.001, [("lb", "kg")] = 0.453592,
+                [("oz", "g")] = 28.3495, [("kg", "g")] = 1000, [("t", "kg")] = 1000,
+                [("kg", "lb")] = 2.20462, [("g", "oz")] = 0.035274,
                 
                 // Volume
-                {("ml", "l"), 0.001}, {("l", "m³"), 0.001}, {("gal", "l"), 3.78541},
-                {("pt", "l"), 0.473176},
+                [("ml", "l")] = 0.001, [("l", "m³")] = 0.001, [("gal", "l")] = 3.78541,
+                [("pt", "l")] = 0.473176, [("l", "ml")] = 1000, [("m³", "l")] = 1000,
+                [("l", "gal")] = 0.264172, [("l", "pt")] = 2.11338,
                 
                 // Area
-                {("cm²", "m²"), 0.0001}, {("m²", "km²"), 0.000001}, {("ft²", "m²"), 0.092903},
-                {("ac", "m²"), 4046.86},
+                [("cm²", "m²")] = 0.0001, [("m²", "km²")] = 0.000001, [("ft²", "m²")] = 0.092903,
+                [("ac", "m²")] = 4046.86, [("m²", "cm²")] = 10000, [("km²", "m²")] = 1000000,
+                [("m²", "ft²")] = 10.7639, [("m²", "ac")] = 0.000247105,
                 
                 // Time
-                {("s", "min"), 1/60.0}, {("min", "h"), 1/60.0}, {("h", "d"), 1/24.0},
-                {("d", "week"), 1/7.0},
+                [("s", "min")] = 1/60.0, [("min", "h")] = 1/60.0, [("h", "d")] = 1/24.0,
+                [("d", "week")] = 1/7.0, [("min", "s")] = 60, [("h", "min")] = 60,
+                [("d", "h")] = 24, [("week", "d")] = 7,
                 
                 // Energy
-                {("J", "kJ"), 0.001}, {("cal", "J"), 4.184}, {("kWh", "J"), 3.6e6},
+                [("J", "kJ")] = 0.001, [("cal", "J")] = 4.184, [("kWh", "J")] = 3.6e6,
+                [("kJ", "J")] = 1000, [("J", "cal")] = 0.238845, [("J", "kWh")] = 1/3.6e6,
                 
                 // Power
-                {("W", "kW"), 0.001}, {("hp", "kW"), 0.7457},
+                [("W", "kW")] = 0.001, [("hp", "kW")] = 0.7457,
+                [("kW", "W")] = 1000, [("kW", "hp")] = 1.34102,
                 
                 // Pressure
-                {("Pa", "kPa"), 0.001}, {("atm", "kPa"), 101.325}, {("bar", "kPa"), 100}
+                [("Pa", "kPa")] = 0.001, [("atm", "kPa")] = 101.325, [("bar", "kPa")] = 100,
+                [("kPa", "Pa")] = 1000, [("kPa", "atm")] = 0.00986923, [("kPa", "bar")] = 0.01
             };
         }
         
@@ -532,9 +541,9 @@ namespace ConverterApp
             // Define base units for each type
             var baseUnits = new Dictionary<string, string>
             {
-                {"📏 Длина", "m"}, {"⚖️ Масса", "kg"}, {"📊 Объем", "l"},
-                {"📐 Площадь", "m²"}, {"🕐 Время", "s"}, {"⚡ Энергия", "J"},
-                {"💪 Мощность", "W"}, {"🌊 Давление", "Pa"}
+                ["📏 Длина"] = "m", ["⚖️ Масса"] = "kg", ["📊 Объем"] = "l",
+                ["📐 Площадь"] = "m²", ["🕐 Время"] = "s", ["⚡ Энергия"] = "J",
+                ["💪 Мощность"] = "W", ["🌊 Давление"] = "Pa"
             };
             
             if (!baseUnits.ContainsKey(type)) return value;
