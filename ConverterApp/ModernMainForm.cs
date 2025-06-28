@@ -330,25 +330,7 @@ namespace ConverterApp
         
         private void CboUnit_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (isUpdatingComboBox) return;
-            
-            isUpdatingComboBox = true;
-            try
-            {
-                // Only change if sender is cboFromUnit and items are identical
-                if (sender == cboFromUnit && 
-                    cboFromUnit.SelectedItem != null && 
-                    cboToUnit.SelectedItem != null &&
-                    cboFromUnit.SelectedIndex == cboToUnit.SelectedIndex && 
-                    cboFromUnit.Items.Count > 1)
-                {
-                    cboToUnit.SelectedIndex = (cboToUnit.SelectedIndex + 1) % cboToUnit.Items.Count;
-                }
-            }
-            finally
-            {
-                isUpdatingComboBox = false;
-            }
+            // Removed automatic unit switching to fix dropdown issues
             
             if (isAutoConvertEnabled && !string.IsNullOrEmpty(txtInput.Text))
             {
@@ -1132,8 +1114,9 @@ namespace ConverterApp
             cboFromUnit.AllowDrop = true;
             cboToUnit.AllowDrop = true;
             
-            cboFromUnit.MouseDown += (s, e) => DoDragDrop(cboFromUnit.SelectedItem, DragDropEffects.Move);
-            cboToUnit.MouseDown += (s, e) => DoDragDrop(cboToUnit.SelectedItem, DragDropEffects.Move);
+            // Disabled MouseDown handlers because they interfere with dropdown functionality
+            // cboFromUnit.MouseDown += (s, e) => DoDragDrop(cboFromUnit.SelectedItem, DragDropEffects.Move);
+            // cboToUnit.MouseDown += (s, e) => DoDragDrop(cboToUnit.SelectedItem, DragDropEffects.Move);
             
             cboFromUnit.DragEnter += (s, e) => e.Effect = DragDropEffects.Move;
             cboToUnit.DragEnter += (s, e) => e.Effect = DragDropEffects.Move;
