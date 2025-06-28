@@ -117,28 +117,28 @@ namespace ConverterApp
             }
             
             // History events
-            btnClearHistory.Click += BtnClearHistory_Click;
-            btnExportCSV.Click += BtnExportCSV_Click;
-            btnExportPDF.Click += BtnExportPDF_Click;
-            btnHistorySearch.Click += BtnHistorySearch_Click;
-            cboHistoryFilter.SelectedIndexChanged += CboHistoryFilter_SelectedIndexChanged;
+            if (btnClearHistory != null) btnClearHistory.Click += BtnClearHistory_Click;
+            if (btnExportCSV != null) btnExportCSV.Click += BtnExportCSV_Click;
+            if (btnExportPDF != null) btnExportPDF.Click += BtnExportPDF_Click;
+            if (btnHistorySearch != null) btnHistorySearch.Click += BtnHistorySearch_Click;
+            if (cboHistoryFilter != null) cboHistoryFilter.SelectedIndexChanged += CboHistoryFilter_SelectedIndexChanged;
             
             // Calculator tab events
-            btnBasicMode.Click += (s, e) => SwitchCalculatorMode(CalculatorMode.Basic);
-            btnScientificMode.Click += (s, e) => SwitchCalculatorMode(CalculatorMode.Scientific);
-            btnProgrammerMode.Click += (s, e) => SwitchCalculatorMode(CalculatorMode.Programmer);
+            if (btnBasicMode != null) btnBasicMode.Click += (s, e) => SwitchCalculatorMode(CalculatorMode.Basic);
+            if (btnScientificMode != null) btnScientificMode.Click += (s, e) => SwitchCalculatorMode(CalculatorMode.Scientific);
+            if (btnProgrammerMode != null) btnProgrammerMode.Click += (s, e) => SwitchCalculatorMode(CalculatorMode.Programmer);
             
             // Settings events
-            btnApplySettings.Click += BtnApplySettings_Click;
-            btnSaveSettings.Click += BtnSaveSettings_Click;
-            btnResetSettings.Click += BtnResetSettings_Click;
+            if (btnApplySettings != null) btnApplySettings.Click += BtnApplySettings_Click;
+            if (btnSaveSettings != null) btnSaveSettings.Click += BtnSaveSettings_Click;
+            if (btnResetSettings != null) btnResetSettings.Click += BtnResetSettings_Click;
             
             // Menu events
-            openMenuItem.Click += OpenFile_Click;
-            saveMenuItem.Click += SaveFile_Click;
-            printMenuItem.Click += PrintResults_Click;
-            exitMenuItem.Click += (s, e) => Application.Exit();
-            aboutMenuItem.Click += About_Click;
+            if (openMenuItem != null) openMenuItem.Click += OpenFile_Click;
+            if (saveMenuItem != null) saveMenuItem.Click += SaveFile_Click;
+            if (printMenuItem != null) printMenuItem.Click += PrintResults_Click;
+            if (exitMenuItem != null) exitMenuItem.Click += (s, e) => Application.Exit();
+            if (aboutMenuItem != null) aboutMenuItem.Click += About_Click;
             
             // Print document event
             printDocument.PrintPage += PrintDocument_PrintPage;
@@ -298,6 +298,14 @@ namespace ConverterApp
             string type = cboType.SelectedItem?.ToString() ?? "";
             double result = ConvertUnit(value, type, fromUnit, toUnit);
             
+            // Check for conversion failure
+            if (double.IsNaN(result))
+            {
+                MessageBox.Show("Невозможно выполнить конвертацию между выбранными единицами!", 
+                    "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            
             // Apply number formatting
             string format = useThousandsSeparator ? $"N{decimalPlaces}" : $"F{decimalPlaces}";
             txtOutput.Text = result.ToString(format);
@@ -333,7 +341,15 @@ namespace ConverterApp
             // Prevent infinite recursion
             if (recursionDepth > 3)
             {
-                return value; // Return original value if recursion is too deep
+                // Log warning and return NaN to indicate conversion failure
+                System.Diagnostics.Debug.WriteLine($"Warning: Max recursion depth reached for conversion {fromUnit} to {toUnit}");
+                return double.NaN;
+            }
+            
+            // Direct conversion - same units
+            if (fromUnit == toUnit)
+            {
+                return value;
             }
             
             if (type.Contains("Валюта"))
@@ -508,11 +524,24 @@ namespace ConverterApp
             
             string buttonText = button.Text;
             
+            // Determine which display to use based on current context
+            TextBox currentDisplay = null;
+            if (mainTabControl != null && mainTabControl.SelectedTab == tabCalculator)
+            {
+                currentDisplay = calcTabDisplay;
+            }
+            else if (sender.Parent == calcButtonPanel)
+            {
+                currentDisplay = calcDisplay;
+            }
+            
+            if (currentDisplay == null) return;
+            
             switch (buttonText)
             {
                 case "C":
                 case "CE":
-                    calcDisplay.Text = "0";
+                    currentDisplay.Text = "0";
                     calcMemory = 0;
                     calcOperation = "";
                     calcNewNumber = true;
@@ -531,50 +560,50 @@ namespace ConverterApp
                     break;
                     
                 case "±":
-                    if (double.TryParse(calcDisplay.Text, out double val))
+                    if (double.TryParse(currentDisplay.Text, out double val))
                     {
-                        calcDisplay.Text = (-val).ToString();
+                        currentDisplay.Text = (-val).ToString();
                     }
                     break;
                     
                 case "←":
-                    if (calcDisplay.Text.Length > 1)
-                        calcDisplay.Text = calcDisplay.Text.Substring(0, calcDisplay.Text.Length - 1);
+                    if (currentDisplay.Text.Length > 1)
+                        currentDisplay.Text = currentDisplay.Text.Substring(0, currentDisplay.Text.Length - 1);
                     else
-                        calcDisplay.Text = "0";
+                        currentDisplay.Text = "0";
                     break;
                     
                 case ".":
-                    if (!calcDisplay.Text.Contains("."))
-                        calcDisplay.Text += ".";
+                    if (!currentDisplay.Text.Contains("."))
+                        currentDisplay.Text += ".";
                     break;
                     
                 default:
                     // Number or scientific function
                     if (char.IsDigit(buttonText[0]))
                     {
-                        if (calcNewNumber || calcDisplay.Text == "0")
+                        if (calcNewNumber || currentDisplay.Text == "0")
                         {
-                            calcDisplay.Text = buttonText;
+                            currentDisplay.Text = buttonText;
                             calcNewNumber = false;
                         }
                         else
                         {
-                            calcDisplay.Text += buttonText;
+                            currentDisplay.Text += buttonText;
                         }
                     }
                     else
                     {
                         // Handle scientific functions
-                        HandleScientificFunction(buttonText);
+                        HandleScientificFunction(buttonText, currentDisplay);
                     }
                     break;
             }
             
             // Update main converter input if integrated
-            if (mainTabControl.SelectedTab == tabConverter && sender.Parent == calcButtonPanel)
+            if (mainTabControl.SelectedTab == tabConverter && currentDisplay == calcDisplay && txtInput != null)
             {
-                txtInput.Text = calcDisplay.Text;
+                txtInput.Text = currentDisplay.Text;
             }
         }
         
@@ -585,7 +614,11 @@ namespace ConverterApp
                 PerformCalculation();
             }
             
-            if (double.TryParse(calcDisplay.Text, out double value))
+            // Get current display based on active tab
+            TextBox currentDisplay = (mainTabControl != null && mainTabControl.SelectedTab == tabCalculator) 
+                ? calcTabDisplay : calcDisplay;
+            
+            if (currentDisplay != null && double.TryParse(currentDisplay.Text, out double value))
             {
                 calcMemory = value;
                 calcOperation = op;
@@ -597,7 +630,13 @@ namespace ConverterApp
         {
             if (string.IsNullOrEmpty(calcOperation)) return;
             
-            if (double.TryParse(calcDisplay.Text, out double currentValue))
+            // Get current display based on active tab
+            TextBox currentDisplay = (mainTabControl != null && mainTabControl.SelectedTab == tabCalculator) 
+                ? calcTabDisplay : calcDisplay;
+                
+            if (currentDisplay == null) return;
+            
+            if (double.TryParse(currentDisplay.Text, out double currentValue))
             {
                 double result = 0;
                 
@@ -617,7 +656,7 @@ namespace ConverterApp
                             result = calcMemory / currentValue;
                         else
                         {
-                            calcDisplay.Text = "Ошибка";
+                            currentDisplay.Text = "Ошибка";
                             return;
                         }
                         break;
@@ -626,7 +665,7 @@ namespace ConverterApp
                         break;
                 }
                 
-                calcDisplay.Text = result.ToString();
+                currentDisplay.Text = result.ToString();
                 
                 // Add to history
                 string operation = $"{calcMemory} {calcOperation} {currentValue} = {result}";
@@ -649,9 +688,9 @@ namespace ConverterApp
             }
         }
         
-        private void HandleScientificFunction(string function)
+        private void HandleScientificFunction(string function, TextBox display)
         {
-            if (!double.TryParse(calcDisplay.Text, out double value)) return;
+            if (display == null || !double.TryParse(display.Text, out double value)) return;
             
             double result = 0;
             
@@ -679,17 +718,31 @@ namespace ConverterApp
                     result = Math.Pow(value, 1.0 / 3.0);
                     break;
                 case "log":
-                    result = Math.Log10(value);
+                    if (value > 0)
+                        result = Math.Log10(value);
+                    else
+                    {
+                        display.Text = "Ошибка: недопустимое значение";
+                        calcNewNumber = true;
+                        return;
+                    }
                     break;
                 case "ln":
-                    result = Math.Log(value);
+                    if (value > 0)
+                        result = Math.Log(value);
+                    else
+                    {
+                        display.Text = "Ошибка: недопустимое значение";
+                        calcNewNumber = true;
+                        return;
+                    }
                     break;
                 case "1/x":
                     if (value != 0)
                         result = 1 / value;
                     else
                     {
-                        calcDisplay.Text = "Ошибка: деление на ноль";
+                        display.Text = "Ошибка: деление на ноль";
                         calcNewNumber = true;
                         return;
                     }
@@ -703,10 +756,29 @@ namespace ConverterApp
                 case "e":
                     result = Math.E;
                     break;
+                case "n!":
+                    if (value >= 0 && value <= 170 && value == Math.Floor(value))
+                        result = Factorial((int)value);
+                    else
+                    {
+                        display.Text = "Ошибка: недопустимое значение";
+                        calcNewNumber = true;
+                        return;
+                    }
+                    break;
             }
             
-            calcDisplay.Text = result.ToString();
+            display.Text = result.ToString();
             calcNewNumber = true;
+        }
+        
+        private double Factorial(int n)
+        {
+            if (n <= 1) return 1;
+            double result = 1;
+            for (int i = 2; i <= n; i++)
+                result *= i;
+            return result;
         }
         
         private void SwitchCalculatorMode(CalculatorMode mode)
@@ -728,7 +800,7 @@ namespace ConverterApp
                     InitializeBasicCalculatorButtons();
                     break;
                 case CalculatorMode.Scientific:
-                    // Already initialized in designer
+                    InitializeScientificCalculatorButtons();
                     break;
                 case CalculatorMode.Programmer:
                     InitializeProgrammerCalculatorButtons();
@@ -1073,6 +1145,12 @@ namespace ConverterApp
             {
                 // Use default settings if loading fails
                 System.Diagnostics.Debug.WriteLine($"Failed to load settings: {ex.Message}");
+                
+                // Notify user about settings load error (non-intrusive)
+                if (lblStatus != null)
+                {
+                    lblStatus.Text = "Не удалось загрузить настройки, используются значения по умолчанию";
+                }
             }
         }
         
@@ -1419,13 +1497,51 @@ namespace ConverterApp
                 button.Font = new Font("Segoe UI", 11F);
             }
             
-            // Add click handler for calculator tab buttons
-            if (mainTabControl != null && mainTabControl.SelectedTab == tabCalculator)
-            {
-                button.Click += CalcButton_Click;
-            }
+            // Always add click handler - the handler will determine which display to use
+            button.Click += CalcButton_Click;
             
             return button;
+        }
+        
+        private void InitializeScientificCalculatorButtons()
+        {
+            string[,] scientificLayout = {
+                { "(", ")", "sin", "cos", "tan", "π", "e", "x²" },
+                { "7", "8", "9", "÷", "log", "ln", "x³", "√" },
+                { "4", "5", "6", "×", "xʸ", "10ˣ", "eˣ", "1/x" },
+                { "1", "2", "3", "-", "n!", "%", "mod", "|x|" },
+                { "0", ".", "+", "=", "C", "CE", "←", "±" }
+            };
+            
+            if (calcTabButtonPanel != null)
+            {
+                calcTabButtonPanel.Controls.Clear();
+                calcTabButtonPanel.ColumnCount = 8;
+                calcTabButtonPanel.RowCount = 5;
+                
+                // Clear and recreate styles
+                calcTabButtonPanel.ColumnStyles.Clear();
+                calcTabButtonPanel.RowStyles.Clear();
+                
+                for (int i = 0; i < 8; i++)
+                {
+                    calcTabButtonPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 12.5F));
+                }
+                for (int i = 0; i < 5; i++)
+                {
+                    calcTabButtonPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 20F));
+                }
+                
+                for (int row = 0; row < 5; row++)
+                {
+                    for (int col = 0; col < 8; col++)
+                    {
+                        var btn = CreateCalculatorButton(scientificLayout[row, col]);
+                        btn.Font = new Font("Segoe UI", 11F);
+                        calcTabButtonPanel.Controls.Add(btn, col, row);
+                    }
+                }
+            }
         }
         
         private bool IsScientificFunction(string text)
