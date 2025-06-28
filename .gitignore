@@ -16,6 +16,7 @@
 .tools/
 .dotnet/
 .packages/
+*.md
 
 # Build results
 [Dd]ebug/
