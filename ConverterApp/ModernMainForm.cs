@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Data;
 using System.Drawing;
 using System.Drawing.Printing;
@@ -11,6 +12,7 @@ using PdfSharp.Pdf;
 using PdfSharp.Drawing;
 using System.Net.Http;
 using System.Threading.Tasks;
+using System.Threading;
 using Newtonsoft.Json.Linq;
 using System.Globalization;
 
@@ -21,8 +23,13 @@ namespace ConverterApp
         // Static HttpClient to prevent socket exhaustion
         private static readonly HttpClient httpClient = new HttpClient();
         
-        private List<HistoryEntry> conversionHistory = new List<HistoryEntry>();
-        private List<string> calcHistory = new List<string>();
+        // Thread-safe collections for history
+        private readonly ConcurrentBag<HistoryEntry> conversionHistory = new ConcurrentBag<HistoryEntry>();
+        private readonly ConcurrentBag<string> calcHistory = new ConcurrentBag<string>();
+        private readonly object historyLock = new object();
+        
+        // Cancellation token for async operations
+        private CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
         private Dictionary<string, List<string>> unitCategories = new Dictionary<string, List<string>>
         {
             { "🌡️ Температура", new List<string> { "°C", "°F", "K", "°R" } },
@@ -80,6 +87,17 @@ namespace ConverterApp
             public bool AnimationsEnabled { get; set; } = true;
             public bool AutoConvert { get; set; } = false;
             public string Theme { get; set; } = "Светлая";
+            
+            // Calculator state
+            public string CalcMode { get; set; } = "Basic";
+            public string LastConversionType { get; set; } = "";
+            
+            // Window state
+            public int WindowWidth { get; set; } = 1024;
+            public int WindowHeight { get; set; } = 768;
+            public int WindowX { get; set; } = -1;
+            public int WindowY { get; set; } = -1;
+            public FormWindowState WindowState { get; set; } = FormWindowState.Normal;
         }
 
         public ModernMainForm()
@@ -90,6 +108,9 @@ namespace ConverterApp
             InitializeControls();
             ApplyTheme();
             SetupKeyboardShortcuts();
+            
+            // Save settings on form closing
+            this.FormClosing += (s, e) => SaveSettings();
         }
         
         private void SetupEventHandlers()
@@ -198,8 +219,16 @@ namespace ConverterApp
         {
             try
             {
+                // Cancel any previous update operation
+                cancellationTokenSource?.Cancel();
+                cancellationTokenSource = new CancellationTokenSource();
+                var token = cancellationTokenSource.Token;
+                
                 // Simulated API call - in real implementation, use actual exchange rate API
-                await Task.Delay(100);
+                await Task.Delay(100, token);
+                
+                // Check if cancelled
+                if (token.IsCancellationRequested) return;
                 
                 // Fix: Use thread-safe UI update
                 if (InvokeRequired)
@@ -210,6 +239,10 @@ namespace ConverterApp
                 {
                     lblStatus.Text = "Курсы валют обновлены";
                 }
+            }
+            catch (OperationCanceledException)
+            {
+                // Operation was cancelled, no need to update UI
             }
             catch
             {
@@ -268,6 +301,13 @@ namespace ConverterApp
         
         private void TxtInput_TextChanged(object sender, EventArgs e)
         {
+            // Validate input length to prevent overflow
+            if (txtInput.Text.Length > 15)
+            {
+                txtInput.Text = txtInput.Text.Substring(0, 15);
+                txtInput.SelectionStart = txtInput.Text.Length;
+            }
+            
             if (isAutoConvertEnabled && !string.IsNullOrEmpty(txtInput.Text))
             {
                 BtnConvert_Click(null, null);
@@ -278,11 +318,18 @@ namespace ConverterApp
         {
             if (string.IsNullOrEmpty(txtInput.Text)) return;
             
-            // Fix: Use current culture for number parsing
+            // Fix: Use current culture for number parsing with overflow check
             if (!double.TryParse(txtInput.Text, NumberStyles.Any, CultureInfo.CurrentCulture, out double value) &&
                 !double.TryParse(txtInput.Text, NumberStyles.Any, CultureInfo.InvariantCulture, out value))
             {
                 MessageBox.Show("Введите корректное число!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            
+            // Check for overflow/special values
+            if (double.IsInfinity(value) || double.IsNaN(value) || Math.Abs(value) > 1e15)
+            {
+                MessageBox.Show("Число слишком большое или недопустимое!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
             
@@ -310,7 +357,7 @@ namespace ConverterApp
             string format = useThousandsSeparator ? $"N{decimalPlaces}" : $"F{decimalPlaces}";
             txtOutput.Text = result.ToString(format);
             
-            // Add to history
+            // Add to history with size limit
             var historyEntry = new HistoryEntry
             {
                 DateTime = DateTime.Now,
@@ -319,7 +366,27 @@ namespace ConverterApp
                 Type = "Конвертация"
             };
             
-            conversionHistory.Add(historyEntry);
+            // Limit history size to prevent memory issues
+            const int maxHistorySize = 1000;
+            lock (historyLock)
+            {
+                conversionHistory.Add(historyEntry);
+                
+                // Remove oldest entries if limit exceeded
+                if (conversionHistory.Count > maxHistorySize)
+                {
+                    var itemsToRemove = conversionHistory
+                        .OrderBy(h => h.DateTime)
+                        .Take(conversionHistory.Count - maxHistorySize)
+                        .ToList();
+                    
+                    foreach (var item in itemsToRemove)
+                    {
+                        conversionHistory.TryTake(out _);
+                    }
+                }
+            }
+            
             UpdateHistoryGrid();
             
             // Animate arrow if enabled
@@ -589,7 +656,11 @@ namespace ConverterApp
                         }
                         else
                         {
-                            currentDisplay.Text += buttonText;
+                            // Prevent display overflow
+                            if (currentDisplay.Text.Length < 15)
+                            {
+                                currentDisplay.Text += buttonText;
+                            }
                         }
                     }
                     else
@@ -665,7 +736,13 @@ namespace ConverterApp
                         break;
                 }
                 
-                currentDisplay.Text = result.ToString();
+                // Format result to prevent display overflow
+                string resultText = result.ToString();
+                if (resultText.Length > 15)
+                {
+                    resultText = result.ToString("E5"); // Scientific notation
+                }
+                currentDisplay.Text = resultText;
                 
                 // Add to history
                 string operation = $"{calcMemory} {calcOperation} {currentValue} = {result}";
@@ -858,7 +935,14 @@ namespace ConverterApp
             // Optimize: use pagination for large histories
             const int maxDisplayItems = 100;
             
-            var filteredHistory = conversionHistory
+            // Convert to list for sorting (thread-safe)
+            List<HistoryEntry> historyList;
+            lock (historyLock)
+            {
+                historyList = conversionHistory.ToList();
+            }
+            
+            var filteredHistory = historyList
                 .Where(h =>
                 {
                     // Filter by type
@@ -891,9 +975,9 @@ namespace ConverterApp
             }
             
             // Show info if results are limited
-            if (conversionHistory.Count > maxDisplayItems)
+            if (historyList.Count > maxDisplayItems)
             {
-                lblStatus.Text = $"Показаны последние {maxDisplayItems} записей из {conversionHistory.Count}";
+                lblStatus.Text = $"Показаны последние {maxDisplayItems} записей из {historyList.Count}";
             }
         }
         
@@ -912,7 +996,11 @@ namespace ConverterApp
             if (MessageBox.Show("Вы уверены, что хотите очистить всю историю?", 
                 "Подтверждение", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
             {
-                conversionHistory.Clear();
+                // Clear thread-safe collection
+                lock (historyLock)
+                {
+                    while (conversionHistory.TryTake(out _)) { }
+                }
                 UpdateHistoryGrid();
                 lblStatus.Text = "История очищена";
             }
@@ -933,7 +1021,14 @@ namespace ConverterApp
                         {
                             writer.WriteLine("Дата/Время,Операция,Результат,Тип");
                             
-                            foreach (var entry in conversionHistory)
+                            // Get thread-safe copy
+                            List<HistoryEntry> historyList;
+                            lock (historyLock)
+                            {
+                                historyList = conversionHistory.ToList();
+                            }
+                            
+                            foreach (var entry in historyList.OrderByDescending(h => h.DateTime))
                             {
                                 writer.WriteLine($"{entry.DateTime:yyyy-MM-dd HH:mm:ss}," +
                                     $"\"{entry.Operation}\",\"{entry.Result}\",{entry.Type}");
@@ -1083,6 +1178,20 @@ namespace ConverterApp
             }
         }
         
+        private string GetSettingsFilePath()
+        {
+            string appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            string appFolder = Path.Combine(appDataPath, "ConverterApp");
+            
+            // Create directory if it doesn't exist
+            if (!Directory.Exists(appFolder))
+            {
+                Directory.CreateDirectory(appFolder);
+            }
+            
+            return Path.Combine(appFolder, "settings.json");
+        }
+        
         private void SaveSettings()
         {
             try
@@ -1093,11 +1202,18 @@ namespace ConverterApp
                     UseThousandsSeparator = useThousandsSeparator,
                     AnimationsEnabled = isAnimationEnabled,
                     AutoConvert = isAutoConvertEnabled,
-                    Theme = cboTheme.SelectedItem?.ToString() ?? "Светлая"
+                    Theme = cboTheme.SelectedItem?.ToString() ?? "Светлая",
+                    CalcMode = currentCalcMode.ToString(),
+                    LastConversionType = cboType?.SelectedItem?.ToString() ?? "",
+                    WindowWidth = this.Width,
+                    WindowHeight = this.Height,
+                    WindowX = this.Location.X,
+                    WindowY = this.Location.Y,
+                    WindowState = this.WindowState
                 };
                 
                 string json = Newtonsoft.Json.JsonConvert.SerializeObject(settings, Newtonsoft.Json.Formatting.Indented);
-                File.WriteAllText("settings.json", json);
+                File.WriteAllText(GetSettingsFilePath(), json);
             }
             catch (Exception ex)
             {
@@ -1110,9 +1226,10 @@ namespace ConverterApp
         {
             try
             {
-                if (File.Exists("settings.json"))
+                string settingsPath = GetSettingsFilePath();
+                if (File.Exists(settingsPath))
                 {
-                    string json = File.ReadAllText("settings.json");
+                    string json = File.ReadAllText(settingsPath);
                     var settings = Newtonsoft.Json.JsonConvert.DeserializeObject<AppSettings>(json);
                     
                     if (settings != null)
@@ -1138,6 +1255,39 @@ namespace ConverterApp
                                 }
                             }
                         }
+                        
+                        // Restore calculator mode
+                        if (!string.IsNullOrEmpty(settings.CalcMode) && Enum.TryParse<CalculatorMode>(settings.CalcMode, out var mode))
+                        {
+                            currentCalcMode = mode;
+                        }
+                        
+                        // Restore last conversion type
+                        if (!string.IsNullOrEmpty(settings.LastConversionType) && cboType != null)
+                        {
+                            for (int i = 0; i < cboType.Items.Count; i++)
+                            {
+                                if (cboType.Items[i].ToString() == settings.LastConversionType)
+                                {
+                                    cboType.SelectedIndex = i;
+                                    break;
+                                }
+                            }
+                        }
+                        
+                        // Restore window position and size
+                        if (settings.WindowX >= 0 && settings.WindowY >= 0)
+                        {
+                            this.StartPosition = FormStartPosition.Manual;
+                            this.Location = new Point(settings.WindowX, settings.WindowY);
+                        }
+                        
+                        if (settings.WindowWidth > 0 && settings.WindowHeight > 0)
+                        {
+                            this.Size = new Size(settings.WindowWidth, settings.WindowHeight);
+                        }
+                        
+                        this.WindowState = settings.WindowState;
                     }
                 }
             }

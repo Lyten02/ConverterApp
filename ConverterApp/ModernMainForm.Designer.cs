@@ -10,9 +10,31 @@ namespace ConverterApp
 
         protected override void Dispose(bool disposing)
         {
-            if (disposing && (components != null))
+            if (disposing)
             {
-                components.Dispose();
+                // Dispose managed resources
+                if (components != null)
+                {
+                    components.Dispose();
+                }
+                
+                // Dispose HttpClient (static, so only if form is last instance)
+                // Note: In production, HttpClient should be managed at application level
+                
+                // Dispose PrintDocument
+                if (printDocument != null)
+                {
+                    printDocument.Dispose();
+                    printDocument = null;
+                }
+                
+                // Dispose CancellationTokenSource
+                if (cancellationTokenSource != null)
+                {
+                    cancellationTokenSource.Cancel();
+                    cancellationTokenSource.Dispose();
+                    cancellationTokenSource = null;
+                }
             }
             base.Dispose(disposing);
         }
@@ -728,15 +750,30 @@ namespace ConverterApp
             button.Cursor = Cursors.Hand;
             button.Margin = new Padding(5);
             
-            // Add hover effect
-            button.MouseEnter += (s, e) => {
-                button.BackColor = ControlPaint.Light(color, 0.1f);
-            };
-            button.MouseLeave += (s, e) => {
-                button.BackColor = color;
-            };
+            // Store original color in Tag for hover effect
+            button.Tag = color;
+            
+            // Add hover effect using named handlers to prevent memory leaks
+            button.MouseEnter += StyledButton_MouseEnter;
+            button.MouseLeave += StyledButton_MouseLeave;
             
             return button;
+        }
+        
+        private void StyledButton_MouseEnter(object sender, EventArgs e)
+        {
+            if (sender is Button button && button.Tag is Color originalColor)
+            {
+                button.BackColor = ControlPaint.Light(originalColor, 0.1f);
+            }
+        }
+        
+        private void StyledButton_MouseLeave(object sender, EventArgs e)
+        {
+            if (sender is Button button && button.Tag is Color originalColor)
+            {
+                button.BackColor = originalColor;
+            }
         }
         
         private Button CreateCalculatorButton(string text)
