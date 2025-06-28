@@ -78,9 +78,6 @@ namespace ConverterApp
             this.btnExport = new System.Windows.Forms.Button();
             this.btnExportPrint = new System.Windows.Forms.Button();
             
-            // Calculator Panel (embedded in converter)
-            this.calcPanel = new System.Windows.Forms.TableLayoutPanel();
-            this.calcButtonPanel = new System.Windows.Forms.TableLayoutPanel();
             
             // History Tab Components
             this.historyPanel = new System.Windows.Forms.TableLayoutPanel();
@@ -96,12 +93,10 @@ namespace ConverterApp
             
             // Calculator Tab Components
             this.calcTabPanel = new System.Windows.Forms.TableLayoutPanel();
-            this.calcTabDisplay = new System.Windows.Forms.TextBox();
             this.calcModePanel = new System.Windows.Forms.FlowLayoutPanel();
             this.btnBasicMode = new System.Windows.Forms.Button();
             this.btnScientificMode = new System.Windows.Forms.Button();
             this.btnProgrammerMode = new System.Windows.Forms.Button();
-            this.calcTabButtonPanel = new System.Windows.Forms.TableLayoutPanel();
             
             // Settings Tab Components
             this.settingsPanel = new System.Windows.Forms.TableLayoutPanel();
@@ -242,13 +237,12 @@ namespace ConverterApp
             // Main converter panel layout
             this.converterPanel = new System.Windows.Forms.TableLayoutPanel();
             this.converterPanel.Dock = DockStyle.Fill;
-            this.converterPanel.ColumnCount = 2;
-            this.converterPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 65F));
-            this.converterPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 35F));
+            this.converterPanel.ColumnCount = 1;
+            this.converterPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
             this.converterPanel.RowCount = 1;
             this.converterPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
             
-            // Left side - conversion controls
+            // Create centered panel for conversion controls
             var leftPanel = new TableLayoutPanel();
             leftPanel.Dock = DockStyle.Fill;
             leftPanel.RowCount = 4;
@@ -256,6 +250,7 @@ namespace ConverterApp
             leftPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
             leftPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
             leftPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 80F));
+            leftPanel.Padding = new Padding(50, 20, 50, 20); // Add horizontal padding
             
             // Type selection panel
             this.typePanel = new Panel();
@@ -293,10 +288,10 @@ namespace ConverterApp
             this.conversionPanel = new TableLayoutPanel();
             this.conversionPanel.Dock = DockStyle.Fill;
             this.conversionPanel.ColumnCount = 3;
-            this.conversionPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 45F));
-            this.conversionPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 10F));
-            this.conversionPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 45F));
-            this.conversionPanel.Padding = new Padding(20);
+            this.conversionPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 42F));
+            this.conversionPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 16F));
+            this.conversionPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 42F));
+            this.conversionPanel.Padding = new Padding(30);
             
             // Input group
             this.inputGroupBox = new GroupBox();
@@ -313,8 +308,9 @@ namespace ConverterApp
             
             this.txtInput = new TextBox();
             this.txtInput.Dock = DockStyle.Fill;
-            this.txtInput.Font = new Font("Segoe UI", 14F);
+            this.txtInput.Font = new Font("Segoe UI", 18F);
             this.txtInput.TextAlign = HorizontalAlignment.Center;
+            this.txtInput.Height = 50;
             
             this.cboFromUnit = new ComboBox();
             this.cboFromUnit.Dock = DockStyle.Fill;
@@ -328,7 +324,7 @@ namespace ConverterApp
             // Arrow
             this.arrowLabel = new Label();
             this.arrowLabel.Text = "➡️";
-            this.arrowLabel.Font = new Font("Segoe UI", 24F);
+            this.arrowLabel.Font = new Font("Segoe UI", 36F);
             this.arrowLabel.TextAlign = ContentAlignment.MiddleCenter;
             this.arrowLabel.Dock = DockStyle.Fill;
             
@@ -347,10 +343,11 @@ namespace ConverterApp
             
             this.txtOutput = new TextBox();
             this.txtOutput.Dock = DockStyle.Fill;
-            this.txtOutput.Font = new Font("Segoe UI", 14F);
+            this.txtOutput.Font = new Font("Segoe UI", 18F);
             this.txtOutput.TextAlign = HorizontalAlignment.Center;
             this.txtOutput.ReadOnly = true;
             this.txtOutput.BackColor = Color.WhiteSmoke;
+            this.txtOutput.Height = 50;
             
             this.cboToUnit = new ComboBox();
             this.cboToUnit.Dock = DockStyle.Fill;
@@ -385,67 +382,11 @@ namespace ConverterApp
             leftPanel.Controls.Add(this.conversionPanel, 0, 1);
             leftPanel.Controls.Add(this.buttonPanel, 0, 3);
             
-            // Right side - calculator
-            InitializeEmbeddedCalculator();
-            
             this.converterPanel.Controls.Add(leftPanel, 0, 0);
-            this.converterPanel.Controls.Add(this.calcPanel, 1, 0);
             
             this.tabConverter.Controls.Add(this.converterPanel);
         }
         
-        private void InitializeEmbeddedCalculator()
-        {
-            this.calcPanel = new TableLayoutPanel();
-            this.calcPanel.Dock = DockStyle.Fill;
-            this.calcPanel.RowCount = 2;
-            this.calcPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 60F));
-            this.calcPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-            this.calcPanel.Padding = new Padding(10);
-            this.calcPanel.BackColor = Color.FromArgb(245, 245, 245);
-            
-            // Calculator display
-            this.calcDisplay = new TextBox();
-            this.calcDisplay.Dock = DockStyle.Fill;
-            this.calcDisplay.Font = new Font("Segoe UI", 16F);
-            this.calcDisplay.TextAlign = HorizontalAlignment.Right;
-            this.calcDisplay.ReadOnly = true;
-            this.calcDisplay.BackColor = Color.White;
-            
-            // Calculator buttons configuration
-            this.calcButtonPanel.Dock = DockStyle.Fill;
-            this.calcButtonPanel.ColumnCount = 4;
-            this.calcButtonPanel.RowCount = 5;
-            
-            for (int i = 0; i < 4; i++)
-            {
-                this.calcButtonPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));
-            }
-            for (int i = 0; i < 5; i++)
-            {
-                this.calcButtonPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 20F));
-            }
-            
-            string[,] buttonLayout = {
-                { "1", "2", "3", "CE" },
-                { "4", "5", "6", "%" },
-                { "7", "8", "9", "×" },
-                { "0", ".", "=", "÷" },
-                { "+", "-", "(", ")" }
-            };
-            
-            for (int row = 0; row < 5; row++)
-            {
-                for (int col = 0; col < 4; col++)
-                {
-                    var btn = CreateCalculatorButton(buttonLayout[row, col]);
-                    this.calcButtonPanel.Controls.Add(btn, col, row);
-                }
-            }
-            
-            this.calcPanel.Controls.Add(this.calcDisplay, 0, 0);
-            this.calcPanel.Controls.Add(this.calcButtonPanel, 0, 1);
-        }
         
         private void InitializeHistoryTab()
         {
@@ -782,10 +723,6 @@ namespace ConverterApp
         private System.Windows.Forms.Button btnExport;
         private System.Windows.Forms.Button btnExportPrint;
         
-        // Embedded calculator
-        private System.Windows.Forms.TableLayoutPanel calcPanel;
-        private System.Windows.Forms.TextBox calcDisplay;
-        private System.Windows.Forms.TableLayoutPanel calcButtonPanel;
         
         // History tab controls
         private System.Windows.Forms.TableLayoutPanel historyPanel;

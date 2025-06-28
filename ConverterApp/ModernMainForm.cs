@@ -163,17 +163,7 @@ namespace ConverterApp
                 btnExportPrint.Click += BtnExportPrint_Click;
             }
             
-            // Calculator events - fix null reference
-            if (calcButtonPanel != null && calcButtonPanel.Controls != null)
-            {
-                foreach (Control control in calcButtonPanel.Controls)
-                {
-                    if (control is Button btn)
-                    {
-                        btn.Click += CalcButton_Click;
-                    }
-                }
-            }
+            // Calculator events are now handled in CreateCalculatorButton method
             
             // History events
             if (btnClearHistory != null) btnClearHistory.Click += BtnClearHistory_Click;
@@ -255,6 +245,7 @@ namespace ConverterApp
             cboType.SelectedIndex = 0;
             UpdateCurrencyRates();
         }
+        
         
         private async void UpdateCurrencyRates()
         {
@@ -645,20 +636,13 @@ namespace ConverterApp
             
             string buttonText = button.Text;
             
-            // Determine which display to use based on current context
+            // Determine which display to use based on button's parent
             TextBox currentDisplay = null;
-            if (mainTabControl != null && mainTabControl.SelectedTab == tabCalculator)
+            
+            // Check if button belongs to calculator tab
+            if (button.Parent == calcTabButtonPanel)
             {
                 currentDisplay = calcTabDisplay;
-            }
-            else if (mainTabControl != null && mainTabControl.SelectedTab == tabConverter && txtInput != null)
-            {
-                // In converter tab, use txtInput directly instead of calcDisplay
-                currentDisplay = txtInput;
-            }
-            else if (button.Parent == calcButtonPanel)
-            {
-                currentDisplay = calcDisplay;
             }
             
             if (currentDisplay == null) return;
@@ -1703,8 +1687,8 @@ namespace ConverterApp
                 button.Font = new Font("Segoe UI", 11F);
             }
             
-            // Don't add click handler here - it's added in SetupEventHandlers
-            // to avoid double subscription
+            // Add click handler
+            button.Click += CalcButton_Click;
             
             return button;
         }
