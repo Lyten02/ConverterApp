@@ -727,7 +727,7 @@ namespace ConverterApp
             
             // Get current display based on active tab
             TextBox currentDisplay = (mainTabControl != null && mainTabControl.SelectedTab == tabCalculator) 
-                ? calcTabDisplay : calcDisplay;
+                ? calcTabDisplay : null;
             
             if (currentDisplay != null && double.TryParse(currentDisplay.Text, out double value))
             {
@@ -743,7 +743,7 @@ namespace ConverterApp
             
             // Get current display based on active tab
             TextBox currentDisplay = (mainTabControl != null && mainTabControl.SelectedTab == tabCalculator) 
-                ? calcTabDisplay : calcDisplay;
+                ? calcTabDisplay : null;
                 
             if (currentDisplay == null) return;
             
