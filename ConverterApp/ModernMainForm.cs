@@ -651,6 +651,11 @@ namespace ConverterApp
             {
                 currentDisplay = calcTabDisplay;
             }
+            else if (mainTabControl != null && mainTabControl.SelectedTab == tabConverter && txtInput != null)
+            {
+                // In converter tab, use txtInput directly instead of calcDisplay
+                currentDisplay = txtInput;
+            }
             else if (button.Parent == calcButtonPanel)
             {
                 currentDisplay = calcDisplay;
@@ -725,11 +730,8 @@ namespace ConverterApp
                     break;
             }
             
-            // Update main converter input if integrated
-            if (mainTabControl.SelectedTab == tabConverter && currentDisplay == calcDisplay && txtInput != null)
-            {
-                txtInput.Text = currentDisplay.Text;
-            }
+            // No need to update txtInput separately anymore
+            // as we're working directly with it in converter tab
         }
         
         private void SetOperation(string op)
@@ -1701,8 +1703,8 @@ namespace ConverterApp
                 button.Font = new Font("Segoe UI", 11F);
             }
             
-            // Always add click handler - the handler will determine which display to use
-            button.Click += CalcButton_Click;
+            // Don't add click handler here - it's added in SetupEventHandlers
+            // to avoid double subscription
             
             return button;
         }

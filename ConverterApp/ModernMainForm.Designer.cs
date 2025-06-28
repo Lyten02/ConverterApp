@@ -80,7 +80,6 @@ namespace ConverterApp
             
             // Calculator Panel (embedded in converter)
             this.calcPanel = new System.Windows.Forms.TableLayoutPanel();
-            this.calcDisplay = new System.Windows.Forms.TextBox();
             this.calcButtonPanel = new System.Windows.Forms.TableLayoutPanel();
             
             // History Tab Components
@@ -413,8 +412,7 @@ namespace ConverterApp
             this.calcDisplay.ReadOnly = true;
             this.calcDisplay.BackColor = Color.White;
             
-            // Calculator buttons
-            this.calcButtonPanel = new TableLayoutPanel();
+            // Calculator buttons configuration
             this.calcButtonPanel.Dock = DockStyle.Fill;
             this.calcButtonPanel.ColumnCount = 4;
             this.calcButtonPanel.RowCount = 5;
