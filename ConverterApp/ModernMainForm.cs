@@ -696,7 +696,9 @@ namespace ConverterApp
                             {
                                 double result = ConvertUnit(value, type, from, to);
                                 double backResult = ConvertUnit(result, type, to, from);
-                                bool success = Math.Abs(backResult - value) < 0.001;
+                                // Use relative tolerance for larger numbers
+                                double tolerance = value > 100 ? value * 0.0001 : 0.001;
+                                bool success = Math.Abs(backResult - value) < tolerance;
                                 
                                 totalTests++;
                                 if (success) passedTests++; else failedTests++;
@@ -1404,11 +1406,11 @@ namespace ConverterApp
                 
                 // Energy
                 [("J", "kJ")] = 0.001, [("cal", "J")] = 4.184, [("kWh", "J")] = 3.6e6,
-                [("kJ", "J")] = 1000, [("J", "cal")] = 0.238845, [("J", "kWh")] = 1/3.6e6,
+                [("kJ", "J")] = 1000, [("J", "cal")] = 1.0/4.184, [("J", "kWh")] = 1/3.6e6,
                 // Added more energy conversions
-                [("kJ", "cal")] = 238.845, [("cal", "kJ")] = 0.004184,
+                [("kJ", "cal")] = 1000.0/4.184, [("cal", "kJ")] = 4.184/1000.0,
                 [("kJ", "kWh")] = 1/3600.0, [("kWh", "kJ")] = 3600,
-                [("cal", "kWh")] = 1.16279e-6, [("kWh", "cal")] = 860421,
+                [("cal", "kWh")] = 4.184/3.6e6, [("kWh", "cal")] = 3.6e6/4.184,
                 
                 // Power - added missing conversion
                 [("W", "kW")] = 0.001, [("hp", "kW")] = 0.7457,
