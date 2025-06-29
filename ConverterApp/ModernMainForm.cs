@@ -1446,7 +1446,15 @@ namespace ConverterApp
                     // Не изменяем цвета кнопок калькулятора
                     bool isCalculatorButton = btn.Parent == calcTabButtonPanel;
                     
-                    if (!isCalculatorButton && (!original?.IsColoredElement ?? true))
+                    if (isCalculatorButton)
+                    {
+                        // Для кнопок калькулятора сохраняем их оригинальные цвета в Tag
+                        if (btn.Tag == null)
+                        {
+                            btn.Tag = btn.BackColor;
+                        }
+                    }
+                    else if (!original?.IsColoredElement ?? true)
                     {
                         btn.BackColor = buttonBackColor;
                         btn.ForeColor = buttonForeColor;
@@ -1981,7 +1989,6 @@ namespace ConverterApp
                     for (int col = 0; col < 4; col++)
                     {
                         var btn = CreateCalculatorButton(basicLayout[row, col]);
-                        btn.Font = new Font("Segoe UI", 14F);
                         calcTabButtonPanel.Controls.Add(btn, col, row);
                     }
                 }
@@ -2015,7 +2022,7 @@ namespace ConverterApp
                 button.Font = new Font("Segoe UI", 18F, FontStyle.Bold);
             }
             // Кнопки очистки
-            else if (text == "CE" || text == "C" || text == "AC")
+            else if (text == "CE" || text == "C")
             {
                 button.BackColor = Color.FromArgb(220, 53, 69); // Насыщенный красный
                 button.ForeColor = Color.White;
@@ -2026,6 +2033,13 @@ namespace ConverterApp
             {
                 button.BackColor = Color.FromArgb(255, 193, 7); // Яркий желтый
                 button.ForeColor = Color.Black;
+            }
+            // Специальные кнопки
+            else if (text == "←" || text == "±")
+            {
+                button.BackColor = Color.FromArgb(108, 117, 125); // Серый
+                button.ForeColor = Color.White;
+                button.Font = new Font("Segoe UI", 14F, FontStyle.Bold);
             }
             // Цифры
             else if (char.IsDigit(text, 0) || text == ".")
