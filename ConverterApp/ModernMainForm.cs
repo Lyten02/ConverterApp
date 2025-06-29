@@ -1452,6 +1452,8 @@ namespace ConverterApp
                         btn.ForeColor = buttonForeColor;
                         btn.FlatStyle = FlatStyle.Flat;
                         btn.FlatAppearance.BorderColor = isDarkTheme ? Color.FromArgb(100, 100, 100) : Color.FromArgb(200, 200, 200);
+                        // Обновляем Tag для корректной работы hover эффектов
+                        btn.Tag = btn.BackColor;
                     }
                 }
                 else if (control is ComboBox cbo)
@@ -2032,20 +2034,20 @@ namespace ConverterApp
                 button.ForeColor = Color.FromArgb(33, 37, 41); // Темно-серый текст
                 button.Font = new Font("Segoe UI", 16F);
             }
-            // Сохраняем оригинальный цвет кнопки
-            Color originalBackColor = button.BackColor;
+            // Сохраняем оригинальный цвет кнопки в Tag для использования в обработчиках
+            button.Tag = button.BackColor;
             
             // Добавляем эффекты наведения
             button.MouseEnter += (s, e) => {
-                if (s is Button btn)
+                if (s is Button btn && btn.Tag is Color originalColor)
                 {
-                    btn.BackColor = ControlPaint.Light(originalBackColor, 0.1f);
+                    btn.BackColor = ControlPaint.Light(originalColor, 0.1f);
                 }
             };
             button.MouseLeave += (s, e) => {
-                if (s is Button btn)
+                if (s is Button btn && btn.Tag is Color originalColor)
                 {
-                    btn.BackColor = originalBackColor;
+                    btn.BackColor = originalColor;
                 }
             };
             
