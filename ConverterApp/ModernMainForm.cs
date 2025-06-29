@@ -73,8 +73,7 @@ namespace ConverterApp
         private enum CalculatorMode
         {
             Basic,
-            Scientific,
-            Programmer
+            Scientific
         }
         
         private class HistoryEntry
@@ -176,7 +175,6 @@ namespace ConverterApp
             // Calculator tab events
             if (btnBasicMode != null) btnBasicMode.Click += (s, e) => SwitchCalculatorMode(CalculatorMode.Basic);
             if (btnScientificMode != null) btnScientificMode.Click += (s, e) => SwitchCalculatorMode(CalculatorMode.Scientific);
-            if (btnProgrammerMode != null) btnProgrammerMode.Click += (s, e) => SwitchCalculatorMode(CalculatorMode.Programmer);
             
             // Settings events
             if (btnApplySettings != null) btnApplySettings.Click += BtnApplySettings_Click;
@@ -247,11 +245,8 @@ namespace ConverterApp
             UpdateCurrencyRates();
             
             // Run comprehensive tests after form loads (delayed to allow form to fully initialize)
-            this.Load += async (s, e) => 
-            {
-                await Task.Delay(1000); // Wait 1 second for form to fully load
-                RunComprehensiveTests();
-            };
+            // Tests can be run manually if needed
+            // RunComprehensiveTests();
         }
         
         
@@ -1764,8 +1759,6 @@ namespace ConverterApp
                 Color.FromArgb(33, 150, 243) : Color.FromArgb(158, 158, 158);
             btnScientificMode.BackColor = mode == CalculatorMode.Scientific ? 
                 Color.FromArgb(76, 175, 80) : Color.FromArgb(158, 158, 158);
-            btnProgrammerMode.BackColor = mode == CalculatorMode.Programmer ? 
-                Color.FromArgb(255, 152, 0) : Color.FromArgb(158, 158, 158);
             
             // Update calculator layout based on mode
             switch (mode)
@@ -1775,9 +1768,6 @@ namespace ConverterApp
                     break;
                 case CalculatorMode.Scientific:
                     InitializeScientificCalculatorButtons();
-                    break;
-                case CalculatorMode.Programmer:
-                    InitializeProgrammerCalculatorButtons();
                     break;
             }
             
@@ -1790,32 +1780,10 @@ namespace ConverterApp
             {
                 case CalculatorMode.Basic: return "Обычный";
                 case CalculatorMode.Scientific: return "Научный";
-                case CalculatorMode.Programmer: return "Программист";
                 default: return "";
             }
         }
         
-        private void InitializeProgrammerCalculatorButtons()
-        {
-            string[,] programmerLayout = {
-                { "HEX", "DEC", "OCT", "BIN", "A", "B", "C", "D" },
-                { "E", "F", "<<", ">>", "OR", "XOR", "NOT", "AND" },
-                { "7", "8", "9", "÷", "(", ")", "MOD", "CE" },
-                { "4", "5", "6", "×", "↑", "↓", "±", "←" },
-                { "1", "2", "3", "-", "0", ".", "+", "=" }
-            };
-            
-            calcTabButtonPanel.Controls.Clear();
-            for (int row = 0; row < 5; row++)
-            {
-                for (int col = 0; col < 8; col++)
-                {
-                    var btn = CreateCalculatorButton(programmerLayout[row, col]);
-                    btn.Font = new Font("Segoe UI", 10F);
-                    calcTabButtonPanel.Controls.Add(btn, col, row);
-                }
-            }
-        }
         
         private void UpdateHistoryGrid()
         {

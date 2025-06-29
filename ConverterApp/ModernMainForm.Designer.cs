@@ -96,7 +96,6 @@ namespace ConverterApp
             this.calcModePanel = new System.Windows.Forms.FlowLayoutPanel();
             this.btnBasicMode = new System.Windows.Forms.Button();
             this.btnScientificMode = new System.Windows.Forms.Button();
-            this.btnProgrammerMode = new System.Windows.Forms.Button();
             
             // Settings Tab Components
             this.settingsPanel = new System.Windows.Forms.TableLayoutPanel();
@@ -511,11 +510,9 @@ namespace ConverterApp
             
             this.btnBasicMode = CreateStyledButton("Обычный", Color.FromArgb(33, 150, 243));
             this.btnScientificMode = CreateStyledButton("Научный", Color.FromArgb(76, 175, 80));
-            this.btnProgrammerMode = CreateStyledButton("Программист", Color.FromArgb(255, 152, 0));
             
             this.calcModePanel.Controls.Add(this.btnBasicMode);
             this.calcModePanel.Controls.Add(this.btnScientificMode);
-            this.calcModePanel.Controls.Add(this.btnProgrammerMode);
             
             this.calcTabPanel.Controls.Add(this.calcTabDisplay, 0, 0);
             this.calcTabPanel.Controls.Add(this.calcTabButtonPanel, 0, 1);
@@ -744,7 +741,6 @@ namespace ConverterApp
         private System.Windows.Forms.FlowLayoutPanel calcModePanel;
         private System.Windows.Forms.Button btnBasicMode;
         private System.Windows.Forms.Button btnScientificMode;
-        private System.Windows.Forms.Button btnProgrammerMode;
         private System.Windows.Forms.TableLayoutPanel calcTabButtonPanel;
         
         // Settings tab controls
