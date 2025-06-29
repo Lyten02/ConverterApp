@@ -377,6 +377,11 @@ namespace ConverterApp
                 Console.WriteLine($"Ожидалось: {expected}, Получено: {result:F4}");
                 Console.WriteLine($"Результат: {(success ? "✓ УСПЕХ" : "✗ ОШИБКА")}");
                 
+                // Track test results
+                totalTests++;
+                if (success) passedTests++;
+                else failedTests++;
+                
                 // Add to history
                 var historyEntry = new HistoryEntry
                 {
@@ -386,10 +391,45 @@ namespace ConverterApp
                     Type = "Конвертация"
                 };
                 conversionHistory.Add(historyEntry);
+                EnforceHistoryLimit();
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"ОШИБКА при конвертации: {ex.Message}");
+                totalTests++;
+                failedTests++;
+            }
+        }
+        
+        private void EnforceHistoryLimit()
+        {
+            // Enforce history limit of 100 entries
+            while (conversionHistory.Count > 100)
+            {
+                // Remove oldest entry
+                var allEntries = conversionHistory.ToList();
+                var oldestEntry = allEntries.OrderBy(h => h.DateTime).FirstOrDefault();
+                if (oldestEntry != null)
+                {
+                    // Try to remove the oldest entry
+                    var tempList = new List<HistoryEntry>();
+                    while (conversionHistory.TryTake(out var entry))
+                    {
+                        if (entry.DateTime != oldestEntry.DateTime || entry.Operation != oldestEntry.Operation)
+                        {
+                            tempList.Add(entry);
+                        }
+                    }
+                    // Add back all except the oldest
+                    foreach (var item in tempList)
+                    {
+                        conversionHistory.Add(item);
+                    }
+                }
+                else
+                {
+                    break; // Safety exit
+                }
             }
         }
         
@@ -423,12 +463,19 @@ namespace ConverterApp
                 Console.WriteLine($"Вычисление: {expression} = {result}");
                 Console.WriteLine($"Результат: {(success ? "✓ УСПЕХ" : "✗ ОШИБКА")}");
                 
+                // Track test results
+                totalTests++;
+                if (success) passedTests++;
+                else failedTests++;
+                
                 // Add to calculator history
                 calcHistory.Add($"{expression} = {result} ({DateTime.Now:HH:mm:ss})");
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"ОШИБКА в калькуляторе: {ex.Message}");
+                totalTests++;
+                failedTests++;
             }
         }
         
@@ -445,21 +492,40 @@ namespace ConverterApp
                     case "cos":
                         result = Math.Cos(input * Math.PI / 180);
                         break;
+                    case "tan":
+                        result = Math.Tan(input * Math.PI / 180);
+                        break;
                     case "√":
                         result = Math.Sqrt(input);
                         break;
                     case "x²":
                         result = Math.Pow(input, 2);
                         break;
+                    case "x³":
+                        result = Math.Pow(input, 3);
+                        break;
+                    case "log":
+                        result = Math.Log10(input);
+                        break;
+                    case "ln":
+                        result = Math.Log(input);
+                        break;
                 }
                 
                 bool success = Math.Abs(result - expected) < 0.0001;
                 Console.WriteLine($"Функция: {function}({input}) = {result:F4}");
-                Console.WriteLine($"Ожидалось: {expected}, Результат: {(success ? "✓ УСПЕХ" : "✗ ОШИБКА")}");
+                Console.WriteLine($"Ожидалось: {expected:F4}, Результат: {(success ? "✓ УСПЕХ" : "✗ ОШИБКА")}");
+                
+                // Track test results
+                totalTests++;
+                if (success) passedTests++;
+                else failedTests++;
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"ОШИБКА в научном калькуляторе: {ex.Message}");
+                totalTests++;
+                failedTests++;
             }
         }
         
@@ -840,12 +906,13 @@ namespace ConverterApp
             {
                 var entry = new HistoryEntry
                 {
-                    DateTime = DateTime.Now,
+                    DateTime = DateTime.Now.AddSeconds(i), // Ensure unique timestamps
                     Operation = $"Test {i}",
                     Result = i.ToString(),
                     Type = "Test"
                 };
                 conversionHistory.Add(entry);
+                EnforceHistoryLimit();
             }
             
             // Check if history limit works (should be max 100)
@@ -1293,16 +1360,25 @@ namespace ConverterApp
         {
             return new Dictionary<(string, string), double>
             {
-                // Length
+                // Length - added missing direct conversions
                 [("cm", "m")] = 0.01, [("m", "km")] = 0.001, [("in", "cm")] = 2.54,
                 [("ft", "m")] = 0.3048, [("yd", "m")] = 0.9144, [("mi", "km")] = 1.60934,
                 [("m", "cm")] = 100, [("km", "m")] = 1000, [("cm", "in")] = 0.393701,
                 [("m", "ft")] = 3.28084, [("m", "yd")] = 1.09361, [("km", "mi")] = 0.621371,
+                // Added missing conversions to fix recursion
+                [("m", "in")] = 39.3701, [("in", "m")] = 0.0254,
+                [("m", "mi")] = 0.000621371, [("mi", "m")] = 1609.34,
+                [("ft", "in")] = 12, [("in", "ft")] = 1.0/12.0,
+                [("yd", "ft")] = 3, [("ft", "yd")] = 1.0/3.0,
                 
-                // Mass
+                // Mass - added missing direct conversions
                 [("g", "kg")] = 0.001, [("kg", "t")] = 0.001, [("lb", "kg")] = 0.453592,
                 [("oz", "g")] = 28.3495, [("kg", "g")] = 1000, [("t", "kg")] = 1000,
                 [("kg", "lb")] = 2.20462, [("g", "oz")] = 0.035274,
+                // Added missing conversions
+                [("kg", "oz")] = 35.274, [("oz", "kg")] = 0.0283495,
+                [("lb", "oz")] = 16, [("oz", "lb")] = 0.0625,
+                [("g", "t")] = 0.000001, [("t", "g")] = 1000000,
                 
                 // Volume
                 [("ml", "l")] = 0.001, [("l", "m³")] = 0.001, [("gal", "l")] = 3.78541,
@@ -1314,22 +1390,39 @@ namespace ConverterApp
                 [("ac", "m²")] = 4046.86, [("m²", "cm²")] = 10000, [("km²", "m²")] = 1000000,
                 [("m²", "ft²")] = 10.7639, [("m²", "ac")] = 0.000247105,
                 
-                // Time
+                // Time - added missing direct conversions
                 [("s", "min")] = 1/60.0, [("min", "h")] = 1/60.0, [("h", "d")] = 1/24.0,
                 [("d", "week")] = 1/7.0, [("min", "s")] = 60, [("h", "min")] = 60,
                 [("d", "h")] = 24, [("week", "d")] = 7,
+                // Added missing conversions
+                [("s", "h")] = 1/3600.0, [("h", "s")] = 3600,
+                [("s", "d")] = 1/86400.0, [("d", "s")] = 86400,
+                [("s", "week")] = 1/604800.0, [("week", "s")] = 604800,
+                [("min", "d")] = 1/1440.0, [("d", "min")] = 1440,
+                [("min", "week")] = 1/10080.0, [("week", "min")] = 10080,
+                [("h", "week")] = 1/168.0, [("week", "h")] = 168,
                 
                 // Energy
                 [("J", "kJ")] = 0.001, [("cal", "J")] = 4.184, [("kWh", "J")] = 3.6e6,
                 [("kJ", "J")] = 1000, [("J", "cal")] = 0.238845, [("J", "kWh")] = 1/3.6e6,
+                // Added more energy conversions
+                [("kJ", "cal")] = 238.845, [("cal", "kJ")] = 0.004184,
+                [("kJ", "kWh")] = 1/3600.0, [("kWh", "kJ")] = 3600,
+                [("cal", "kWh")] = 1.16279e-6, [("kWh", "cal")] = 860421,
                 
-                // Power
+                // Power - added missing conversion
                 [("W", "kW")] = 0.001, [("hp", "kW")] = 0.7457,
                 [("kW", "W")] = 1000, [("kW", "hp")] = 1.34102,
+                // Added direct W to hp conversion
+                [("W", "hp")] = 0.00134102, [("hp", "W")] = 745.7,
                 
-                // Pressure
+                // Pressure - added missing conversions
                 [("Pa", "kPa")] = 0.001, [("atm", "kPa")] = 101.325, [("bar", "kPa")] = 100,
-                [("kPa", "Pa")] = 1000, [("kPa", "atm")] = 0.00986923, [("kPa", "bar")] = 0.01
+                [("kPa", "Pa")] = 1000, [("kPa", "atm")] = 0.00986923, [("kPa", "bar")] = 0.01,
+                // Added direct conversions
+                [("Pa", "atm")] = 9.86923e-6, [("atm", "Pa")] = 101325,
+                [("Pa", "bar")] = 1e-5, [("bar", "Pa")] = 100000,
+                [("atm", "bar")] = 1.01325, [("bar", "atm")] = 0.986923
             };
         }
         
@@ -1558,6 +1651,7 @@ namespace ConverterApp
                 };
                 
                 conversionHistory.Add(historyEntry);
+                EnforceHistoryLimit();
                 UpdateHistoryGrid();
                 
                 calcMemory = result;
