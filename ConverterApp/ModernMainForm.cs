@@ -53,10 +53,8 @@ namespace ConverterApp
         private double calcMemory = 0;
         private string calcOperation = "";
         private bool calcNewNumber = true;
-        private bool isUpdatingText = false;
         private bool isInitialized = false;
         private bool isUpdatingComboBox = false;
-        private bool isChangingType = false;
         private class HistoryEntry
         {
             public DateTime DateTime { get; set; }
@@ -814,7 +812,6 @@ namespace ConverterApp
         {
             if (isUpdatingComboBox) return;
             isUpdatingComboBox = true;
-            isChangingType = true;
             try
             {
                 string type = cboType.SelectedItem?.ToString() ?? "";
@@ -836,7 +833,6 @@ namespace ConverterApp
             finally
             {
                 isUpdatingComboBox = false;
-                isChangingType = false;
             }
             if (double.TryParse(txtInput.Text, NumberStyles.Any, CultureInfo.CurrentCulture, out _) ||
                 double.TryParse(txtInput.Text, NumberStyles.Any, CultureInfo.InvariantCulture, out _))
@@ -1085,6 +1081,81 @@ namespace ConverterApp
             Button button = sender as Button;
             if (button == null) return;
             string buttonText = button.Text;
+            
+            TextBox currentDisplay = (mainTabControl != null && mainTabControl.SelectedTab == tabCalculator)
+                ? calcTabDisplay : null;
+            if (currentDisplay == null) return;
+            
+            switch (buttonText)
+            {
+                case "0":
+                case "1":
+                case "2":
+                case "3":
+                case "4":
+                case "5":
+                case "6":
+                case "7":
+                case "8":
+                case "9":
+                    if (calcNewNumber || currentDisplay.Text == "0")
+                    {
+                        currentDisplay.Text = buttonText;
+                        calcNewNumber = false;
+                    }
+                    else
+                    {
+                        currentDisplay.Text += buttonText;
+                    }
+                    break;
+                    
+                case ".":
+                    if (!currentDisplay.Text.Contains("."))
+                    {
+                        currentDisplay.Text += ".";
+                        calcNewNumber = false;
+                    }
+                    break;
+                    
+                case "+":
+                case "-":
+                case "×":
+                case "÷":
+                case "%":
+                    SetOperation(buttonText);
+                    break;
+                    
+                case "=":
+                    PerformCalculation();
+                    break;
+                    
+                case "C":
+                case "CE":
+                    currentDisplay.Text = "0";
+                    calcMemory = 0;
+                    calcOperation = "";
+                    calcNewNumber = true;
+                    break;
+                    
+                case "←":
+                    if (currentDisplay.Text.Length > 1)
+                    {
+                        currentDisplay.Text = currentDisplay.Text.Substring(0, currentDisplay.Text.Length - 1);
+                    }
+                    else
+                    {
+                        currentDisplay.Text = "0";
+                        calcNewNumber = true;
+                    }
+                    break;
+                    
+                case "±":
+                    if (double.TryParse(currentDisplay.Text, out double value))
+                    {
+                        currentDisplay.Text = (-value).ToString();
+                    }
+                    break;
+            }
         }
         private void SetOperation(string op)
         {
@@ -1369,7 +1440,11 @@ namespace ConverterApp
         {
             string appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
             string appFolder = Path.Combine(appDataPath, "ConverterApp");
-            UpdateNumberFormatPreview();
+            if (!Directory.Exists(appFolder))
+            {
+                Directory.CreateDirectory(appFolder);
+            }
+            return Path.Combine(appFolder, "settings.json");
         }
         private void UpdateNumberFormatPreview()
         {
@@ -1813,6 +1888,381 @@ namespace ConverterApp
             }
             button.Click += CalcButton_Click;
             return button;
+        }
+
+        private void LoadSettings()
+        {
+            try
+            {
+                string settingsPath = GetSettingsFilePath();
+                if (File.Exists(settingsPath))
+                {
+                    string json = File.ReadAllText(settingsPath);
+                    var settings = Newtonsoft.Json.JsonConvert.DeserializeObject<AppSettings>(json);
+                    if (settings != null)
+                    {
+                        decimalPlaces = settings.DecimalPlaces;
+                        useThousandsSeparator = settings.UseThousandsSeparator;
+                        isAnimationEnabled = settings.AnimationsEnabled;
+                        isAutoConvertEnabled = settings.AutoConvert;
+                        if (numDecimalPlaces != null) numDecimalPlaces.Value = decimalPlaces;
+                        if (chkThousandsSeparator != null) chkThousandsSeparator.Checked = useThousandsSeparator;
+                        if (chkAnimations != null) chkAnimations.Checked = isAnimationEnabled;
+                        if (chkScientificNotation != null) chkScientificNotation.Checked = isAutoConvertEnabled;
+                        if (cboTheme != null && !string.IsNullOrEmpty(settings.Theme))
+                        {
+                            int index = cboTheme.Items.IndexOf(settings.Theme);
+                            if (index >= 0) cboTheme.SelectedIndex = index;
+                        }
+                        if (settings.WindowX != -1 && settings.WindowY != -1)
+                        {
+                            this.Location = new Point(settings.WindowX, settings.WindowY);
+                        }
+                        if (settings.WindowWidth > 0 && settings.WindowHeight > 0)
+                        {
+                            this.Size = new Size(settings.WindowWidth, settings.WindowHeight);
+                        }
+                        this.WindowState = settings.WindowState;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error loading settings: {ex.Message}");
+            }
+        }
+
+        private void SaveSettings()
+        {
+            try
+            {
+                var settings = new AppSettings
+                {
+                    DecimalPlaces = decimalPlaces,
+                    UseThousandsSeparator = useThousandsSeparator,
+                    AnimationsEnabled = isAnimationEnabled,
+                    AutoConvert = isAutoConvertEnabled,
+                    Theme = cboTheme?.SelectedItem?.ToString() ?? "Светлая",
+                    WindowX = this.WindowState == FormWindowState.Normal ? this.Location.X : this.RestoreBounds.X,
+                    WindowY = this.WindowState == FormWindowState.Normal ? this.Location.Y : this.RestoreBounds.Y,
+                    WindowWidth = this.WindowState == FormWindowState.Normal ? this.Width : this.RestoreBounds.Width,
+                    WindowHeight = this.WindowState == FormWindowState.Normal ? this.Height : this.RestoreBounds.Height,
+                    WindowState = this.WindowState == FormWindowState.Minimized ? FormWindowState.Normal : this.WindowState
+                };
+                string json = Newtonsoft.Json.JsonConvert.SerializeObject(settings, Newtonsoft.Json.Formatting.Indented);
+                string settingsPath = GetSettingsFilePath();
+                File.WriteAllText(settingsPath, json);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error saving settings: {ex.Message}");
+            }
+        }
+
+        private void CboUnit_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (isUpdatingComboBox) return;
+            if (isAutoConvertEnabled && !string.IsNullOrEmpty(txtInput.Text))
+            {
+                if (double.TryParse(txtInput.Text, NumberStyles.Any, CultureInfo.CurrentCulture, out _) ||
+                    double.TryParse(txtInput.Text, NumberStyles.Any, CultureInfo.InvariantCulture, out _))
+                {
+                    BtnConvert_Click(null, null);
+                }
+            }
+        }
+
+        private void TxtInput_TextChanged(object sender, EventArgs e)
+        {
+            if (isAutoConvertEnabled && !string.IsNullOrEmpty(txtInput.Text))
+            {
+                if (double.TryParse(txtInput.Text, NumberStyles.Any, CultureInfo.CurrentCulture, out _) ||
+                    double.TryParse(txtInput.Text, NumberStyles.Any, CultureInfo.InvariantCulture, out _))
+                {
+                    BtnConvert_Click(null, null);
+                }
+            }
+        }
+
+        private void OpenFile_Click(object sender, EventArgs e)
+        {
+            using (var openDialog = new OpenFileDialog())
+            {
+                openDialog.Filter = "JSON файлы (*.json)|*.json|CSV файлы (*.csv)|*.csv|Все файлы (*.*)|*.*";
+                if (openDialog.ShowDialog() == DialogResult.OK)
+                {
+                    try
+                    {
+                        string content = File.ReadAllText(openDialog.FileName);
+                        if (Path.GetExtension(openDialog.FileName).ToLower() == ".csv")
+                        {
+                            ImportCSVData(content);
+                        }
+                        else
+                        {
+                            ImportJSONData(content);
+                        }
+                        lblStatus.Text = "Файл успешно загружен";
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Ошибка при открытии файла: {ex.Message}", 
+                            "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+            }
+        }
+
+        private void SaveFile_Click(object sender, EventArgs e)
+        {
+            if (!string.IsNullOrEmpty(txtInput.Text) && !string.IsNullOrEmpty(txtOutput.Text))
+            {
+                using (var saveDialog = new SaveFileDialog())
+                {
+                    saveDialog.Filter = "Текстовые файлы (*.txt)|*.txt|JSON файлы (*.json)|*.json";
+                    saveDialog.FileName = $"conversion_{DateTime.Now:yyyyMMdd_HHmmss}.txt";
+                    if (saveDialog.ShowDialog() == DialogResult.OK)
+                    {
+                        try
+                        {
+                            string content = $"Конвертация\n" +
+                                           $"Дата: {DateTime.Now:yyyy-MM-dd HH:mm:ss}\n" +
+                                           $"Тип: {cboType.SelectedItem}\n" +
+                                           $"Ввод: {txtInput.Text} {cboFromUnit.SelectedItem}\n" +
+                                           $"Результат: {txtOutput.Text} {cboToUnit.SelectedItem}";
+                            File.WriteAllText(saveDialog.FileName, content);
+                            lblStatus.Text = "Результат сохранен";
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show($"Ошибка при сохранении: {ex.Message}", 
+                                "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                MessageBox.Show("Нет данных для сохранения", "Информация", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        }
+
+        private void SaveAsFile_Click(object sender, EventArgs e)
+        {
+            SaveFile_Click(sender, e);
+        }
+
+        private void ImportData_Click(object sender, EventArgs e)
+        {
+            OpenFile_Click(sender, e);
+        }
+
+        private void PrintResults_Click(object sender, EventArgs e)
+        {
+            using (var printPreview = new PrintPreviewDialog())
+            {
+                printPreview.Document = printDocument;
+                printPreview.ShowDialog();
+            }
+        }
+
+        private void PrintDocument_PrintPage(object sender, PrintPageEventArgs e)
+        {
+            Graphics g = e.Graphics;
+            Font font = new Font("Arial", 12);
+            Font titleFont = new Font("Arial", 16, FontStyle.Bold);
+            Brush brush = Brushes.Black;
+            float y = e.MarginBounds.Top;
+            
+            g.DrawString("Универсальный конвертер - Отчет", titleFont, brush, 
+                e.MarginBounds.Left, y);
+            y += titleFont.Height + 20;
+            
+            g.DrawString($"Дата: {DateTime.Now:yyyy-MM-dd HH:mm:ss}", font, brush, 
+                e.MarginBounds.Left, y);
+            y += font.Height + 10;
+            
+            if (!string.IsNullOrEmpty(txtInput.Text) && !string.IsNullOrEmpty(txtOutput.Text))
+            {
+                g.DrawString("Текущий результат:", font, brush, e.MarginBounds.Left, y);
+                y += font.Height + 5;
+                g.DrawString($"  Тип: {cboType.SelectedItem}", font, brush, 
+                    e.MarginBounds.Left, y);
+                y += font.Height + 5;
+                g.DrawString($"  {txtInput.Text} {cboFromUnit.SelectedItem} = " +
+                    $"{txtOutput.Text} {cboToUnit.SelectedItem}", font, brush, 
+                    e.MarginBounds.Left, y);
+                y += font.Height + 20;
+            }
+            
+            g.DrawString("История конвертаций:", font, brush, e.MarginBounds.Left, y);
+            y += font.Height + 10;
+            
+            int count = 0;
+            foreach (var entry in conversionHistory.Take(20))
+            {
+                if (y + font.Height > e.MarginBounds.Bottom) break;
+                g.DrawString($"{entry.DateTime:HH:mm:ss} - {entry.Operation} = {entry.Result}", 
+                    font, brush, e.MarginBounds.Left + 20, y);
+                y += font.Height + 5;
+                count++;
+            }
+            
+            e.HasMorePages = false;
+            font.Dispose();
+            titleFont.Dispose();
+        }
+
+        private void SaveAsPDF(string filename)
+        {
+            using (var saveDialog = new SaveFileDialog())
+            {
+                saveDialog.Filter = "PDF файлы (*.pdf)|*.pdf";
+                saveDialog.FileName = filename ?? $"converter_report_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
+                if (saveDialog.ShowDialog() == DialogResult.OK)
+                {
+                    try
+                    {
+                        using (PdfDocument document = new PdfDocument())
+                        {
+                            PdfPage page = document.AddPage();
+                            XGraphics gfx = XGraphics.FromPdfPage(page);
+                            XFont font = new XFont("Arial", 12);
+                            XFont titleFont = new XFont("Arial", 16, XFontStyle.Bold);
+                            double y = 40;
+                            
+                            gfx.DrawString("Универсальный конвертер - Отчет", titleFont, 
+                                XBrushes.Black, 40, y);
+                            y += 30;
+                            
+                            gfx.DrawString($"Дата: {DateTime.Now:yyyy-MM-dd HH:mm:ss}", font, 
+                                XBrushes.Black, 40, y);
+                            y += 20;
+                            
+                            if (!string.IsNullOrEmpty(txtInput.Text) && !string.IsNullOrEmpty(txtOutput.Text))
+                            {
+                                gfx.DrawString("Текущий результат:", font, XBrushes.Black, 40, y);
+                                y += 20;
+                                gfx.DrawString($"Тип: {cboType.SelectedItem}", font, 
+                                    XBrushes.Black, 60, y);
+                                y += 20;
+                                gfx.DrawString($"{txtInput.Text} {cboFromUnit.SelectedItem} = " +
+                                    $"{txtOutput.Text} {cboToUnit.SelectedItem}", font, 
+                                    XBrushes.Black, 60, y);
+                                y += 30;
+                            }
+                            
+                            gfx.DrawString("История конвертаций:", font, XBrushes.Black, 40, y);
+                            y += 20;
+                            
+                            foreach (var entry in conversionHistory.Take(20))
+                            {
+                                if (y > page.Height - 40) break;
+                                gfx.DrawString($"{entry.DateTime:HH:mm:ss} - {entry.Operation} = {entry.Result}", 
+                                    font, XBrushes.Black, 60, y);
+                                y += 20;
+                            }
+                            
+                            document.Save(saveDialog.FileName);
+                            lblStatus.Text = "PDF файл сохранен";
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Ошибка при сохранении PDF: {ex.Message}", 
+                            "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+            }
+        }
+
+        private void SaveAsText(string filename)
+        {
+            try
+            {
+                var sb = new StringBuilder();
+                sb.AppendLine("Универсальный конвертер - Отчет");
+                sb.AppendLine($"Дата: {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+                sb.AppendLine();
+                
+                if (!string.IsNullOrEmpty(txtInput.Text) && !string.IsNullOrEmpty(txtOutput.Text))
+                {
+                    sb.AppendLine("Текущий результат:");
+                    sb.AppendLine($"  Тип: {cboType.SelectedItem}");
+                    sb.AppendLine($"  {txtInput.Text} {cboFromUnit.SelectedItem} = " +
+                        $"{txtOutput.Text} {cboToUnit.SelectedItem}");
+                    sb.AppendLine();
+                }
+                
+                sb.AppendLine("История конвертаций:");
+                foreach (var entry in conversionHistory.Take(50))
+                {
+                    sb.AppendLine($"  {entry.DateTime:yyyy-MM-dd HH:mm:ss} - " +
+                        $"{entry.Operation} = {entry.Result}");
+                }
+                
+                File.WriteAllText(filename, sb.ToString());
+                lblStatus.Text = "Текстовый файл сохранен";
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при сохранении файла: {ex.Message}", 
+                    "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void ImportJSONData(string json)
+        {
+            try
+            {
+                var entries = Newtonsoft.Json.JsonConvert.DeserializeObject<List<HistoryEntry>>(json);
+                if (entries != null)
+                {
+                    foreach (var entry in entries)
+                    {
+                        conversionHistory.Add(entry);
+                    }
+                    UpdateHistoryGrid();
+                }
+            }
+            catch
+            {
+                MessageBox.Show("Ошибка при импорте JSON данных", "Ошибка", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void ImportCSVData(string csv)
+        {
+            try
+            {
+                var lines = csv.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+                if (lines.Length > 1)
+                {
+                    for (int i = 1; i < lines.Length; i++)
+                    {
+                        var parts = lines[i].Split(',');
+                        if (parts.Length >= 4)
+                        {
+                            var entry = new HistoryEntry
+                            {
+                                DateTime = DateTime.Parse(parts[0]),
+                                Type = parts[1].Trim('"'),
+                                Operation = parts[2].Trim('"'),
+                                Result = parts[3].Trim('"')
+                            };
+                            conversionHistory.Add(entry);
+                        }
+                    }
+                    UpdateHistoryGrid();
+                }
+            }
+            catch
+            {
+                MessageBox.Show("Ошибка при импорте CSV данных", "Ошибка", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
     }
 }
