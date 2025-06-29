@@ -57,7 +57,7 @@ namespace ConverterApp
         private bool isAnimationEnabled = true;
         private int decimalPlaces = 2;
         private bool useThousandsSeparator = true;
-        private bool isAutoConvertEnabled = false;
+        private bool isAutoConvertEnabled = false; // Disabled by default to prevent annoying errors
         
         // Calculator variables
         private double calcMemory = 0;
@@ -1185,14 +1185,21 @@ namespace ConverterApp
             if (!double.TryParse(txtInput.Text, NumberStyles.Any, CultureInfo.CurrentCulture, out double value) &&
                 !double.TryParse(txtInput.Text, NumberStyles.Any, CultureInfo.InvariantCulture, out value))
             {
-                MessageBox.Show("Введите корректное число!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                // Only show error if user clicked the button (not auto-convert)
+                if (sender != null)
+                {
+                    MessageBox.Show("Введите корректное число!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
                 return;
             }
             
             // Check for overflow/special values
             if (double.IsInfinity(value) || double.IsNaN(value) || Math.Abs(value) > 1e15)
             {
-                MessageBox.Show("Число слишком большое или недопустимое!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                if (sender != null)
+                {
+                    MessageBox.Show("Число слишком большое или недопустимое!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
                 return;
             }
             
@@ -1201,7 +1208,11 @@ namespace ConverterApp
             
             if (string.IsNullOrEmpty(fromUnit) || string.IsNullOrEmpty(toUnit))
             {
-                MessageBox.Show("Выберите единицы измерения!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                // Only show error if user clicked the button (not auto-convert)
+                if (sender != null)
+                {
+                    MessageBox.Show("Выберите единицы измерения!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
                 return;
             }
             
@@ -1211,8 +1222,11 @@ namespace ConverterApp
             // Check for conversion failure
             if (double.IsNaN(result))
             {
-                MessageBox.Show("Невозможно выполнить конвертацию между выбранными единицами!", 
-                    "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                if (sender != null)
+                {
+                    MessageBox.Show("Невозможно выполнить конвертацию между выбранными единицами!", 
+                        "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
                 return;
             }
             
