@@ -41,9 +41,6 @@ namespace ConverterApp
 
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
-            
-            // Main Menu
             this.menuStrip = new System.Windows.Forms.MenuStrip();
             this.fileMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -74,33 +71,24 @@ namespace ConverterApp
             this.aboutMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.checkUpdatesMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.reportBugMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            
-            // Tab Control
             this.mainTabControl = new System.Windows.Forms.TabControl();
             this.tabConverter = new System.Windows.Forms.TabPage();
             this.tabHistory = new System.Windows.Forms.TabPage();
             this.tabCalculator = new System.Windows.Forms.TabPage();
             this.tabSettings = new System.Windows.Forms.TabPage();
-            
-            // Converter Tab Components
             this.converterPanel = new System.Windows.Forms.TableLayoutPanel();
             this.typePanel = new System.Windows.Forms.Panel();
             this.lblConversionType = new System.Windows.Forms.Label();
             this.cboType = new System.Windows.Forms.ComboBox();
-            
             this.conversionPanel = new System.Windows.Forms.TableLayoutPanel();
             this.inputGroupBox = new System.Windows.Forms.GroupBox();
             this.arrowLabel = new System.Windows.Forms.Label();
             this.outputGroupBox = new System.Windows.Forms.GroupBox();
-            
             this.buttonPanel = new System.Windows.Forms.FlowLayoutPanel();
             this.btnConvert = new System.Windows.Forms.Button();
             this.btnClear = new System.Windows.Forms.Button();
             this.btnExport = new System.Windows.Forms.Button();
             this.btnExportPrint = new System.Windows.Forms.Button();
-            
-            
-            // History Tab Components
             this.historyPanel = new System.Windows.Forms.TableLayoutPanel();
             this.historyFilterPanel = new System.Windows.Forms.Panel();
             this.cboHistoryFilter = new System.Windows.Forms.ComboBox();
@@ -111,236 +99,633 @@ namespace ConverterApp
             this.btnClearHistory = new System.Windows.Forms.Button();
             this.btnExportCSV = new System.Windows.Forms.Button();
             this.btnExportPDF = new System.Windows.Forms.Button();
-            
-            // Calculator Tab Components
             this.calcTabPanel = new System.Windows.Forms.TableLayoutPanel();
-            
-            // Settings Tab Components
             this.settingsPanel = new System.Windows.Forms.TableLayoutPanel();
             this.numberFormatGroup = new System.Windows.Forms.GroupBox();
             this.lblDecimalPlaces = new System.Windows.Forms.Label();
             this.numDecimalPlaces = new System.Windows.Forms.NumericUpDown();
             this.chkThousandsSeparator = new System.Windows.Forms.CheckBox();
             this.chkScientificNotation = new System.Windows.Forms.CheckBox();
-            
             this.appearanceGroup = new System.Windows.Forms.GroupBox();
             this.lblTheme = new System.Windows.Forms.Label();
             this.cboTheme = new System.Windows.Forms.ComboBox();
             this.chkAnimations = new System.Windows.Forms.CheckBox();
             this.chkSoundEffects = new System.Windows.Forms.CheckBox();
-            
             this.hotkeyGroup = new System.Windows.Forms.GroupBox();
             this.lblHotkeyInfo = new System.Windows.Forms.Label();
-            
             this.settingsButtonPanel = new System.Windows.Forms.FlowLayoutPanel();
             this.btnResetSettings = new System.Windows.Forms.Button();
             this.btnApplySettings = new System.Windows.Forms.Button();
             this.btnSaveSettings = new System.Windows.Forms.Button();
-            
-            // Status Bar
             this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.lblStatus = new System.Windows.Forms.ToolStripStatusLabel();
-            
-            // Suspend Layout
             this.menuStrip.SuspendLayout();
             this.mainTabControl.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.historyDataGrid)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numDecimalPlaces)).BeginInit();
             this.statusStrip.SuspendLayout();
             this.SuspendLayout();
-            
-            // Form Properties
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1024, 768);
-            this.MinimumSize = new System.Drawing.Size(1024, 768);
-            this.Name = "ModernMainForm";
-            this.Text = "ConverterApp - Универсальный конвертер";
-            this.StartPosition = FormStartPosition.CenterScreen;
-            
-            // Menu Strip
+            // 
+            // menuStrip
+            // 
+            this.menuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.fileMenuItem,
+            this.helpMenuItem});
             this.menuStrip.Location = new System.Drawing.Point(0, 0);
             this.menuStrip.Name = "menuStrip";
             this.menuStrip.Size = new System.Drawing.Size(1024, 24);
             this.menuStrip.TabIndex = 0;
-            
-            // File Menu
+            // 
+            // fileMenuItem
+            // 
             this.fileMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-                this.openMenuItem,
-                this.saveMenuItem,
-                this.saveAsMenuItem,
-                this.toolStripSeparator2,
-                this.importMenuItem,
-                this.exportMenuItem,
-                this.toolStripSeparator3,
-                this.printMenuItem,
-                this.printPreviewMenuItem,
-                this.printSettingsMenuItem,
-                this.toolStripSeparator1,
-                this.exitMenuItem});
+            this.openMenuItem,
+            this.saveMenuItem,
+            this.saveAsMenuItem,
+            this.toolStripSeparator2,
+            this.importMenuItem,
+            this.exportMenuItem,
+            this.toolStripSeparator3,
+            this.printMenuItem,
+            this.printPreviewMenuItem,
+            this.printSettingsMenuItem,
+            this.toolStripSeparator1,
+            this.exitMenuItem});
             this.fileMenuItem.Name = "fileMenuItem";
             this.fileMenuItem.Size = new System.Drawing.Size(48, 20);
             this.fileMenuItem.Text = "Файл";
-            
-            // File menu items configuration
+            // 
+            // openMenuItem
+            // 
             this.openMenuItem.Name = "openMenuItem";
-            this.openMenuItem.ShortcutKeys = Keys.Control | Keys.O;
+            this.openMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.O)));
+            this.openMenuItem.Size = new System.Drawing.Size(264, 22);
             this.openMenuItem.Text = "📂 Открыть...";
-            
+            // 
+            // saveMenuItem
+            // 
             this.saveMenuItem.Name = "saveMenuItem";
-            this.saveMenuItem.ShortcutKeys = Keys.Control | Keys.S;
+            this.saveMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.S)));
+            this.saveMenuItem.Size = new System.Drawing.Size(264, 22);
             this.saveMenuItem.Text = "💾 Сохранить";
-            
+            // 
+            // saveAsMenuItem
+            // 
             this.saveAsMenuItem.Name = "saveAsMenuItem";
-            this.saveAsMenuItem.ShortcutKeys = Keys.Control | Keys.Shift | Keys.S;
+            this.saveAsMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
+            | System.Windows.Forms.Keys.S)));
+            this.saveAsMenuItem.Size = new System.Drawing.Size(264, 22);
             this.saveAsMenuItem.Text = "💾 Сохранить как...";
-            
+            // 
+            // toolStripSeparator2
+            // 
+            this.toolStripSeparator2.Name = "toolStripSeparator2";
+            this.toolStripSeparator2.Size = new System.Drawing.Size(261, 6);
+            // 
+            // importMenuItem
+            // 
             this.importMenuItem.Name = "importMenuItem";
+            this.importMenuItem.Size = new System.Drawing.Size(264, 22);
             this.importMenuItem.Text = "📥 Импорт данных...";
-            
-            // Export submenu
+            // 
+            // exportMenuItem
+            // 
             this.exportMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-                this.exportPDFMenuItem,
-                this.exportCSVMenuItem,
-                this.exportTXTMenuItem,
-                this.exportPNGMenuItem});
+            this.exportPDFMenuItem,
+            this.exportCSVMenuItem,
+            this.exportTXTMenuItem,
+            this.exportPNGMenuItem});
             this.exportMenuItem.Name = "exportMenuItem";
+            this.exportMenuItem.Size = new System.Drawing.Size(264, 22);
             this.exportMenuItem.Text = "📤 Экспорт результатов";
-            
+            // 
+            // exportPDFMenuItem
+            // 
             this.exportPDFMenuItem.Name = "exportPDFMenuItem";
+            this.exportPDFMenuItem.Size = new System.Drawing.Size(182, 22);
             this.exportPDFMenuItem.Text = "📄 PDF";
-            
+            // 
+            // exportCSVMenuItem
+            // 
             this.exportCSVMenuItem.Name = "exportCSVMenuItem";
+            this.exportCSVMenuItem.Size = new System.Drawing.Size(182, 22);
             this.exportCSVMenuItem.Text = "📊 CSV (Excel)";
-            
+            // 
+            // exportTXTMenuItem
+            // 
             this.exportTXTMenuItem.Name = "exportTXTMenuItem";
+            this.exportTXTMenuItem.Size = new System.Drawing.Size(182, 22);
             this.exportTXTMenuItem.Text = "📝 TXT";
-            
+            // 
+            // exportPNGMenuItem
+            // 
             this.exportPNGMenuItem.Name = "exportPNGMenuItem";
+            this.exportPNGMenuItem.Size = new System.Drawing.Size(182, 22);
             this.exportPNGMenuItem.Text = "🖼️ PNG (Скриншот)";
-            
+            // 
+            // toolStripSeparator3
+            // 
+            this.toolStripSeparator3.Name = "toolStripSeparator3";
+            this.toolStripSeparator3.Size = new System.Drawing.Size(261, 6);
+            // 
+            // printMenuItem
+            // 
             this.printMenuItem.Name = "printMenuItem";
-            this.printMenuItem.ShortcutKeys = Keys.Control | Keys.P;
+            this.printMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.P)));
+            this.printMenuItem.Size = new System.Drawing.Size(264, 22);
             this.printMenuItem.Text = "🖨️ Печать...";
-            
+            // 
+            // printPreviewMenuItem
+            // 
             this.printPreviewMenuItem.Name = "printPreviewMenuItem";
+            this.printPreviewMenuItem.Size = new System.Drawing.Size(264, 22);
             this.printPreviewMenuItem.Text = "👁️ Предпросмотр печати";
-            
+            // 
+            // printSettingsMenuItem
+            // 
             this.printSettingsMenuItem.Name = "printSettingsMenuItem";
+            this.printSettingsMenuItem.Size = new System.Drawing.Size(264, 22);
             this.printSettingsMenuItem.Text = "⚙️ Настройка печати...";
-            
+            // 
+            // toolStripSeparator1
+            // 
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(261, 6);
+            // 
+            // exitMenuItem
+            // 
             this.exitMenuItem.Name = "exitMenuItem";
-            this.exitMenuItem.ShortcutKeys = Keys.Alt | Keys.F4;
+            this.exitMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.F4)));
+            this.exitMenuItem.Size = new System.Drawing.Size(264, 22);
             this.exitMenuItem.Text = "❌ Выход";
-            
-            // Help Menu
+            // 
+            // helpMenuItem
+            // 
             this.helpMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-                this.userManualMenuItem,
-                this.quickStartMenuItem,
-                this.calcHelpMenuItem,
-                this.toolStripSeparator4,
-                this.formulasMenuItem,
-                this.unitsTableMenuItem,
-                this.hotkeysMenuItem,
-                this.toolStripSeparator5,
-                this.aboutMenuItem,
-                this.checkUpdatesMenuItem,
-                this.reportBugMenuItem});
+            this.userManualMenuItem,
+            this.quickStartMenuItem,
+            this.calcHelpMenuItem,
+            this.toolStripSeparator4,
+            this.formulasMenuItem,
+            this.unitsTableMenuItem,
+            this.hotkeysMenuItem,
+            this.toolStripSeparator5,
+            this.aboutMenuItem,
+            this.checkUpdatesMenuItem,
+            this.reportBugMenuItem});
             this.helpMenuItem.Name = "helpMenuItem";
             this.helpMenuItem.Size = new System.Drawing.Size(65, 20);
             this.helpMenuItem.Text = "Справка";
-            
-            // Help menu items configuration
+            // 
+            // userManualMenuItem
+            // 
             this.userManualMenuItem.Name = "userManualMenuItem";
-            this.userManualMenuItem.ShortcutKeys = Keys.F1;
+            this.userManualMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F1;
+            this.userManualMenuItem.Size = new System.Drawing.Size(258, 22);
             this.userManualMenuItem.Text = "📖 Руководство пользователя";
-            
+            // 
+            // quickStartMenuItem
+            // 
             this.quickStartMenuItem.Name = "quickStartMenuItem";
+            this.quickStartMenuItem.Size = new System.Drawing.Size(258, 22);
             this.quickStartMenuItem.Text = "🚀 Быстрый старт";
-            
+            // 
+            // calcHelpMenuItem
+            // 
             this.calcHelpMenuItem.Name = "calcHelpMenuItem";
+            this.calcHelpMenuItem.Size = new System.Drawing.Size(258, 22);
             this.calcHelpMenuItem.Text = "🔧 Как использовать калькулятор";
-            
+            // 
+            // toolStripSeparator4
+            // 
+            this.toolStripSeparator4.Name = "toolStripSeparator4";
+            this.toolStripSeparator4.Size = new System.Drawing.Size(255, 6);
+            // 
+            // formulasMenuItem
+            // 
             this.formulasMenuItem.Name = "formulasMenuItem";
+            this.formulasMenuItem.Size = new System.Drawing.Size(258, 22);
             this.formulasMenuItem.Text = "📐 Формулы конвертации";
-            
+            // 
+            // unitsTableMenuItem
+            // 
             this.unitsTableMenuItem.Name = "unitsTableMenuItem";
+            this.unitsTableMenuItem.Size = new System.Drawing.Size(258, 22);
             this.unitsTableMenuItem.Text = "📊 Таблица единиц";
-            
+            // 
+            // hotkeysMenuItem
+            // 
             this.hotkeysMenuItem.Name = "hotkeysMenuItem";
+            this.hotkeysMenuItem.Size = new System.Drawing.Size(258, 22);
             this.hotkeysMenuItem.Text = "⌨️ Горячие клавиши";
-            
+            // 
+            // toolStripSeparator5
+            // 
+            this.toolStripSeparator5.Name = "toolStripSeparator5";
+            this.toolStripSeparator5.Size = new System.Drawing.Size(255, 6);
+            // 
+            // aboutMenuItem
+            // 
             this.aboutMenuItem.Name = "aboutMenuItem";
+            this.aboutMenuItem.Size = new System.Drawing.Size(258, 22);
             this.aboutMenuItem.Text = "ℹ️ О программе";
-            
+            // 
+            // checkUpdatesMenuItem
+            // 
             this.checkUpdatesMenuItem.Name = "checkUpdatesMenuItem";
+            this.checkUpdatesMenuItem.Size = new System.Drawing.Size(258, 22);
             this.checkUpdatesMenuItem.Text = "🔄 Проверить обновления";
-            
+            // 
+            // reportBugMenuItem
+            // 
             this.reportBugMenuItem.Name = "reportBugMenuItem";
+            this.reportBugMenuItem.Size = new System.Drawing.Size(258, 22);
             this.reportBugMenuItem.Text = "🐛 Сообщить об ошибке";
-            
-            this.menuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-                this.fileMenuItem,
-                this.helpMenuItem});
-            
-            // Main Tab Control
+            // 
+            // mainTabControl
+            // 
+            this.mainTabControl.Controls.Add(this.tabConverter);
+            this.mainTabControl.Controls.Add(this.tabCalculator);
+            this.mainTabControl.Controls.Add(this.tabHistory);
+            this.mainTabControl.Controls.Add(this.tabSettings);
             this.mainTabControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.mainTabControl.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.mainTabControl.Location = new System.Drawing.Point(0, 24);
             this.mainTabControl.Name = "mainTabControl";
             this.mainTabControl.SelectedIndex = 0;
             this.mainTabControl.Size = new System.Drawing.Size(1024, 722);
             this.mainTabControl.TabIndex = 1;
-            this.mainTabControl.Font = new System.Drawing.Font("Segoe UI", 10F);
-            
-            // Converter Tab
-            this.tabConverter.Text = "🔄 ConvertApp";
-            this.tabConverter.UseVisualStyleBackColor = true;
+            // 
+            // tabConverter
+            // 
+            this.tabConverter.Location = new System.Drawing.Point(4, 26);
+            this.tabConverter.Name = "tabConverter";
             this.tabConverter.Padding = new System.Windows.Forms.Padding(10);
-            
-            // History Tab
+            this.tabConverter.Size = new System.Drawing.Size(1016, 692);
+            this.tabConverter.TabIndex = 0;
+            this.tabConverter.Text = "🔄 Конвертатор";
+            this.tabConverter.UseVisualStyleBackColor = true;
+            // 
+            // tabHistory
+            // 
+            this.tabHistory.Location = new System.Drawing.Point(4, 26);
+            this.tabHistory.Name = "tabHistory";
+            this.tabHistory.Padding = new System.Windows.Forms.Padding(10);
+            this.tabHistory.Size = new System.Drawing.Size(1016, 692);
+            this.tabHistory.TabIndex = 1;
             this.tabHistory.Text = "📊 История";
             this.tabHistory.UseVisualStyleBackColor = true;
-            this.tabHistory.Padding = new System.Windows.Forms.Padding(10);
-            
-            // Calculator Tab
-            this.tabCalculator.Text = "🧮 Calculator";
-            this.tabCalculator.UseVisualStyleBackColor = true;
+            // 
+            // tabCalculator
+            // 
+            this.tabCalculator.Location = new System.Drawing.Point(4, 26);
+            this.tabCalculator.Name = "tabCalculator";
             this.tabCalculator.Padding = new System.Windows.Forms.Padding(10);
-            
-            // Settings Tab
+            this.tabCalculator.Size = new System.Drawing.Size(1016, 692);
+            this.tabCalculator.TabIndex = 2;
+            this.tabCalculator.Text = "🧮 Калькулятор";
+            this.tabCalculator.UseVisualStyleBackColor = true;
+            // 
+            // tabSettings
+            // 
+            this.tabSettings.Location = new System.Drawing.Point(4, 26);
+            this.tabSettings.Name = "tabSettings";
+            this.tabSettings.Padding = new System.Windows.Forms.Padding(10);
+            this.tabSettings.Size = new System.Drawing.Size(1016, 692);
+            this.tabSettings.TabIndex = 3;
             this.tabSettings.Text = "⚙️ Настройки";
             this.tabSettings.UseVisualStyleBackColor = true;
-            this.tabSettings.Padding = new System.Windows.Forms.Padding(10);
-            
-            this.mainTabControl.TabPages.Add(this.tabConverter);
-            this.mainTabControl.TabPages.Add(this.tabHistory);
-            this.mainTabControl.TabPages.Add(this.tabCalculator);
-            this.mainTabControl.TabPages.Add(this.tabSettings);
-            
-            // Status Strip
+            // 
+            // converterPanel
+            // 
+            this.converterPanel.Location = new System.Drawing.Point(0, 0);
+            this.converterPanel.Name = "converterPanel";
+            this.converterPanel.Size = new System.Drawing.Size(200, 100);
+            this.converterPanel.TabIndex = 0;
+            // 
+            // typePanel
+            // 
+            this.typePanel.Location = new System.Drawing.Point(0, 0);
+            this.typePanel.Name = "typePanel";
+            this.typePanel.Size = new System.Drawing.Size(200, 100);
+            this.typePanel.TabIndex = 0;
+            // 
+            // lblConversionType
+            // 
+            this.lblConversionType.Location = new System.Drawing.Point(0, 0);
+            this.lblConversionType.Name = "lblConversionType";
+            this.lblConversionType.Size = new System.Drawing.Size(100, 23);
+            this.lblConversionType.TabIndex = 0;
+            // 
+            // cboType
+            // 
+            this.cboType.Location = new System.Drawing.Point(0, 0);
+            this.cboType.Name = "cboType";
+            this.cboType.Size = new System.Drawing.Size(121, 21);
+            this.cboType.TabIndex = 0;
+            // 
+            // conversionPanel
+            // 
+            this.conversionPanel.Location = new System.Drawing.Point(0, 0);
+            this.conversionPanel.Name = "conversionPanel";
+            this.conversionPanel.Size = new System.Drawing.Size(200, 100);
+            this.conversionPanel.TabIndex = 0;
+            // 
+            // inputGroupBox
+            // 
+            this.inputGroupBox.Location = new System.Drawing.Point(0, 0);
+            this.inputGroupBox.Name = "inputGroupBox";
+            this.inputGroupBox.Size = new System.Drawing.Size(200, 100);
+            this.inputGroupBox.TabIndex = 0;
+            this.inputGroupBox.TabStop = false;
+            // 
+            // arrowLabel
+            // 
+            this.arrowLabel.Location = new System.Drawing.Point(0, 0);
+            this.arrowLabel.Name = "arrowLabel";
+            this.arrowLabel.Size = new System.Drawing.Size(100, 23);
+            this.arrowLabel.TabIndex = 0;
+            // 
+            // outputGroupBox
+            // 
+            this.outputGroupBox.Location = new System.Drawing.Point(0, 0);
+            this.outputGroupBox.Name = "outputGroupBox";
+            this.outputGroupBox.Size = new System.Drawing.Size(200, 100);
+            this.outputGroupBox.TabIndex = 0;
+            this.outputGroupBox.TabStop = false;
+            // 
+            // buttonPanel
+            // 
+            this.buttonPanel.Location = new System.Drawing.Point(0, 0);
+            this.buttonPanel.Name = "buttonPanel";
+            this.buttonPanel.Size = new System.Drawing.Size(200, 100);
+            this.buttonPanel.TabIndex = 0;
+            // 
+            // btnConvert
+            // 
+            this.btnConvert.Location = new System.Drawing.Point(0, 0);
+            this.btnConvert.Name = "btnConvert";
+            this.btnConvert.Size = new System.Drawing.Size(75, 23);
+            this.btnConvert.TabIndex = 0;
+            // 
+            // btnClear
+            // 
+            this.btnClear.Location = new System.Drawing.Point(0, 0);
+            this.btnClear.Name = "btnClear";
+            this.btnClear.Size = new System.Drawing.Size(75, 23);
+            this.btnClear.TabIndex = 0;
+            // 
+            // btnExport
+            // 
+            this.btnExport.Location = new System.Drawing.Point(0, 0);
+            this.btnExport.Name = "btnExport";
+            this.btnExport.Size = new System.Drawing.Size(75, 23);
+            this.btnExport.TabIndex = 0;
+            // 
+            // btnExportPrint
+            // 
+            this.btnExportPrint.Location = new System.Drawing.Point(0, 0);
+            this.btnExportPrint.Name = "btnExportPrint";
+            this.btnExportPrint.Size = new System.Drawing.Size(75, 23);
+            this.btnExportPrint.TabIndex = 0;
+            // 
+            // historyPanel
+            // 
+            this.historyPanel.Location = new System.Drawing.Point(0, 0);
+            this.historyPanel.Name = "historyPanel";
+            this.historyPanel.Size = new System.Drawing.Size(200, 100);
+            this.historyPanel.TabIndex = 0;
+            // 
+            // historyFilterPanel
+            // 
+            this.historyFilterPanel.Location = new System.Drawing.Point(0, 0);
+            this.historyFilterPanel.Name = "historyFilterPanel";
+            this.historyFilterPanel.Size = new System.Drawing.Size(200, 100);
+            this.historyFilterPanel.TabIndex = 0;
+            // 
+            // cboHistoryFilter
+            // 
+            this.cboHistoryFilter.Location = new System.Drawing.Point(0, 0);
+            this.cboHistoryFilter.Name = "cboHistoryFilter";
+            this.cboHistoryFilter.Size = new System.Drawing.Size(121, 21);
+            this.cboHistoryFilter.TabIndex = 0;
+            // 
+            // txtHistorySearch
+            // 
+            this.txtHistorySearch.Location = new System.Drawing.Point(0, 0);
+            this.txtHistorySearch.Name = "txtHistorySearch";
+            this.txtHistorySearch.Size = new System.Drawing.Size(100, 20);
+            this.txtHistorySearch.TabIndex = 0;
+            // 
+            // btnHistorySearch
+            // 
+            this.btnHistorySearch.Location = new System.Drawing.Point(0, 0);
+            this.btnHistorySearch.Name = "btnHistorySearch";
+            this.btnHistorySearch.Size = new System.Drawing.Size(75, 23);
+            this.btnHistorySearch.TabIndex = 0;
+            // 
+            // historyDataGrid
+            // 
+            this.historyDataGrid.Location = new System.Drawing.Point(0, 0);
+            this.historyDataGrid.Name = "historyDataGrid";
+            this.historyDataGrid.Size = new System.Drawing.Size(240, 150);
+            this.historyDataGrid.TabIndex = 0;
+            // 
+            // historyButtonPanel
+            // 
+            this.historyButtonPanel.Location = new System.Drawing.Point(0, 0);
+            this.historyButtonPanel.Name = "historyButtonPanel";
+            this.historyButtonPanel.Size = new System.Drawing.Size(200, 100);
+            this.historyButtonPanel.TabIndex = 0;
+            // 
+            // btnClearHistory
+            // 
+            this.btnClearHistory.Location = new System.Drawing.Point(0, 0);
+            this.btnClearHistory.Name = "btnClearHistory";
+            this.btnClearHistory.Size = new System.Drawing.Size(75, 23);
+            this.btnClearHistory.TabIndex = 0;
+            // 
+            // btnExportCSV
+            // 
+            this.btnExportCSV.Location = new System.Drawing.Point(0, 0);
+            this.btnExportCSV.Name = "btnExportCSV";
+            this.btnExportCSV.Size = new System.Drawing.Size(75, 23);
+            this.btnExportCSV.TabIndex = 0;
+            // 
+            // btnExportPDF
+            // 
+            this.btnExportPDF.Location = new System.Drawing.Point(0, 0);
+            this.btnExportPDF.Name = "btnExportPDF";
+            this.btnExportPDF.Size = new System.Drawing.Size(75, 23);
+            this.btnExportPDF.TabIndex = 0;
+            // 
+            // calcTabPanel
+            // 
+            this.calcTabPanel.Location = new System.Drawing.Point(0, 0);
+            this.calcTabPanel.Name = "calcTabPanel";
+            this.calcTabPanel.Size = new System.Drawing.Size(200, 100);
+            this.calcTabPanel.TabIndex = 0;
+            // 
+            // settingsPanel
+            // 
+            this.settingsPanel.Location = new System.Drawing.Point(0, 0);
+            this.settingsPanel.Name = "settingsPanel";
+            this.settingsPanel.Size = new System.Drawing.Size(200, 100);
+            this.settingsPanel.TabIndex = 0;
+            // 
+            // numberFormatGroup
+            // 
+            this.numberFormatGroup.Location = new System.Drawing.Point(0, 0);
+            this.numberFormatGroup.Name = "numberFormatGroup";
+            this.numberFormatGroup.Size = new System.Drawing.Size(200, 100);
+            this.numberFormatGroup.TabIndex = 0;
+            this.numberFormatGroup.TabStop = false;
+            // 
+            // lblDecimalPlaces
+            // 
+            this.lblDecimalPlaces.Location = new System.Drawing.Point(0, 0);
+            this.lblDecimalPlaces.Name = "lblDecimalPlaces";
+            this.lblDecimalPlaces.Size = new System.Drawing.Size(100, 23);
+            this.lblDecimalPlaces.TabIndex = 0;
+            // 
+            // numDecimalPlaces
+            // 
+            this.numDecimalPlaces.Location = new System.Drawing.Point(0, 0);
+            this.numDecimalPlaces.Name = "numDecimalPlaces";
+            this.numDecimalPlaces.Size = new System.Drawing.Size(120, 20);
+            this.numDecimalPlaces.TabIndex = 0;
+            // 
+            // chkThousandsSeparator
+            // 
+            this.chkThousandsSeparator.Location = new System.Drawing.Point(0, 0);
+            this.chkThousandsSeparator.Name = "chkThousandsSeparator";
+            this.chkThousandsSeparator.Size = new System.Drawing.Size(104, 24);
+            this.chkThousandsSeparator.TabIndex = 0;
+            // 
+            // chkScientificNotation
+            // 
+            this.chkScientificNotation.Location = new System.Drawing.Point(0, 0);
+            this.chkScientificNotation.Name = "chkScientificNotation";
+            this.chkScientificNotation.Size = new System.Drawing.Size(104, 24);
+            this.chkScientificNotation.TabIndex = 0;
+            // 
+            // appearanceGroup
+            // 
+            this.appearanceGroup.Location = new System.Drawing.Point(0, 0);
+            this.appearanceGroup.Name = "appearanceGroup";
+            this.appearanceGroup.Size = new System.Drawing.Size(200, 100);
+            this.appearanceGroup.TabIndex = 0;
+            this.appearanceGroup.TabStop = false;
+            // 
+            // lblTheme
+            // 
+            this.lblTheme.Location = new System.Drawing.Point(0, 0);
+            this.lblTheme.Name = "lblTheme";
+            this.lblTheme.Size = new System.Drawing.Size(100, 23);
+            this.lblTheme.TabIndex = 0;
+            // 
+            // cboTheme
+            // 
+            this.cboTheme.Location = new System.Drawing.Point(0, 0);
+            this.cboTheme.Name = "cboTheme";
+            this.cboTheme.Size = new System.Drawing.Size(121, 21);
+            this.cboTheme.TabIndex = 0;
+            // 
+            // chkAnimations
+            // 
+            this.chkAnimations.Location = new System.Drawing.Point(0, 0);
+            this.chkAnimations.Name = "chkAnimations";
+            this.chkAnimations.Size = new System.Drawing.Size(104, 24);
+            this.chkAnimations.TabIndex = 0;
+            // 
+            // chkSoundEffects
+            // 
+            this.chkSoundEffects.Location = new System.Drawing.Point(0, 0);
+            this.chkSoundEffects.Name = "chkSoundEffects";
+            this.chkSoundEffects.Size = new System.Drawing.Size(104, 24);
+            this.chkSoundEffects.TabIndex = 0;
+            // 
+            // hotkeyGroup
+            // 
+            this.hotkeyGroup.Location = new System.Drawing.Point(0, 0);
+            this.hotkeyGroup.Name = "hotkeyGroup";
+            this.hotkeyGroup.Size = new System.Drawing.Size(200, 100);
+            this.hotkeyGroup.TabIndex = 0;
+            this.hotkeyGroup.TabStop = false;
+            // 
+            // lblHotkeyInfo
+            // 
+            this.lblHotkeyInfo.Location = new System.Drawing.Point(0, 0);
+            this.lblHotkeyInfo.Name = "lblHotkeyInfo";
+            this.lblHotkeyInfo.Size = new System.Drawing.Size(100, 23);
+            this.lblHotkeyInfo.TabIndex = 0;
+            // 
+            // settingsButtonPanel
+            // 
+            this.settingsButtonPanel.Location = new System.Drawing.Point(0, 0);
+            this.settingsButtonPanel.Name = "settingsButtonPanel";
+            this.settingsButtonPanel.Size = new System.Drawing.Size(200, 100);
+            this.settingsButtonPanel.TabIndex = 0;
+            // 
+            // btnResetSettings
+            // 
+            this.btnResetSettings.Location = new System.Drawing.Point(0, 0);
+            this.btnResetSettings.Name = "btnResetSettings";
+            this.btnResetSettings.Size = new System.Drawing.Size(75, 23);
+            this.btnResetSettings.TabIndex = 0;
+            // 
+            // btnApplySettings
+            // 
+            this.btnApplySettings.Location = new System.Drawing.Point(0, 0);
+            this.btnApplySettings.Name = "btnApplySettings";
+            this.btnApplySettings.Size = new System.Drawing.Size(75, 23);
+            this.btnApplySettings.TabIndex = 0;
+            // 
+            // btnSaveSettings
+            // 
+            this.btnSaveSettings.Location = new System.Drawing.Point(0, 0);
+            this.btnSaveSettings.Name = "btnSaveSettings";
+            this.btnSaveSettings.Size = new System.Drawing.Size(75, 23);
+            this.btnSaveSettings.TabIndex = 0;
+            // 
+            // statusStrip
+            // 
+            this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.lblStatus});
             this.statusStrip.Location = new System.Drawing.Point(0, 746);
             this.statusStrip.Name = "statusStrip";
             this.statusStrip.Size = new System.Drawing.Size(1024, 22);
             this.statusStrip.TabIndex = 2;
-            
+            // 
+            // lblStatus
+            // 
             this.lblStatus.Name = "lblStatus";
-            this.lblStatus.Size = new System.Drawing.Size(100, 17);
+            this.lblStatus.Size = new System.Drawing.Size(88, 17);
             this.lblStatus.Text = "Готов к работе";
-            this.statusStrip.Items.Add(this.lblStatus);
-            
-            // Add controls to form
+            // 
+            // ModernMainForm
+            // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.ClientSize = new System.Drawing.Size(1024, 768);
             this.Controls.Add(this.mainTabControl);
             this.Controls.Add(this.statusStrip);
             this.Controls.Add(this.menuStrip);
             this.MainMenuStrip = this.menuStrip;
-            
-            // Resume Layout
+            this.MinimumSize = new System.Drawing.Size(1024, 768);
+            this.Name = "ModernMainForm";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+            this.Text = "ConverterApp - Универсальный конвертер";
             this.menuStrip.ResumeLayout(false);
             this.menuStrip.PerformLayout();
             this.mainTabControl.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.historyDataGrid)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numDecimalPlaces)).EndInit();
             this.statusStrip.ResumeLayout(false);
             this.statusStrip.PerformLayout();
-            // Tab contents are initialized in the main constructor
-            
             this.ResumeLayout(false);
             this.PerformLayout();
+
         }
         
         private void InitializeConverterTab()
