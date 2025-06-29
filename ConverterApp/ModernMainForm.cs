@@ -1443,16 +1443,21 @@ namespace ConverterApp
                 
                 if (control is Button btn)
                 {
-                    // Не изменяем цвета кнопок калькулятора
+                    // Не изменяем цвета кнопок калькулятора и кнопок с установленным цветом в Tag
                     bool isCalculatorButton = btn.Parent == calcTabButtonPanel;
+                    bool hasColorTag = btn.Tag is Color tagColor && tagColor != Color.Empty;
                     
-                    if (isCalculatorButton)
+                    if (isCalculatorButton || hasColorTag)
                     {
-                        // Для кнопок калькулятора сохраняем их оригинальные цвета в Tag
+                        // Для цветных кнопок сохраняем их оригинальные цвета
                         if (btn.Tag == null)
                         {
                             btn.Tag = btn.BackColor;
                         }
+                        // Обновляем только границы для соответствия теме
+                        btn.FlatAppearance.BorderColor = isDarkTheme ? 
+                            ControlPaint.Dark(btn.BackColor, 0.2f) : 
+                            ControlPaint.Dark(btn.BackColor, 0.1f);
                     }
                     else if (!original?.IsColoredElement ?? true)
                     {

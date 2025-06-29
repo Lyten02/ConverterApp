@@ -660,7 +660,17 @@ namespace ConverterApp
             this.btnHistorySearch = new Button();
             this.btnHistorySearch.Text = "🔍";
             this.btnHistorySearch.Location = new Point(520, 18);
-            this.btnHistorySearch.Size = new Size(30, 25);
+            this.btnHistorySearch.Size = new Size(40, 25);
+            this.btnHistorySearch.Font = new Font("Segoe UI", 10F);
+            this.btnHistorySearch.FlatStyle = FlatStyle.Flat;
+            this.btnHistorySearch.BackColor = Color.FromArgb(0, 123, 255); // Яркий синий
+            this.btnHistorySearch.ForeColor = Color.White;
+            this.btnHistorySearch.FlatAppearance.BorderSize = 1;
+            this.btnHistorySearch.FlatAppearance.BorderColor = ControlPaint.Dark(Color.FromArgb(0, 123, 255), 0.1f);
+            this.btnHistorySearch.Cursor = Cursors.Hand;
+            this.btnHistorySearch.Tag = Color.FromArgb(0, 123, 255);
+            this.btnHistorySearch.MouseEnter += StyledButton_MouseEnter;
+            this.btnHistorySearch.MouseLeave += StyledButton_MouseLeave;
             this.historyFilterPanel.Controls.Add(filterLabel);
             this.historyFilterPanel.Controls.Add(this.cboHistoryFilter);
             this.historyFilterPanel.Controls.Add(searchLabel);
