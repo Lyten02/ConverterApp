@@ -1142,16 +1142,31 @@ namespace ConverterApp
                 isChangingType = false;
             }
             
-            // Don't auto-convert when changing type - wait for user to initiate conversion
-            // This prevents error messages when units are still being loaded
+            // After units are loaded, auto-convert if there's a number in the input field
+            if (!string.IsNullOrEmpty(txtInput.Text) && 
+                cboFromUnit.SelectedItem != null && 
+                cboToUnit.SelectedItem != null)
+            {
+                // Use BeginInvoke to ensure UI is fully updated before conversion
+                this.BeginInvoke(new Action(() => 
+                {
+                    BtnConvert_Click(null, null);
+                }));
+            }
         }
         
         private void CboUnit_SelectedIndexChanged(object sender, EventArgs e)
         {
             // Removed automatic unit switching to fix dropdown issues
             
-            // Only auto-convert if we're not in the middle of changing type
-            if (isAutoConvertEnabled && !string.IsNullOrEmpty(txtInput.Text) && !isChangingType)
+            // Auto-convert if:
+            // 1. There's text in input field
+            // 2. Both units are selected
+            // 3. We're not in the middle of changing type
+            if (!string.IsNullOrEmpty(txtInput.Text) && 
+                !isChangingType &&
+                cboFromUnit.SelectedItem != null && 
+                cboToUnit.SelectedItem != null)
             {
                 BtnConvert_Click(null, null);
             }
@@ -1170,10 +1185,22 @@ namespace ConverterApp
                 isUpdatingText = false;
             }
             
-            // Only auto-convert if we're not in the middle of changing type
-            if (isAutoConvertEnabled && !string.IsNullOrEmpty(txtInput.Text) && !isChangingType)
+            // Auto-convert if:
+            // 1. There's valid text
+            // 2. Both units are selected
+            // 3. We're not changing type
+            // 4. Either auto-convert is enabled OR user is typing
+            if (!string.IsNullOrEmpty(txtInput.Text) && 
+                !isChangingType &&
+                cboFromUnit.SelectedItem != null && 
+                cboToUnit.SelectedItem != null)
             {
-                BtnConvert_Click(null, null);
+                // Check if it's a valid number before auto-converting
+                if (double.TryParse(txtInput.Text, NumberStyles.Any, CultureInfo.CurrentCulture, out _) ||
+                    double.TryParse(txtInput.Text, NumberStyles.Any, CultureInfo.InvariantCulture, out _))
+                {
+                    BtnConvert_Click(null, null);
+                }
             }
         }
         
