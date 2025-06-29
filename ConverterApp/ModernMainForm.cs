@@ -1989,7 +1989,7 @@ namespace ConverterApp
             button.Dock = DockStyle.Fill;
             button.Font = new Font("Segoe UI", 14F);
             button.FlatStyle = FlatStyle.Flat;
-            button.BackColor = Color.FromArgb(248, 249, 250); // Светло-серый фон для цифр
+            button.BackColor = Color.White; // Белый фон по умолчанию
             button.FlatAppearance.BorderColor = Color.FromArgb(206, 212, 218);
             button.FlatAppearance.BorderSize = 1;
             button.Cursor = Cursors.Hand;
@@ -2052,7 +2052,7 @@ namespace ConverterApp
                     else if (char.IsDigit(originalText, 0) || originalText == ".")
                         btn.BackColor = Color.White;
                     else
-                        btn.BackColor = Color.FromArgb(248, 249, 250);
+                        btn.BackColor = Color.White;
                 }
             };
             
