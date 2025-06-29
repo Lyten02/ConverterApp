@@ -257,9 +257,6 @@ namespace ConverterApp
         
         private void RunComprehensiveTests()
         {
-            // Set console encoding to support Unicode characters
-            Console.OutputEncoding = System.Text.Encoding.UTF8;
-            
             Console.WriteLine("=== НАЧАЛО ПОЛНОГО КОМПЛЕКСНОГО ТЕСТИРОВАНИЯ ===");
             Console.WriteLine($"Время начала: {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
             Console.WriteLine($"Версия приложения: ModernMainForm");
