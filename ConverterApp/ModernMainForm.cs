@@ -2524,6 +2524,37 @@ namespace ConverterApp
             }
         }
         
+        private void UpdateSettingsDisplay()
+        {
+            if (numDecimalPlaces != null)
+                numDecimalPlaces.Value = decimalPlaces;
+            
+            if (chkThousandsSeparator != null)
+                chkThousandsSeparator.Checked = useThousandsSeparator;
+            
+            if (chkAnimations != null)
+                chkAnimations.Checked = isAnimationEnabled;
+            
+            // Note: Auto-convert is controlled via isAutoConvertEnabled variable
+            // There's no UI checkbox for it in current design
+            
+            // Update number format preview if needed
+            UpdateNumberFormatPreview();
+        }
+        
+        private void UpdateNumberFormatPreview()
+        {
+            // Update any preview displays with current number format settings
+            if (txtOutput != null && !string.IsNullOrEmpty(txtOutput.Text))
+            {
+                // Re-format the output with new settings
+                if (double.TryParse(txtOutput.Text.Replace(",", "").Replace(" ", ""), out double value))
+                {
+                    txtOutput.Text = FormatNumber(value);
+                }
+            }
+        }
+        
         private void ExportPDF_Click(object sender, EventArgs e)
         {
             SaveAsPDF(null);
