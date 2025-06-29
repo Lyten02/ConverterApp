@@ -45,7 +45,6 @@ namespace ConverterApp
             ["GBP"] = 0.79,
             ["JPY"] = 149.5
         };
-        private PrintDocument printDocument = new PrintDocument();
         private bool isAnimationEnabled = true;
         private int decimalPlaces = 2;
         private bool useThousandsSeparator = true;
@@ -150,26 +149,7 @@ namespace ConverterApp
             if (exportCSVMenuItem != null) exportCSVMenuItem.Click += ExportCSV_Click;
             if (exportTXTMenuItem != null) exportTXTMenuItem.Click += ExportTXT_Click;
             if (exportPNGMenuItem != null) exportPNGMenuItem.Click += ExportPNG_Click;
-            if (printMenuItem != null) printMenuItem.Click += (s, e) =>
-            {
-                var result = MessageBox.Show(
-                    "Выберите способ печати:\n\n" +
-                    "ДА - Печать через браузер (рекомендуется)\n" +
-                    "НЕТ - Прямая печать на принтер\n",
-                    "Выбор способа печати",
-                    MessageBoxButtons.YesNoCancel,
-                    MessageBoxIcon.Question);
-                if (result == DialogResult.Yes)
-                {
-                    PrintThroughBrowser();
-                }
-                else if (result == DialogResult.No)
-                {
-                    PrintResults_Click(s, e);
-                }
-            };
-            if (printPreviewMenuItem != null) printPreviewMenuItem.Click += PrintPreview_Click;
-            if (printSettingsMenuItem != null) printSettingsMenuItem.Click += PrintSettings_Click;
+            if (printMenuItem != null) printMenuItem.Click += (s, e) => PrintThroughBrowser();
             if (exitMenuItem != null) exitMenuItem.Click += (s, e) => Application.Exit();
             if (userManualMenuItem != null) userManualMenuItem.Click += ShowUserManual_Click;
             if (quickStartMenuItem != null) quickStartMenuItem.Click += ShowQuickStart_Click;
@@ -180,7 +160,6 @@ namespace ConverterApp
             if (aboutMenuItem != null) aboutMenuItem.Click += About_Click;
             if (checkUpdatesMenuItem != null) checkUpdatesMenuItem.Click += CheckUpdates_Click;
             if (reportBugMenuItem != null) reportBugMenuItem.Click += ReportBug_Click;
-            printDocument.PrintPage += PrintDocument_PrintPage;
             mainTabControl.SelectedIndexChanged += MainTabControl_SelectedIndexChanged;
             EnableDragDrop();
             isInitialized = true;
@@ -1339,7 +1318,7 @@ namespace ConverterApp
         private void BtnExportPrint_Click(object sender, EventArgs e)
         {
             SaveFile_Click(sender, e);
-            PrintResults_Click(sender, e);
+            PrintThroughBrowser();
         }
         private void EnableDragDrop()
         {
@@ -1515,24 +1494,6 @@ namespace ConverterApp
                 }
             }
         }
-        private void PrintPreview_Click(object sender, EventArgs e)
-        {
-            var result = MessageBox.Show(
-                "Выберите способ печати:\n\n" +
-                "ДА - Печать через браузер (рекомендуется)\n" +
-                "НЕТ - Встроенный предпросмотр печати\n",
-                "Выбор способа печати",
-                MessageBoxButtons.YesNoCancel,
-                MessageBoxIcon.Question);
-            if (result == DialogResult.Yes)
-            {
-                PrintThroughBrowser();
-            }
-            else if (result == DialogResult.No)
-            {
-                PrintResults_Click(sender, e);
-            }
-        }
         private void PrintThroughBrowser()
         {
             try
@@ -1621,26 +1582,6 @@ namespace ConverterApp
             sb.AppendLine("</body>");
             sb.AppendLine("</html>");
             return sb.ToString();
-        }
-        private void PrintSettings_Click(object sender, EventArgs e)
-        {
-            using (var printDialog = new PrintDialog())
-            {
-                printDialog.Document = printDocument;
-                printDialog.UseEXDialog = true;
-                if (printDialog.ShowDialog() == DialogResult.OK)
-                {
-                    try
-                    {
-                        printDocument.Print();
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show($"Ошибка при печати: {ex.Message}",
-                            "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
-                }
-            }
         }
         private void ShowUserManual_Click(object sender, EventArgs e)
         {
@@ -2058,61 +1999,6 @@ namespace ConverterApp
             OpenFile_Click(sender, e);
         }
 
-        private void PrintResults_Click(object sender, EventArgs e)
-        {
-            using (var printPreview = new PrintPreviewDialog())
-            {
-                printPreview.Document = printDocument;
-                printPreview.ShowDialog();
-            }
-        }
-
-        private void PrintDocument_PrintPage(object sender, PrintPageEventArgs e)
-        {
-            Graphics g = e.Graphics;
-            Font font = new Font("Arial", 12);
-            Font titleFont = new Font("Arial", 16, FontStyle.Bold);
-            Brush brush = Brushes.Black;
-            float y = e.MarginBounds.Top;
-            
-            g.DrawString("Универсальный конвертер - Отчет", titleFont, brush, 
-                e.MarginBounds.Left, y);
-            y += titleFont.Height + 20;
-            
-            g.DrawString($"Дата: {DateTime.Now:yyyy-MM-dd HH:mm:ss}", font, brush, 
-                e.MarginBounds.Left, y);
-            y += font.Height + 10;
-            
-            if (!string.IsNullOrEmpty(txtInput.Text) && !string.IsNullOrEmpty(txtOutput.Text))
-            {
-                g.DrawString("Текущий результат:", font, brush, e.MarginBounds.Left, y);
-                y += font.Height + 5;
-                g.DrawString($"  Тип: {cboType.SelectedItem}", font, brush, 
-                    e.MarginBounds.Left, y);
-                y += font.Height + 5;
-                g.DrawString($"  {txtInput.Text} {cboFromUnit.SelectedItem} = " +
-                    $"{txtOutput.Text} {cboToUnit.SelectedItem}", font, brush, 
-                    e.MarginBounds.Left, y);
-                y += font.Height + 20;
-            }
-            
-            g.DrawString("История конвертаций:", font, brush, e.MarginBounds.Left, y);
-            y += font.Height + 10;
-            
-            int count = 0;
-            foreach (var entry in conversionHistory.Take(20))
-            {
-                if (y + font.Height > e.MarginBounds.Bottom) break;
-                g.DrawString($"{entry.DateTime:HH:mm:ss} - {entry.Operation} = {entry.Result}", 
-                    font, brush, e.MarginBounds.Left + 20, y);
-                y += font.Height + 5;
-                count++;
-            }
-            
-            e.HasMorePages = false;
-            font.Dispose();
-            titleFont.Dispose();
-        }
 
         private void SaveAsPDF(string filename)
         {

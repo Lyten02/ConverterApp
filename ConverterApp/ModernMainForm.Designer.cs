@@ -14,11 +14,6 @@ namespace ConverterApp
                 {
                     components.Dispose();
                 }
-                if (printDocument != null)
-                {
-                    printDocument.Dispose();
-                    printDocument = null;
-                }
                 if (cancellationTokenSource != null)
                 {
                     cancellationTokenSource.Cancel();
@@ -44,8 +39,6 @@ namespace ConverterApp
             this.exportPNGMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.printMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.printPreviewMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.printSettingsMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.exitMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -130,8 +123,6 @@ namespace ConverterApp
             this.exportMenuItem,
             this.toolStripSeparator3,
             this.printMenuItem,
-            this.printPreviewMenuItem,
-            this.printSettingsMenuItem,
             this.toolStripSeparator1,
             this.exitMenuItem});
             this.fileMenuItem.Name = "fileMenuItem";
@@ -181,12 +172,6 @@ namespace ConverterApp
             this.printMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.P)));
             this.printMenuItem.Size = new System.Drawing.Size(264, 22);
             this.printMenuItem.Text = "🖨️ Печать...";
-            this.printPreviewMenuItem.Name = "printPreviewMenuItem";
-            this.printPreviewMenuItem.Size = new System.Drawing.Size(264, 22);
-            this.printPreviewMenuItem.Text = "👁️ Предпросмотр печати";
-            this.printSettingsMenuItem.Name = "printSettingsMenuItem";
-            this.printSettingsMenuItem.Size = new System.Drawing.Size(264, 22);
-            this.printSettingsMenuItem.Text = "⚙️ Настройка печати...";
             this.toolStripSeparator1.Name = "toolStripSeparator1";
             this.toolStripSeparator1.Size = new System.Drawing.Size(261, 6);
             this.exitMenuItem.Name = "exitMenuItem";
@@ -856,8 +841,6 @@ namespace ConverterApp
         private System.Windows.Forms.ToolStripMenuItem exportPNGMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
         private System.Windows.Forms.ToolStripMenuItem printMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem printPreviewMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem printSettingsMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.ToolStripMenuItem exitMenuItem;
         private System.Windows.Forms.ToolStripMenuItem helpMenuItem;
