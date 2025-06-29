@@ -257,6 +257,9 @@ namespace ConverterApp
         
         private void RunComprehensiveTests()
         {
+            // Set console encoding to support Unicode characters
+            Console.OutputEncoding = System.Text.Encoding.UTF8;
+            
             Console.WriteLine("=== НАЧАЛО ПОЛНОГО КОМПЛЕКСНОГО ТЕСТИРОВАНИЯ ===");
             Console.WriteLine($"Время начала: {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
             Console.WriteLine($"Версия приложения: ModernMainForm");
@@ -375,7 +378,7 @@ namespace ConverterApp
                 
                 Console.WriteLine($"Конвертация: {input} {from} -> {to}");
                 Console.WriteLine($"Ожидалось: {expected}, Получено: {result:F4}");
-                Console.WriteLine($"Результат: {(success ? "✓ УСПЕХ" : "✗ ОШИБКА")}");
+                Console.WriteLine($"Результат: {(success ? "OK УСПЕХ" : "FAIL ОШИБКА")}");
                 
                 // Track test results
                 totalTests++;
@@ -386,7 +389,7 @@ namespace ConverterApp
                 var historyEntry = new HistoryEntry
                 {
                     DateTime = DateTime.Now,
-                    Operation = $"{input} {from} → {to}",
+                    Operation = $"{input} {from} -> {to}",
                     Result = result.ToString("F4"),
                     Type = "Конвертация"
                 };
@@ -461,7 +464,7 @@ namespace ConverterApp
                 
                 bool success = Math.Abs(result - expected) < 0.0001;
                 Console.WriteLine($"Вычисление: {expression} = {result}");
-                Console.WriteLine($"Результат: {(success ? "✓ УСПЕХ" : "✗ ОШИБКА")}");
+                Console.WriteLine($"Результат: {(success ? "OK УСПЕХ" : "FAIL ОШИБКА")}");
                 
                 // Track test results
                 totalTests++;
@@ -514,7 +517,7 @@ namespace ConverterApp
                 
                 bool success = Math.Abs(result - expected) < 0.0001;
                 Console.WriteLine($"Функция: {function}({input}) = {result:F4}");
-                Console.WriteLine($"Ожидалось: {expected:F4}, Результат: {(success ? "✓ УСПЕХ" : "✗ ОШИБКА")}");
+                Console.WriteLine($"Ожидалось: {expected:F4}, Результат: {(success ? "OK УСПЕХ" : "FAIL ОШИБКА")}");
                 
                 // Track test results
                 totalTests++;
@@ -536,24 +539,24 @@ namespace ConverterApp
                 // Test decimal places
                 int originalDecimal = decimalPlaces;
                 decimalPlaces = 4;
-                Console.WriteLine($"Установка десятичных знаков: {decimalPlaces} - ✓");
+                Console.WriteLine($"Установка десятичных знаков: {decimalPlaces} - OK");
                 
                 // Test thousand separator
                 bool originalSeparator = useThousandsSeparator;
                 useThousandsSeparator = true;
-                Console.WriteLine($"Разделитель тысяч: {useThousandsSeparator} - ✓");
+                Console.WriteLine($"Разделитель тысяч: {useThousandsSeparator} - OK");
                 
                 // Test animation
                 bool originalAnimation = isAnimationEnabled;
                 isAnimationEnabled = false;
-                Console.WriteLine($"Анимация: {isAnimationEnabled} - ✓");
+                Console.WriteLine($"Анимация: {isAnimationEnabled} - OK");
                 
                 // Save and load settings
                 SaveSettings();
-                Console.WriteLine("Сохранение настроек - ✓");
+                Console.WriteLine("Сохранение настроек - OK");
                 
                 LoadSettings();
-                Console.WriteLine("Загрузка настроек - ✓");
+                Console.WriteLine("Загрузка настроек - OK");
                 
                 // Restore original settings
                 decimalPlaces = originalDecimal;
@@ -581,7 +584,7 @@ namespace ConverterApp
                     Console.WriteLine($"  {entry.DateTime:HH:mm:ss} - {entry.Operation} = {entry.Result}");
                 }
                 
-                Console.WriteLine("История работает - ✓");
+                Console.WriteLine("История работает - OK");
             }
             catch (Exception ex)
             {
@@ -622,11 +625,11 @@ namespace ConverterApp
                     csvData.AppendLine($"{entry.DateTime:yyyy-MM-dd HH:mm:ss},{entry.Operation},{entry.Result},{entry.Type}");
                 }
                 
-                Console.WriteLine("Подготовка CSV данных - ✓");
+                Console.WriteLine("Подготовка CSV данных - OK");
                 Console.WriteLine($"Размер данных: {csvData.Length} символов");
                 
                 // Test PDF export capability
-                Console.WriteLine("PDF библиотека доступна - ✓");
+                Console.WriteLine("PDF библиотека доступна - OK");
             }
             catch (Exception ex)
             {
@@ -703,13 +706,13 @@ namespace ConverterApp
                                 
                                 if (!success || value == 1) // Show first value and failures
                                 {
-                                    Console.WriteLine($"  {value} {from} → {to} = {result:F4} (обратно: {backResult:F4}) [{(success ? "✓" : "✗")}]");
+                                    Console.WriteLine($"  {value} {from} -> {to} = {result:F4} (обратно: {backResult:F4}) [{(success ? "OK" : "FAIL")}]");
                                 }
                             }
                             catch (Exception ex)
                             {
                                 failedTests++;
-                                Console.WriteLine($"  ОШИБКА: {value} {from} → {to}: {ex.Message}");
+                                Console.WriteLine($"  ОШИБКА: {value} {from} -> {to}: {ex.Message}");
                             }
                         }
                     }
@@ -724,7 +727,7 @@ namespace ConverterApp
                 { 2, 2, 4, 0, 4, 1 },      // a, b, a+b, a-b, a*b, a/b
                 { 10, 5, 15, 5, 50, 2 },
                 { 7.5, 2.5, 10, 5, 18.75, 3 },
-                { -5, 3, -2, -8, -15, -1.667 },
+                { -5, 3, -2, -8, -15, -5.0/3.0 },
                 { 0, 5, 5, -5, 0, 0 },
                 { 100, 0.1, 100.1, 99.9, 10, 1000 }
             };
@@ -784,7 +787,7 @@ namespace ConverterApp
             try
             {
                 TestCalculator("5 ÷ 0", double.PositiveInfinity);
-                Console.WriteLine("  Деление на ноль обработано ✓");
+                Console.WriteLine("  Деление на ноль обработано OK");
             }
             catch { Console.WriteLine("  Деление на ноль НЕ обработано ✗"); }
             
@@ -801,9 +804,9 @@ namespace ConverterApp
             try
             {
                 double result = ConvertUnit(0, "", "", "");
-                Console.WriteLine("  Пустой ввод обработан ✓");
+                Console.WriteLine("  Пустой ввод обработан OK");
             }
-            catch { Console.WriteLine("  Пустой ввод обработан ✓"); }
+            catch { Console.WriteLine("  Пустой ввод обработан OK"); }
         }
         
         private void TestUIElements()
@@ -813,7 +816,7 @@ namespace ConverterApp
             // Check all tabs exist
             if (mainTabControl != null)
             {
-                Console.WriteLine($"  Количество вкладок: {mainTabControl.TabCount} ✓");
+                Console.WriteLine($"  Количество вкладок: {mainTabControl.TabCount} OK");
                 foreach (TabPage tab in mainTabControl.TabPages)
                 {
                     Console.WriteLine($"    - {tab.Text}");
@@ -821,29 +824,29 @@ namespace ConverterApp
             }
             
             // Check combo boxes
-            if (cboType != null) Console.WriteLine($"  ComboBox типов: {cboType.Items.Count} элементов ✓");
-            if (cboFromUnit != null) Console.WriteLine($"  ComboBox единиц (от): загружен ✓");
-            if (cboToUnit != null) Console.WriteLine($"  ComboBox единиц (к): загружен ✓");
+            if (cboType != null) Console.WriteLine($"  ComboBox типов: {cboType.Items.Count} элементов OK");
+            if (cboFromUnit != null) Console.WriteLine($"  ComboBox единиц (от): загружен OK");
+            if (cboToUnit != null) Console.WriteLine($"  ComboBox единиц (к): загружен OK");
             
             // Check buttons
-            if (btnConvert != null) Console.WriteLine("  Кнопка конвертации: доступна ✓");
-            if (btnClear != null) Console.WriteLine("  Кнопка очистки: доступна ✓");
+            if (btnConvert != null) Console.WriteLine("  Кнопка конвертации: доступна OK");
+            if (btnClear != null) Console.WriteLine("  Кнопка очистки: доступна OK");
             
             // Check text boxes
-            if (txtInput != null) Console.WriteLine("  Поле ввода: доступно ✓");
-            if (txtOutput != null) Console.WriteLine("  Поле вывода: доступно ✓");
+            if (txtInput != null) Console.WriteLine("  Поле ввода: доступно OK");
+            if (txtOutput != null) Console.WriteLine("  Поле вывода: доступно OK");
         }
         
         private void TestKeyboardShortcuts()
         {
             Console.WriteLine("Проверка горячих клавиш:");
-            Console.WriteLine("  Ctrl+R - Конвертация ✓");
-            Console.WriteLine("  Ctrl+C - Очистка ✓");
-            Console.WriteLine("  Ctrl+S - Сохранение ✓");
-            Console.WriteLine("  Ctrl+P - Печать ✓");
-            Console.WriteLine("  Ctrl+Tab - Переключение вкладок ✓");
-            Console.WriteLine("  Enter - Конвертация ✓");
-            Console.WriteLine("  Escape - Очистка ✓");
+            Console.WriteLine("  Ctrl+R - Конвертация OK");
+            Console.WriteLine("  Ctrl+C - Очистка OK");
+            Console.WriteLine("  Ctrl+S - Сохранение OK");
+            Console.WriteLine("  Ctrl+P - Печать OK");
+            Console.WriteLine("  Ctrl+Tab - Переключение вкладок OK");
+            Console.WriteLine("  Enter - Конвертация OK");
+            Console.WriteLine("  Escape - Очистка OK");
         }
         
         private void TestSettingsPersistence()
@@ -866,7 +869,7 @@ namespace ConverterApp
             
             // Save
             SaveSettings();
-            Console.WriteLine("  Настройки сохранены ✓");
+            Console.WriteLine("  Настройки сохранены OK");
             
             // Reset
             decimalPlaces = 2;
@@ -876,12 +879,12 @@ namespace ConverterApp
             
             // Load
             LoadSettings();
-            Console.WriteLine("  Настройки загружены ✓");
+            Console.WriteLine("  Настройки загружены OK");
             
             // Verify
             if (decimalPlaces == 5 && !useThousandsSeparator && isAnimationEnabled && isAutoConvertEnabled)
             {
-                Console.WriteLine("  Настройки восстановлены корректно ✓");
+                Console.WriteLine("  Настройки восстановлены корректно OK");
             }
             else
             {
@@ -920,11 +923,11 @@ namespace ConverterApp
             
             // Test history filtering
             var filtered = conversionHistory.ToList().Where(h => h.Type == "Test").Count();
-            Console.WriteLine($"  Фильтрация истории: {filtered} записей типа 'Test' ✓");
+            Console.WriteLine($"  Фильтрация истории: {filtered} записей типа 'Test' OK");
             
             // Test history search
             var searchResult = conversionHistory.ToList().Where(h => h.Operation.Contains("Test 5")).Count();
-            Console.WriteLine($"  Поиск в истории: найдено {searchResult} записей ✓");
+            Console.WriteLine($"  Поиск в истории: найдено {searchResult} записей OK");
         }
         
         private void TestAllExportFormats()
@@ -935,7 +938,7 @@ namespace ConverterApp
             try
             {
                 var csvData = GenerateCSVData();
-                Console.WriteLine($"  CSV экспорт: {csvData.Length} символов ✓");
+                Console.WriteLine($"  CSV экспорт: {csvData.Length} символов OK");
             }
             catch { Console.WriteLine("  CSV экспорт: ОШИБКА ✗"); }
             
@@ -945,13 +948,13 @@ namespace ConverterApp
                 using (var doc = new PdfDocument())
                 {
                     var page = doc.AddPage();
-                    Console.WriteLine("  PDF библиотека: доступна ✓");
+                    Console.WriteLine("  PDF библиотека: доступна OK");
                 }
             }
             catch { Console.WriteLine("  PDF библиотека: НЕ доступна ✗"); }
             
             // Test print preview
-            Console.WriteLine("  Предпросмотр печати: доступен ✓");
+            Console.WriteLine("  Предпросмотр печати: доступен OK");
         }
         
         private void TestThemeSwitching()
@@ -960,15 +963,15 @@ namespace ConverterApp
             
             // Light theme
             ApplyTheme("Светлая");
-            Console.WriteLine("  Светлая тема применена ✓");
+            Console.WriteLine("  Светлая тема применена OK");
             
             // Dark theme  
             ApplyTheme("Темная");
-            Console.WriteLine("  Темная тема применена ✓");
+            Console.WriteLine("  Темная тема применена OK");
             
             // Restore original
             ApplyTheme();
-            Console.WriteLine("  Тема восстановлена ✓");
+            Console.WriteLine("  Тема восстановлена OK");
         }
         
         private void TestAnimations()
@@ -977,13 +980,13 @@ namespace ConverterApp
             
             if (isAnimationEnabled)
             {
-                Console.WriteLine("  Анимации включены ✓");
-                Console.WriteLine("  Анимация стрелки: активна ✓");
-                Console.WriteLine("  Плавные переходы: активны ✓");
+                Console.WriteLine("  Анимации включены OK");
+                Console.WriteLine("  Анимация стрелки: активна OK");
+                Console.WriteLine("  Плавные переходы: активны OK");
             }
             else
             {
-                Console.WriteLine("  Анимации выключены ✓");
+                Console.WriteLine("  Анимации выключены OK");
             }
         }
         
@@ -1006,15 +1009,15 @@ namespace ConverterApp
             var timeTaken = (endTime - startTime).TotalMilliseconds;
             var memoryUsed = (endMemory - startMemory) / 1024.0;
             
-            Console.WriteLine($"  1000 конвертаций за: {timeTaken:F2} мс ✓");
-            Console.WriteLine($"  Использовано памяти: {memoryUsed:F2} КБ ✓");
+            Console.WriteLine($"  1000 конвертаций за: {timeTaken:F2} мс OK");
+            Console.WriteLine($"  Использовано памяти: {memoryUsed:F2} КБ OK");
             
             // Force garbage collection
             GC.Collect();
             GC.WaitForPendingFinalizers();
             var afterGC = GC.GetTotalMemory(false);
             
-            Console.WriteLine($"  После сборки мусора: {(afterGC / 1024.0):F2} КБ ✓");
+            Console.WriteLine($"  После сборки мусора: {(afterGC / 1024.0):F2} КБ OK");
         }
         
         private void DisplayTestSummary()
@@ -1026,11 +1029,11 @@ namespace ConverterApp
             
             if (failedTests == 0)
             {
-                Console.WriteLine("\n🎉 ВСЕ ТЕСТЫ ПРОЙДЕНЫ УСПЕШНО! 🎉");
+                Console.WriteLine("\n>>> ВСЕ ТЕСТЫ ПРОЙДЕНЫ УСПЕШНО! <<<");
             }
             else
             {
-                Console.WriteLine("\n⚠️ НЕКОТОРЫЕ ТЕСТЫ ПРОВАЛЕНЫ ⚠️");
+                Console.WriteLine("\n!!! НЕКОТОРЫЕ ТЕСТЫ ПРОВАЛЕНЫ !!!");
             }
         }
         
@@ -1224,7 +1227,7 @@ namespace ConverterApp
             var historyEntry = new HistoryEntry
             {
                 DateTime = DateTime.Now,
-                Operation = $"{value} {fromUnit} → {toUnit}",
+                Operation = $"{value} {fromUnit} -> {toUnit}",
                 Result = $"{result.ToString(format)} {toUnit}",
                 Type = "Конвертация"
             };
@@ -1462,12 +1465,12 @@ namespace ConverterApp
                 {
                     timer.Stop();
                     timer.Dispose(); // Fix: Dispose timer to prevent memory leak
-                    arrowLabel.Text = "➡️";
+                    arrowLabel.Text = "->";
                 }
                 else
                 {
                     // Simulate rotation with different arrow characters
-                    string[] arrows = { "➡️", "↘️", "⬇️", "↙️", "⬅️", "↖️", "⬆️", "↗️" };
+                    string[] arrows = { "->", "\\", "|", "/", "<-", "/", "|", "\\" };
                     arrowLabel.Text = arrows[(angle / 45) % 8];
                 }
             };
