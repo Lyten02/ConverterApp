@@ -188,7 +188,25 @@ namespace ConverterApp
             if (exportCSVMenuItem != null) exportCSVMenuItem.Click += ExportCSV_Click;
             if (exportTXTMenuItem != null) exportTXTMenuItem.Click += ExportTXT_Click;
             if (exportPNGMenuItem != null) exportPNGMenuItem.Click += ExportPNG_Click;
-            if (printMenuItem != null) printMenuItem.Click += PrintResults_Click;
+            if (printMenuItem != null) printMenuItem.Click += (s, e) => 
+            {
+                var result = MessageBox.Show(
+                    "Выберите способ печати:\n\n" +
+                    "ДА - Печать через браузер (рекомендуется)\n" +
+                    "НЕТ - Прямая печать на принтер\n",
+                    "Выбор способа печати",
+                    MessageBoxButtons.YesNoCancel,
+                    MessageBoxIcon.Question);
+                
+                if (result == DialogResult.Yes)
+                {
+                    PrintThroughBrowser();
+                }
+                else if (result == DialogResult.No)
+                {
+                    PrintResults_Click(s, e);
+                }
+            };
             if (printPreviewMenuItem != null) printPreviewMenuItem.Click += PrintPreview_Click;
             if (printSettingsMenuItem != null) printSettingsMenuItem.Click += PrintSettings_Click;
             if (exitMenuItem != null) exitMenuItem.Click += (s, e) => Application.Exit();
@@ -2627,7 +2645,131 @@ namespace ConverterApp
         
         private void PrintPreview_Click(object sender, EventArgs e)
         {
-            PrintResults_Click(sender, e);
+            // Show dialog to choose print method
+            var result = MessageBox.Show(
+                "Выберите способ печати:\n\n" +
+                "ДА - Печать через браузер (рекомендуется)\n" +
+                "НЕТ - Встроенный предпросмотр печати\n",
+                "Выбор способа печати",
+                MessageBoxButtons.YesNoCancel,
+                MessageBoxIcon.Question);
+            
+            if (result == DialogResult.Yes)
+            {
+                PrintThroughBrowser();
+            }
+            else if (result == DialogResult.No)
+            {
+                PrintResults_Click(sender, e);
+            }
+        }
+        
+        private void PrintThroughBrowser()
+        {
+            try
+            {
+                // Generate HTML content
+                string htmlContent = GenerateHTMLReport();
+                
+                // Save to temp file
+                string tempPath = Path.GetTempFileName();
+                tempPath = Path.ChangeExtension(tempPath, ".html");
+                File.WriteAllText(tempPath, htmlContent, Encoding.UTF8);
+                
+                // Open in default browser
+                System.Diagnostics.Process.Start(tempPath);
+                
+                lblStatus.Text = "Отчет открыт в браузере для печати";
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при создании HTML отчета: {ex.Message}", 
+                    "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+        
+        private string GenerateHTMLReport()
+        {
+            var sb = new StringBuilder();
+            
+            sb.AppendLine("<!DOCTYPE html>");
+            sb.AppendLine("<html lang='ru'>");
+            sb.AppendLine("<head>");
+            sb.AppendLine("<meta charset='UTF-8'>");
+            sb.AppendLine("<title>Отчет конвертера</title>");
+            sb.AppendLine("<style>");
+            sb.AppendLine("body { font-family: 'Segoe UI', Arial, sans-serif; margin: 20px; }");
+            sb.AppendLine("h1 { color: #333; text-align: center; }");
+            sb.AppendLine("h2 { color: #555; border-bottom: 2px solid #ddd; padding-bottom: 5px; }");
+            sb.AppendLine("table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }");
+            sb.AppendLine("th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }");
+            sb.AppendLine("th { background-color: #f5f5f5; font-weight: bold; }");
+            sb.AppendLine("tr:nth-child(even) { background-color: #f9f9f9; }");
+            sb.AppendLine(".current-result { background-color: #e8f4fd; padding: 15px; border-radius: 5px; margin: 20px 0; }");
+            sb.AppendLine(".footer { text-align: center; color: #666; margin-top: 30px; font-size: 0.9em; }");
+            sb.AppendLine("@media print { .no-print { display: none; } }");
+            sb.AppendLine("</style>");
+            sb.AppendLine("</head>");
+            sb.AppendLine("<body>");
+            
+            sb.AppendLine("<h1>Универсальный конвертер - Отчет</h1>");
+            sb.AppendLine($"<p style='text-align: center; color: #666;'>Дата и время: {DateTime.Now:dd.MM.yyyy HH:mm:ss}</p>");
+            
+            // Current conversion result
+            if (!string.IsNullOrEmpty(txtInput.Text) && !string.IsNullOrEmpty(txtOutput.Text))
+            {
+                sb.AppendLine("<div class='current-result'>");
+                sb.AppendLine("<h2>Текущий результат конвертации</h2>");
+                sb.AppendLine($"<p><strong>Тип:</strong> {cboType.SelectedItem}</p>");
+                sb.AppendLine($"<p><strong>Конвертация:</strong> {txtInput.Text} {cboFromUnit.SelectedItem} = {txtOutput.Text} {cboToUnit.SelectedItem}</p>");
+                sb.AppendLine("</div>");
+            }
+            
+            // Conversion history
+            sb.AppendLine("<h2>История конвертаций</h2>");
+            var conversionHistoryList = conversionHistory.Where(h => h.Type != "Калькулятор").Take(50).ToList();
+            if (conversionHistoryList.Any())
+            {
+                sb.AppendLine("<table>");
+                sb.AppendLine("<tr><th>Дата/Время</th><th>Операция</th><th>Результат</th></tr>");
+                foreach (var entry in conversionHistoryList.OrderByDescending(h => h.DateTime))
+                {
+                    sb.AppendLine($"<tr><td>{entry.DateTime:dd.MM.yyyy HH:mm:ss}</td><td>{entry.Operation}</td><td>{entry.Result}</td></tr>");
+                }
+                sb.AppendLine("</table>");
+            }
+            else
+            {
+                sb.AppendLine("<p>История конвертаций пуста</p>");
+            }
+            
+            // Calculator history
+            sb.AppendLine("<h2>История калькулятора</h2>");
+            if (calcHistory.Any())
+            {
+                sb.AppendLine("<table>");
+                sb.AppendLine("<tr><th>№</th><th>Вычисление</th></tr>");
+                int index = 1;
+                foreach (var calc in calcHistory.Take(30))
+                {
+                    sb.AppendLine($"<tr><td>{index++}</td><td>{calc}</td></tr>");
+                }
+                sb.AppendLine("</table>");
+            }
+            else
+            {
+                sb.AppendLine("<p>История калькулятора пуста</p>");
+            }
+            
+            sb.AppendLine("<div class='footer'>");
+            sb.AppendLine($"<p>Сгенерировано программой Универсальный Конвертер v1.0</p>");
+            sb.AppendLine("<p class='no-print'><strong>Для печати используйте Ctrl+P или меню браузера Файл → Печать</strong></p>");
+            sb.AppendLine("</div>");
+            
+            sb.AppendLine("</body>");
+            sb.AppendLine("</html>");
+            
+            return sb.ToString();
         }
         
         private void PrintSettings_Click(object sender, EventArgs e)
