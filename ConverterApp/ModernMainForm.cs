@@ -141,10 +141,7 @@ namespace ConverterApp
             if (btnApplySettings != null) btnApplySettings.Click += BtnApplySettings_Click;
             if (btnSaveSettings != null) btnSaveSettings.Click += BtnSaveSettings_Click;
             if (btnResetSettings != null) btnResetSettings.Click += BtnResetSettings_Click;
-            if (openMenuItem != null) openMenuItem.Click += OpenFile_Click;
-            if (saveMenuItem != null) saveMenuItem.Click += SaveFile_Click;
-            if (saveAsMenuItem != null) saveAsMenuItem.Click += SaveAsFile_Click;
-            if (importMenuItem != null) importMenuItem.Click += ImportData_Click;
+            if (importHistoryMenuItem != null) importHistoryMenuItem.Click += ImportHistory_Click;
             if (exportPDFMenuItem != null) exportPDFMenuItem.Click += ExportPDF_Click;
             if (exportCSVMenuItem != null) exportCSVMenuItem.Click += ExportCSV_Click;
             if (exportTXTMenuItem != null) exportTXTMenuItem.Click += ExportTXT_Click;
@@ -160,6 +157,9 @@ namespace ConverterApp
             if (aboutMenuItem != null) aboutMenuItem.Click += About_Click;
             if (checkUpdatesMenuItem != null) checkUpdatesMenuItem.Click += CheckUpdates_Click;
             if (reportBugMenuItem != null) reportBugMenuItem.Click += ReportBug_Click;
+            if (tipsMenuItem != null) tipsMenuItem.Click += ShowTips_Click;
+            if (contactsMenuItem != null) contactsMenuItem.Click += ShowContacts_Click;
+            if (licenseMenuItem != null) licenseMenuItem.Click += ShowLicense_Click;
             mainTabControl.SelectedIndexChanged += MainTabControl_SelectedIndexChanged;
             EnableDragDrop();
             isInitialized = true;
@@ -1406,10 +1406,43 @@ namespace ConverterApp
         }
         private void ApplyThemeToControl(Control control, Color backColor, Color foreColor, Color panelColor)
         {
-            if (control is Button || control is ComboBox || control is TextBox)
+            Color buttonBackColor = Color.FromArgb(70, 70, 70);
+            Color buttonForeColor = Color.White;
+            
+            if (cboTheme.SelectedItem?.ToString() == "Светлая")
+            {
+                buttonBackColor = Color.FromArgb(225, 225, 225);
+                buttonForeColor = Color.Black;
+            }
+
+            if (control is Button btn)
+            {
+                btn.BackColor = buttonBackColor;
+                btn.ForeColor = buttonForeColor;
+                btn.FlatStyle = FlatStyle.Flat;
+                btn.FlatAppearance.BorderColor = Color.FromArgb(100, 100, 100);
                 return;
+            }
+            
+            if (control is ComboBox cbo)
+            {
+                cbo.BackColor = buttonBackColor;
+                cbo.ForeColor = buttonForeColor;
+                cbo.FlatStyle = FlatStyle.Flat;
+                return;
+            }
+            
+            if (control is TextBox txt)
+            {
+                txt.BackColor = buttonBackColor;
+                txt.ForeColor = buttonForeColor;
+                txt.BorderStyle = BorderStyle.FixedSingle;
+                return;
+            }
+            
             control.BackColor = control is Panel || control is GroupBox ? panelColor : backColor;
             control.ForeColor = foreColor;
+            
             foreach (Control child in control.Controls)
             {
                 ApplyThemeToControl(child, backColor, foreColor, panelColor);
@@ -1475,13 +1508,9 @@ namespace ConverterApp
                 {
                     try
                     {
-                        Rectangle bounds = this.Bounds;
-                        using (Bitmap bitmap = new Bitmap(bounds.Width, bounds.Height))
+                        using (Bitmap bitmap = new Bitmap(this.Width, this.Height))
                         {
-                            using (Graphics g = Graphics.FromImage(bitmap))
-                            {
-                                g.CopyFromScreen(new Point(bounds.Left, bounds.Top), Point.Empty, bounds.Size);
-                            }
+                            this.DrawToBitmap(bitmap, new Rectangle(0, 0, this.Width, this.Height));
                             bitmap.Save(saveDialog.FileName, System.Drawing.Imaging.ImageFormat.Png);
                             lblStatus.Text = "Скриншот сохранен";
                         }
@@ -1764,6 +1793,103 @@ namespace ConverterApp
                 "Контакты разработчика:\n" +
                 "Email: danyachumachenko2007@gmail.com",
                 "О программе",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Information);
+        }
+        private void ImportHistory_Click(object sender, EventArgs e)
+        {
+            using (var openDialog = new OpenFileDialog())
+            {
+                openDialog.Filter = "JSON файлы (*.json)|*.json|Все файлы (*.*)|*.*";
+                openDialog.Title = "Импорт истории конвертаций";
+                if (openDialog.ShowDialog() == DialogResult.OK)
+                {
+                    try
+                    {
+                        string json = File.ReadAllText(openDialog.FileName);
+                        var importedHistory = Newtonsoft.Json.JsonConvert.DeserializeObject<List<HistoryEntry>>(json);
+                        foreach (var entry in importedHistory)
+                        {
+                            conversionHistory.Add(entry);
+                        }
+                        UpdateHistoryDisplay();
+                        MessageBox.Show($"Импортировано {importedHistory.Count} записей истории", "Импорт завершен", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Ошибка при импорте: {ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+            }
+        }
+        private void ShowTips_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show(
+                "СОВЕТЫ И ХИТРОСТИ\n\n" +
+                "🔥 Горячие клавиши:\n" +
+                "• Ctrl+Enter - Конвертировать\n" +
+                "• Ctrl+Delete - Очистить поля\n" +
+                "• F1 - Справка\n" +
+                "• Ctrl+E - Экспорт\n\n" +
+                "⚡ Быстрый ввод:\n" +
+                "• Используйте Tab для навигации\n" +
+                "• Вводите числа прямо в поле\n" +
+                "• Автоматическое форматирование\n\n" +
+                "🎯 Эффективность:\n" +
+                "• Включите автоконвертацию\n" +
+                "• Используйте историю операций\n" +
+                "• Настройте точность вычислений\n\n" +
+                "📊 Экспорт данных:\n" +
+                "• PDF для отчетов\n" +
+                "• CSV для Excel\n" +
+                "• PNG для презентаций",
+                "Советы и хитрости",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Information);
+        }
+        private void ShowContacts_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show(
+                "КОНТАКТНАЯ ИНФОРМАЦИЯ\n\n" +
+                "👨‍💻 Разработчик:\n" +
+                "Чумаченко Даниил\n\n" +
+                "📧 Email:\n" +
+                "danyachumachenko2007@gmail.com\n\n" +
+                "💬 Обратная связь:\n" +
+                "• Сообщения об ошибках\n" +
+                "• Предложения по улучшению\n" +
+                "• Вопросы по использованию\n\n" +
+                "⏱️ Время ответа:\n" +
+                "Обычно в течение 24-48 часов\n\n" +
+                "🌐 Поддержка:\n" +
+                "Техническая поддержка предоставляется\n" +
+                "по электронной почте",
+                "Контакты",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Information);
+        }
+        private void ShowLicense_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show(
+                "ЛИЦЕНЗИОННОЕ СОГЛАШЕНИЕ\n\n" +
+                "ConverterApp версия 1.0\n" +
+                "© 2025 Чумаченко Даниил\n\n" +
+                "📋 Условия использования:\n\n" +
+                "✅ РАЗРЕШЕНО:\n" +
+                "• Свободное использование программы\n" +
+                "• Использование в образовательных целях\n" +
+                "• Использование в коммерческих проектах\n" +
+                "• Распространение программы\n\n" +
+                "❌ ЗАПРЕЩЕНО:\n" +
+                "• Модификация программы\n" +
+                "• Обратная разработка\n" +
+                "• Продажа программы\n\n" +
+                "⚠️ ОТКАЗ ОТ ОТВЕТСТВЕННОСТИ:\n" +
+                "Программа предоставляется 'как есть'.\n" +
+                "Автор не несет ответственности за любые\n" +
+                "убытки, связанные с использованием программы.\n\n" +
+                "Все права защищены.",
+                "Лицензия",
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Information);
         }

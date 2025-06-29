@@ -53,6 +53,11 @@ namespace ConverterApp
             this.aboutMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.checkUpdatesMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.reportBugMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator6 = new System.Windows.Forms.ToolStripSeparator();
+            this.tipsMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.contactsMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.licenseMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.importHistoryMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mainTabControl = new System.Windows.Forms.TabControl();
             this.tabConverter = new System.Windows.Forms.TabPage();
             this.tabHistory = new System.Windows.Forms.TabPage();
@@ -115,11 +120,7 @@ namespace ConverterApp
             this.menuStrip.Size = new System.Drawing.Size(1024, 24);
             this.menuStrip.TabIndex = 0;
             this.fileMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.openMenuItem,
-            this.saveMenuItem,
-            this.saveAsMenuItem,
-            this.toolStripSeparator2,
-            this.importMenuItem,
+            this.importHistoryMenuItem,
             this.exportMenuItem,
             this.toolStripSeparator3,
             this.printMenuItem,
@@ -189,7 +190,11 @@ namespace ConverterApp
             this.toolStripSeparator5,
             this.aboutMenuItem,
             this.checkUpdatesMenuItem,
-            this.reportBugMenuItem});
+            this.reportBugMenuItem,
+            this.toolStripSeparator6,
+            this.tipsMenuItem,
+            this.contactsMenuItem,
+            this.licenseMenuItem});
             this.helpMenuItem.Name = "helpMenuItem";
             this.helpMenuItem.Size = new System.Drawing.Size(65, 20);
             this.helpMenuItem.Text = "Справка";
@@ -225,6 +230,20 @@ namespace ConverterApp
             this.reportBugMenuItem.Name = "reportBugMenuItem";
             this.reportBugMenuItem.Size = new System.Drawing.Size(258, 22);
             this.reportBugMenuItem.Text = "🐛 Сообщить об ошибке";
+            this.toolStripSeparator6.Name = "toolStripSeparator6";
+            this.toolStripSeparator6.Size = new System.Drawing.Size(255, 6);
+            this.tipsMenuItem.Name = "tipsMenuItem";
+            this.tipsMenuItem.Size = new System.Drawing.Size(258, 22);
+            this.tipsMenuItem.Text = "💡 Советы и хитрости";
+            this.contactsMenuItem.Name = "contactsMenuItem";
+            this.contactsMenuItem.Size = new System.Drawing.Size(258, 22);
+            this.contactsMenuItem.Text = "📞 Контакты";
+            this.licenseMenuItem.Name = "licenseMenuItem";
+            this.licenseMenuItem.Size = new System.Drawing.Size(258, 22);
+            this.licenseMenuItem.Text = "📜 Лицензия";
+            this.importHistoryMenuItem.Name = "importHistoryMenuItem";
+            this.importHistoryMenuItem.Size = new System.Drawing.Size(264, 22);
+            this.importHistoryMenuItem.Text = "📥 Импорт истории";
             this.mainTabControl.Controls.Add(this.tabConverter);
             this.mainTabControl.Controls.Add(this.tabCalculator);
             this.mainTabControl.Controls.Add(this.tabHistory);
@@ -855,6 +874,11 @@ namespace ConverterApp
         private System.Windows.Forms.ToolStripMenuItem aboutMenuItem;
         private System.Windows.Forms.ToolStripMenuItem checkUpdatesMenuItem;
         private System.Windows.Forms.ToolStripMenuItem reportBugMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator6;
+        private System.Windows.Forms.ToolStripMenuItem tipsMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem contactsMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem licenseMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem importHistoryMenuItem;
         private System.Windows.Forms.TabControl mainTabControl;
         private System.Windows.Forms.TabPage tabConverter;
         private System.Windows.Forms.TabPage tabHistory;
