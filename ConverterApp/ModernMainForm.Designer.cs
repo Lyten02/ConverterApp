@@ -617,7 +617,7 @@ namespace ConverterApp
             this.btnConvert = CreateStyledButton("Рассчитать", Color.FromArgb(0, 123, 255)); // Яркий синий
             this.btnClear = CreateStyledButton("Очистить", Color.FromArgb(108, 117, 125)); // Современный серый
             this.btnExport = CreateStyledButton("Экспорт", Color.FromArgb(40, 167, 69)); // Насыщенный зеленый
-            this.btnExportPrint = CreateStyledButton("Экспорт и Печать", Color.FromArgb(255, 193, 7)); // Яркий желтый
+            this.btnExportPrint = CreateStyledButton("Печать", Color.FromArgb(255, 193, 7)); // Яркий желтый
             this.buttonPanel.Controls.Add(this.btnConvert);
             this.buttonPanel.Controls.Add(this.btnClear);
             this.buttonPanel.Controls.Add(this.btnExport);
