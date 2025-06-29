@@ -1812,7 +1812,7 @@ namespace ConverterApp
                         {
                             conversionHistory.Add(entry);
                         }
-                        UpdateHistoryDisplay();
+                        UpdateHistoryGrid();
                         MessageBox.Show($"Импортировано {importedHistory.Count} записей истории", "Импорт завершен", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                     catch (Exception ex)
