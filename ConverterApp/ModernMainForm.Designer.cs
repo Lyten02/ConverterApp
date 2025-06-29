@@ -93,9 +93,6 @@ namespace ConverterApp
             
             // Calculator Tab Components
             this.calcTabPanel = new System.Windows.Forms.TableLayoutPanel();
-            this.calcModePanel = new System.Windows.Forms.FlowLayoutPanel();
-            this.btnBasicMode = new System.Windows.Forms.Button();
-            this.btnScientificMode = new System.Windows.Forms.Button();
             
             // Settings Tab Components
             this.settingsPanel = new System.Windows.Forms.TableLayoutPanel();
@@ -474,10 +471,9 @@ namespace ConverterApp
         {
             this.calcTabPanel = new TableLayoutPanel();
             this.calcTabPanel.Dock = DockStyle.Fill;
-            this.calcTabPanel.RowCount = 3;
+            this.calcTabPanel.RowCount = 2;
             this.calcTabPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 80F));
             this.calcTabPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-            this.calcTabPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 50F));
             
             // Calculator display
             this.calcTabDisplay = new TextBox();
@@ -503,20 +499,9 @@ namespace ConverterApp
                 this.calcTabButtonPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 20F));
             }
             
-            // Mode selection panel
-            this.calcModePanel = new FlowLayoutPanel();
-            this.calcModePanel.Dock = DockStyle.Fill;
-            this.calcModePanel.FlowDirection = FlowDirection.LeftToRight;
-            
-            this.btnBasicMode = CreateStyledButton("Обычный", Color.FromArgb(33, 150, 243));
-            this.btnScientificMode = CreateStyledButton("Научный", Color.FromArgb(76, 175, 80));
-            
-            this.calcModePanel.Controls.Add(this.btnBasicMode);
-            this.calcModePanel.Controls.Add(this.btnScientificMode);
             
             this.calcTabPanel.Controls.Add(this.calcTabDisplay, 0, 0);
             this.calcTabPanel.Controls.Add(this.calcTabButtonPanel, 0, 1);
-            this.calcTabPanel.Controls.Add(this.calcModePanel, 0, 2);
             
             this.tabCalculator.Controls.Add(this.calcTabPanel);
             
@@ -738,9 +723,6 @@ namespace ConverterApp
         // Calculator tab controls
         private System.Windows.Forms.TableLayoutPanel calcTabPanel;
         private System.Windows.Forms.TextBox calcTabDisplay;
-        private System.Windows.Forms.FlowLayoutPanel calcModePanel;
-        private System.Windows.Forms.Button btnBasicMode;
-        private System.Windows.Forms.Button btnScientificMode;
         private System.Windows.Forms.TableLayoutPanel calcTabButtonPanel;
         
         // Settings tab controls

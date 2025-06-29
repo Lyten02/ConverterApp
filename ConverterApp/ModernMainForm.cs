@@ -63,19 +63,12 @@ namespace ConverterApp
         private double calcMemory = 0;
         private string calcOperation = "";
         private bool calcNewNumber = true;
-        private CalculatorMode currentCalcMode = CalculatorMode.Basic;
         
         // Flag to prevent recursive text changes
         private bool isUpdatingText = false;
         private bool isInitialized = false;
         private bool isUpdatingComboBox = false;
         private bool isChangingType = false;
-        
-        private enum CalculatorMode
-        {
-            Basic,
-            Scientific
-        }
         
         private class HistoryEntry
         {
@@ -93,8 +86,6 @@ namespace ConverterApp
             public bool AutoConvert { get; set; } = false;
             public string Theme { get; set; } = "Светлая";
             
-            // Calculator state
-            public string CalcMode { get; set; } = "Basic";
             public string LastConversionType { get; set; } = "";
             
             // Window state
@@ -173,9 +164,8 @@ namespace ConverterApp
             if (btnHistorySearch != null) btnHistorySearch.Click += BtnHistorySearch_Click;
             if (cboHistoryFilter != null) cboHistoryFilter.SelectedIndexChanged += CboHistoryFilter_SelectedIndexChanged;
             
-            // Calculator tab events
-            if (btnBasicMode != null) btnBasicMode.Click += (s, e) => SwitchCalculatorMode(CalculatorMode.Basic);
-            if (btnScientificMode != null) btnScientificMode.Click += (s, e) => SwitchCalculatorMode(CalculatorMode.Scientific);
+            // Initialize calculator buttons
+            InitializeBasicCalculatorButtons();
             
             // Settings events
             if (btnApplySettings != null) btnApplySettings.Click += BtnApplySettings_Click;
@@ -313,9 +303,6 @@ namespace ConverterApp
             Console.WriteLine("\n--- ТЕСТ 11: ВСЕ операции калькулятора ---");
             TestAllCalculatorOperations();
             
-            // Test 12: Scientific calculator ALL functions
-            Console.WriteLine("\n--- ТЕСТ 12: ВСЕ научные функции ---");
-            TestAllScientificFunctions();
             
             // Test 13: Edge cases and error handling
             Console.WriteLine("\n--- ТЕСТ 13: Граничные случаи и ошибки ---");
@@ -475,55 +462,6 @@ namespace ConverterApp
             }
         }
         
-        private void TestScientificCalculator(string function, double input, double expected)
-        {
-            try
-            {
-                double result = 0;
-                switch (function)
-                {
-                    case "sin":
-                        result = Math.Sin(input * Math.PI / 180); // Convert to radians
-                        break;
-                    case "cos":
-                        result = Math.Cos(input * Math.PI / 180);
-                        break;
-                    case "tan":
-                        result = Math.Tan(input * Math.PI / 180);
-                        break;
-                    case "√":
-                        result = Math.Sqrt(input);
-                        break;
-                    case "x²":
-                        result = Math.Pow(input, 2);
-                        break;
-                    case "x³":
-                        result = Math.Pow(input, 3);
-                        break;
-                    case "log":
-                        result = Math.Log10(input);
-                        break;
-                    case "ln":
-                        result = Math.Log(input);
-                        break;
-                }
-                
-                bool success = Math.Abs(result - expected) < 0.0001;
-                Console.WriteLine($"Функция: {function}({input}) = {result:F4}");
-                Console.WriteLine($"Ожидалось: {expected:F4}, Результат: {(success ? "OK УСПЕХ" : "FAIL ОШИБКА")}");
-                
-                // Track test results
-                totalTests++;
-                if (success) passedTests++;
-                else failedTests++;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"ОШИБКА в научном калькуляторе: {ex.Message}");
-                totalTests++;
-                failedTests++;
-            }
-        }
         
         private void TestSettings()
         {
@@ -744,35 +682,6 @@ namespace ConverterApp
             TestCalculator("15 % 5", 0);
         }
         
-        private void TestAllScientificFunctions()
-        {
-            // Trigonometric functions
-            double[] angles = { 0, 30, 45, 60, 90, 180, 270, 360 };
-            foreach (var angle in angles)
-            {
-                TestScientificCalculator("sin", angle, Math.Sin(angle * Math.PI / 180));
-                TestScientificCalculator("cos", angle, Math.Cos(angle * Math.PI / 180));
-                if (angle != 90 && angle != 270) // Avoid tan(90°) = infinity
-                    TestScientificCalculator("tan", angle, Math.Tan(angle * Math.PI / 180));
-            }
-            
-            // Power and root functions
-            double[] numbers = { 0, 1, 4, 9, 16, 25, 100 };
-            foreach (var num in numbers)
-            {
-                TestScientificCalculator("√", num, Math.Sqrt(num));
-                TestScientificCalculator("x²", num, num * num);
-                TestScientificCalculator("x³", num, num * num * num);
-            }
-            
-            // Logarithmic functions
-            double[] logNumbers = { 1, 10, 100, 1000, Math.E };
-            foreach (var num in logNumbers)
-            {
-                TestScientificCalculator("log", num, Math.Log10(num));
-                TestScientificCalculator("ln", num, Math.Log(num));
-            }
-        }
         
         private void TestEdgeCases()
         {
@@ -1579,15 +1488,25 @@ namespace ConverterApp
                     break;
                     
                 case ".":
-                    if (!currentDisplay.Text.Contains("."))
+                    // If error is displayed, start with "0."
+                    if (currentDisplay.Text == "Ошибка" || currentDisplay.Text.Contains("Ошибка"))
+                    {
+                        currentDisplay.Text = "0.";
+                        calcNewNumber = false;
+                    }
+                    else if (!currentDisplay.Text.Contains("."))
+                    {
                         currentDisplay.Text += ".";
+                    }
                     break;
                     
                 default:
                     // Number or scientific function
                     if (char.IsDigit(buttonText[0]))
                     {
-                        if (calcNewNumber || currentDisplay.Text == "0")
+                        // Clear error text or start new number
+                        if (calcNewNumber || currentDisplay.Text == "0" || currentDisplay.Text == "Ошибка" || 
+                            currentDisplay.Text.Contains("Ошибка"))
                         {
                             currentDisplay.Text = buttonText;
                             calcNewNumber = false;
@@ -1600,11 +1519,6 @@ namespace ConverterApp
                                 currentDisplay.Text += buttonText;
                             }
                         }
-                    }
-                    else
-                    {
-                        // Handle scientific functions
-                        HandleScientificFunction(buttonText, currentDisplay);
                     }
                     break;
             }
@@ -1663,6 +1577,9 @@ namespace ConverterApp
                         else
                         {
                             currentDisplay.Text = "Ошибка";
+                            calcMemory = 0;
+                            calcOperation = "";
+                            calcNewNumber = true;
                             return;
                         }
                         break;
@@ -1701,132 +1618,7 @@ namespace ConverterApp
             }
         }
         
-        private void HandleScientificFunction(string function, TextBox display)
-        {
-            if (display == null || !double.TryParse(display.Text, out double value)) return;
-            
-            double result = 0;
-            
-            switch (function)
-            {
-                case "sin":
-                    result = Math.Sin(value * Math.PI / 180);
-                    break;
-                case "cos":
-                    result = Math.Cos(value * Math.PI / 180);
-                    break;
-                case "tan":
-                    result = Math.Tan(value * Math.PI / 180);
-                    break;
-                case "x²":
-                    result = value * value;
-                    break;
-                case "x³":
-                    result = value * value * value;
-                    break;
-                case "√":
-                    result = Math.Sqrt(value);
-                    break;
-                case "∛":
-                    result = Math.Pow(value, 1.0 / 3.0);
-                    break;
-                case "log":
-                    if (value > 0)
-                        result = Math.Log10(value);
-                    else
-                    {
-                        display.Text = "Ошибка: недопустимое значение";
-                        calcNewNumber = true;
-                        return;
-                    }
-                    break;
-                case "ln":
-                    if (value > 0)
-                        result = Math.Log(value);
-                    else
-                    {
-                        display.Text = "Ошибка: недопустимое значение";
-                        calcNewNumber = true;
-                        return;
-                    }
-                    break;
-                case "1/x":
-                    if (value != 0)
-                        result = 1 / value;
-                    else
-                    {
-                        display.Text = "Ошибка: деление на ноль";
-                        calcNewNumber = true;
-                        return;
-                    }
-                    break;
-                case "|x|":
-                    result = Math.Abs(value);
-                    break;
-                case "π":
-                    result = Math.PI;
-                    break;
-                case "e":
-                    result = Math.E;
-                    break;
-                case "n!":
-                    if (value >= 0 && value <= 170 && value == Math.Floor(value))
-                        result = Factorial((int)value);
-                    else
-                    {
-                        display.Text = "Ошибка: недопустимое значение";
-                        calcNewNumber = true;
-                        return;
-                    }
-                    break;
-            }
-            
-            display.Text = result.ToString();
-            calcNewNumber = true;
-        }
         
-        private double Factorial(int n)
-        {
-            if (n <= 1) return 1;
-            double result = 1;
-            for (int i = 2; i <= n; i++)
-                result *= i;
-            return result;
-        }
-        
-        private void SwitchCalculatorMode(CalculatorMode mode)
-        {
-            currentCalcMode = mode;
-            
-            // Update button states
-            btnBasicMode.BackColor = mode == CalculatorMode.Basic ? 
-                Color.FromArgb(33, 150, 243) : Color.FromArgb(158, 158, 158);
-            btnScientificMode.BackColor = mode == CalculatorMode.Scientific ? 
-                Color.FromArgb(76, 175, 80) : Color.FromArgb(158, 158, 158);
-            
-            // Update calculator layout based on mode
-            switch (mode)
-            {
-                case CalculatorMode.Basic:
-                    InitializeBasicCalculatorButtons();
-                    break;
-                case CalculatorMode.Scientific:
-                    InitializeScientificCalculatorButtons();
-                    break;
-            }
-            
-            lblStatus.Text = $"Режим калькулятора: {GetModeDisplayName(mode)}";
-        }
-        
-        private string GetModeDisplayName(CalculatorMode mode)
-        {
-            switch (mode)
-            {
-                case CalculatorMode.Basic: return "Обычный";
-                case CalculatorMode.Scientific: return "Научный";
-                default: return "";
-            }
-        }
         
         
         private void UpdateHistoryGrid()
@@ -2113,7 +1905,6 @@ namespace ConverterApp
                     AnimationsEnabled = isAnimationEnabled,
                     AutoConvert = isAutoConvertEnabled,
                     Theme = cboTheme.SelectedItem?.ToString() ?? "Светлая",
-                    CalcMode = currentCalcMode.ToString(),
                     LastConversionType = cboType?.SelectedItem?.ToString() ?? "",
                     WindowWidth = this.Width,
                     WindowHeight = this.Height,
@@ -2166,11 +1957,6 @@ namespace ConverterApp
                             }
                         }
                         
-                        // Restore calculator mode
-                        if (!string.IsNullOrEmpty(settings.CalcMode) && Enum.TryParse<CalculatorMode>(settings.CalcMode, out var mode))
-                        {
-                            currentCalcMode = mode;
-                        }
                         
                         // Restore last conversion type
                         if (!string.IsNullOrEmpty(settings.LastConversionType) && cboType != null)
@@ -2550,12 +2336,6 @@ namespace ConverterApp
                 button.BackColor = Color.FromArgb(244, 67, 54);
                 button.ForeColor = Color.White;
             }
-            else if (IsScientificFunction(text))
-            {
-                button.BackColor = Color.FromArgb(76, 175, 80);
-                button.ForeColor = Color.White;
-                button.Font = new Font("Segoe UI", 11F);
-            }
             
             // Add click handler
             button.Click += CalcButton_Click;
@@ -2563,53 +2343,6 @@ namespace ConverterApp
             return button;
         }
         
-        private void InitializeScientificCalculatorButtons()
-        {
-            string[,] scientificLayout = {
-                { "(", ")", "sin", "cos", "tan", "π", "e", "x²" },
-                { "7", "8", "9", "÷", "log", "ln", "x³", "√" },
-                { "4", "5", "6", "×", "xʸ", "10ˣ", "eˣ", "1/x" },
-                { "1", "2", "3", "-", "n!", "%", "mod", "|x|" },
-                { "0", ".", "+", "=", "C", "CE", "←", "±" }
-            };
-            
-            if (calcTabButtonPanel != null)
-            {
-                calcTabButtonPanel.Controls.Clear();
-                calcTabButtonPanel.ColumnCount = 8;
-                calcTabButtonPanel.RowCount = 5;
-                
-                // Clear and recreate styles
-                calcTabButtonPanel.ColumnStyles.Clear();
-                calcTabButtonPanel.RowStyles.Clear();
-                
-                for (int i = 0; i < 8; i++)
-                {
-                    calcTabButtonPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 12.5F));
-                }
-                for (int i = 0; i < 5; i++)
-                {
-                    calcTabButtonPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 20F));
-                }
-                
-                for (int row = 0; row < 5; row++)
-                {
-                    for (int col = 0; col < 8; col++)
-                    {
-                        var btn = CreateCalculatorButton(scientificLayout[row, col]);
-                        btn.Font = new Font("Segoe UI", 11F);
-                        calcTabButtonPanel.Controls.Add(btn, col, row);
-                    }
-                }
-            }
-        }
         
-        private bool IsScientificFunction(string text)
-        {
-            string[] scientificFunctions = { "sin", "cos", "tan", "log", "ln", "x²", "x³", 
-                                            "√", "∛", "π", "e", "xʸ", "10ˣ", "eˣ", "1/x", 
-                                            "|x|", "n!", "mod", "(" , ")" };
-            return scientificFunctions.Contains(text);
-        }
     }
 }
