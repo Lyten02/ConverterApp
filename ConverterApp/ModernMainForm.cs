@@ -838,11 +838,10 @@ namespace ConverterApp
                 isUpdatingComboBox = false;
                 isChangingType = false;
             }
-                if (double.TryParse(txtInput.Text, NumberStyles.Any, CultureInfo.CurrentCulture, out _) ||
-                    double.TryParse(txtInput.Text, NumberStyles.Any, CultureInfo.InvariantCulture, out _))
-                {
-                    BtnConvert_Click(null, null);
-                }
+            if (double.TryParse(txtInput.Text, NumberStyles.Any, CultureInfo.CurrentCulture, out _) ||
+                double.TryParse(txtInput.Text, NumberStyles.Any, CultureInfo.InvariantCulture, out _))
+            {
+                BtnConvert_Click(null, null);
             }
         }
         private void BtnConvert_Click(object sender, EventArgs e)
@@ -1541,7 +1540,7 @@ namespace ConverterApp
                 sb.AppendLine("<p>История калькулятора пуста</p>");
             }
             sb.AppendLine("<div class='footer'>");
-            sb.AppendLine($"<p>Сгенерировано программой Универсальный Конвертер v1.0</p>");
+            sb.AppendLine($"<p>Сгенерировано программой Универсальный Конвертер v1.0 © 2025 Чумаченко Даниил</p>");
             sb.AppendLine("<p class='no-print'><strong>Для печати используйте Ctrl+P или меню браузера Файл → Печать</strong></p>");
             sb.AppendLine("</div>");
             sb.AppendLine("</body>");
@@ -1721,7 +1720,7 @@ namespace ConverterApp
                 "СООБЩИТЬ ОБ ОШИБКЕ\n\n" +
                 "Если вы обнаружили ошибку в работе программы,\n" +
                 "пожалуйста, сообщите о ней разработчику:\n\n" +
-                "Email: student@college.ru\n" +
+                "Email: danyachumachenko2007@gmail.com\n" +
                 "Тема: ConverterApp - Отчет об ошибке\n\n" +
                 "В письме укажите:\n" +
                 "• Описание проблемы\n" +
@@ -1729,6 +1728,26 @@ namespace ConverterApp
                 "• Версию программы (1.0)\n\n" +
                 "Спасибо за помощь в улучшении программы!",
                 "Сообщить об ошибке",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Information);
+        }
+        private void About_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show(
+                "УНИВЕРСАЛЬНЫЙ КОНВЕРТЕР\n" +
+                "Версия 1.0\n\n" +
+                "© 2025 Чумаченко Даниил\n\n" +
+                "Программа для конвертации единиц измерения\n" +
+                "и выполнения математических расчетов.\n\n" +
+                "Возможности:\n" +
+                "• Конвертация более 40 единиц измерения\n" +
+                "• Встроенный калькулятор\n" +
+                "• История операций\n" +
+                "• Экспорт результатов\n" +
+                "• Настраиваемый интерфейс\n\n" +
+                "Контакты разработчика:\n" +
+                "Email: danyachumachenko2007@gmail.com",
+                "О программе",
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Information);
         }

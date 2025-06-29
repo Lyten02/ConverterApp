@@ -467,7 +467,7 @@ namespace ConverterApp
             this.MinimumSize = new System.Drawing.Size(1024, 768);
             this.Name = "ModernMainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "ConverterApp - Универсальный конвертер";
+            this.Text = "ConverterApp - Универсальный конвертер © 2025 Чумаченко Даниил";
             this.menuStrip.ResumeLayout(false);
             this.menuStrip.PerformLayout();
             this.mainTabControl.ResumeLayout(false);
