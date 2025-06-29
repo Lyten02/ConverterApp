@@ -69,6 +69,7 @@ namespace ConverterApp
         private bool isUpdatingText = false;
         private bool isInitialized = false;
         private bool isUpdatingComboBox = false;
+        private bool isChangingType = false;
         
         private enum CalculatorMode
         {
@@ -1112,6 +1113,7 @@ namespace ConverterApp
             if (isUpdatingComboBox) return;
             
             isUpdatingComboBox = true;
+            isChangingType = true;
             try
             {
                 string type = cboType.SelectedItem?.ToString() ?? "";
@@ -1137,19 +1139,19 @@ namespace ConverterApp
             finally
             {
                 isUpdatingComboBox = false;
+                isChangingType = false;
             }
             
-            if (isAutoConvertEnabled && !string.IsNullOrEmpty(txtInput.Text))
-            {
-                BtnConvert_Click(null, null);
-            }
+            // Don't auto-convert when changing type - wait for user to initiate conversion
+            // This prevents error messages when units are still being loaded
         }
         
         private void CboUnit_SelectedIndexChanged(object sender, EventArgs e)
         {
             // Removed automatic unit switching to fix dropdown issues
             
-            if (isAutoConvertEnabled && !string.IsNullOrEmpty(txtInput.Text))
+            // Only auto-convert if we're not in the middle of changing type
+            if (isAutoConvertEnabled && !string.IsNullOrEmpty(txtInput.Text) && !isChangingType)
             {
                 BtnConvert_Click(null, null);
             }
@@ -1168,7 +1170,8 @@ namespace ConverterApp
                 isUpdatingText = false;
             }
             
-            if (isAutoConvertEnabled && !string.IsNullOrEmpty(txtInput.Text))
+            // Only auto-convert if we're not in the middle of changing type
+            if (isAutoConvertEnabled && !string.IsNullOrEmpty(txtInput.Text) && !isChangingType)
             {
                 BtnConvert_Click(null, null);
             }
