@@ -337,13 +337,14 @@ namespace ConverterApp
             this.mainTabControl.ResumeLayout(false);
             this.statusStrip.ResumeLayout(false);
             this.statusStrip.PerformLayout();
-            this.ResumeLayout(false);
-            this.PerformLayout();
-            
+            // Initialize tab contents
             InitializeConverterTab();
             InitializeHistoryTab();
             InitializeCalculatorTab();
             InitializeSettingsTab();
+            
+            this.ResumeLayout(false);
+            this.PerformLayout();
         }
         
         private void InitializeConverterTab()
@@ -622,9 +623,6 @@ namespace ConverterApp
             this.calcTabPanel.Controls.Add(this.calcTabButtonPanel, 0, 1);
             
             this.tabCalculator.Controls.Add(this.calcTabPanel);
-            
-            // Initialize with basic calculator buttons
-            InitializeBasicCalculatorButtons();
         }
         
         private void InitializeSettingsTab()
