@@ -99,6 +99,13 @@ namespace ConverterApp
         public ModernMainForm()
         {
             InitializeComponent();
+            
+            // Initialize tab contents after InitializeComponent
+            InitializeConverterTab();
+            InitializeHistoryTab();
+            InitializeCalculatorTab();
+            InitializeSettingsTab();
+            
             SetupEventHandlers();
             LoadSettings();
             InitializeControls();

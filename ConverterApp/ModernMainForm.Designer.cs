@@ -337,11 +337,7 @@ namespace ConverterApp
             this.mainTabControl.ResumeLayout(false);
             this.statusStrip.ResumeLayout(false);
             this.statusStrip.PerformLayout();
-            // Initialize tab contents
-            InitializeConverterTab();
-            InitializeHistoryTab();
-            InitializeCalculatorTab();
-            InitializeSettingsTab();
+            // Tab contents are initialized in the main constructor
             
             this.ResumeLayout(false);
             this.PerformLayout();
