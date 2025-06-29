@@ -2305,20 +2305,40 @@ namespace ConverterApp
         {
             using (var openDialog = new OpenFileDialog())
             {
-                openDialog.Filter = "CSV файлы (*.csv)|*.csv|Текстовые файлы (*.txt)|*.txt|Все файлы (*.*)|*.*";
+                openDialog.Filter = "CSV файлы (*.csv)|*.csv|JSON файлы (*.json)|*.json|Текстовые файлы (*.txt)|*.txt|Все файлы (*.*)|*.*";
+                openDialog.Title = "Импорт данных";
                 
                 if (openDialog.ShowDialog() == DialogResult.OK)
                 {
                     try
                     {
-                        string[] lines = File.ReadAllLines(openDialog.FileName);
-                        if (lines.Length > 0)
+                        string extension = Path.GetExtension(openDialog.FileName).ToLower();
+                        
+                        switch (extension)
                         {
-                            // Try to parse first line as input value
-                            string firstLine = lines[0].Trim();
-                            txtInput.Text = System.Text.RegularExpressions.Regex.Match(firstLine, @"[\d.,]+").Value;
-                            lblStatus.Text = "Данные импортированы";
+                            case ".csv":
+                                ImportFromCSV(openDialog.FileName);
+                                break;
+                            case ".json":
+                                ImportFromJSON(openDialog.FileName);
+                                break;
+                            case ".txt":
+                                ImportFromText(openDialog.FileName);
+                                break;
+                            default:
+                                // Try to auto-detect format
+                                string content = File.ReadAllText(openDialog.FileName);
+                                if (content.TrimStart().StartsWith("{") || content.TrimStart().StartsWith("["))
+                                    ImportFromJSON(openDialog.FileName);
+                                else if (content.Contains(",") && content.Contains("\n"))
+                                    ImportFromCSV(openDialog.FileName);
+                                else
+                                    ImportFromText(openDialog.FileName);
+                                break;
                         }
+                        
+                        lblStatus.Text = "Данные успешно импортированы";
+                        UpdateHistoryDisplay();
                     }
                     catch (Exception ex)
                     {
@@ -2326,6 +2346,181 @@ namespace ConverterApp
                             "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
+            }
+        }
+        
+        private void ImportFromCSV(string filename)
+        {
+            string[] lines = File.ReadAllLines(filename);
+            if (lines.Length == 0) return;
+            
+            // Skip header if present
+            int startIndex = 0;
+            if (lines[0].Contains("DateTime") || lines[0].Contains("Type") || lines[0].Contains("Operation"))
+                startIndex = 1;
+            
+            int imported = 0;
+            for (int i = startIndex; i < lines.Length; i++)
+            {
+                string[] parts = lines[i].Split(',');
+                if (parts.Length >= 4)
+                {
+                    var entry = new HistoryEntry
+                    {
+                        DateTime = DateTime.TryParse(parts[0], out var dt) ? dt : DateTime.Now,
+                        Type = parts[1].Trim(),
+                        Operation = parts[2].Trim(),
+                        Result = parts[3].Trim()
+                    };
+                    conversionHistory.Add(entry);
+                    imported++;
+                }
+            }
+            
+            EnforceHistoryLimit();
+            MessageBox.Show($"Импортировано {imported} записей", "Импорт завершен", 
+                MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+        
+        private void ImportFromJSON(string filename)
+        {
+            string json = File.ReadAllText(filename);
+            try
+            {
+                var entries = Newtonsoft.Json.JsonConvert.DeserializeObject<List<HistoryEntry>>(json);
+                if (entries != null)
+                {
+                    foreach (var entry in entries)
+                    {
+                        conversionHistory.Add(entry);
+                    }
+                    EnforceHistoryLimit();
+                    MessageBox.Show($"Импортировано {entries.Count} записей", "Импорт завершен", 
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            }
+            catch
+            {
+                // Try to import as settings
+                try
+                {
+                    var settings = Newtonsoft.Json.JsonConvert.DeserializeObject<AppSettings>(json);
+                    if (settings != null)
+                    {
+                        decimalPlaces = settings.DecimalPlaces;
+                        useThousandsSeparator = settings.UseThousandsSeparator;
+                        isAnimationEnabled = settings.AnimationsEnabled;
+                        isAutoConvertEnabled = settings.AutoConvert;
+                        
+                        UpdateSettingsDisplay();
+                        ApplyTheme(settings.Theme);
+                        
+                        MessageBox.Show("Настройки импортированы", "Импорт завершен", 
+                            MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception($"Не удалось распознать формат JSON: {ex.Message}");
+                }
+            }
+        }
+        
+        private void ImportFromText(string filename)
+        {
+            string[] lines = File.ReadAllLines(filename);
+            if (lines.Length > 0)
+            {
+                // Try to find numbers in the file
+                var numbers = new List<string>();
+                foreach (var line in lines)
+                {
+                    var matches = System.Text.RegularExpressions.Regex.Matches(line, @"[\d.,]+");
+                    foreach (System.Text.RegularExpressions.Match match in matches)
+                    {
+                        if (match.Value.Length > 0)
+                            numbers.Add(match.Value);
+                    }
+                }
+                
+                if (numbers.Count > 0)
+                {
+                    // Put first number in input field
+                    txtInput.Text = numbers[0];
+                    
+                    // If there are conversion results, try to parse them
+                    foreach (var line in lines)
+                    {
+                        if (line.Contains("=") || line.Contains("→"))
+                        {
+                            var entry = new HistoryEntry
+                            {
+                                DateTime = DateTime.Now,
+                                Type = "Импорт",
+                                Operation = line.Trim(),
+                                Result = "Импортировано"
+                            };
+                            conversionHistory.Add(entry);
+                        }
+                    }
+                    
+                    MessageBox.Show($"Импортировано {numbers.Count} значений", "Импорт завершен", 
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                else
+                {
+                    MessageBox.Show("Не найдено числовых значений для импорта", "Предупреждение", 
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+            }
+        }
+        
+        private void UpdateHistoryDisplay()
+        {
+            if (historyDataGrid == null) return;
+            
+            try
+            {
+                historyDataGrid.Rows.Clear();
+                
+                // Get filter value
+                string filter = cboHistoryFilter?.SelectedItem?.ToString() ?? "Все";
+                string searchText = txtHistorySearch?.Text?.ToLower() ?? "";
+                
+                var historyList = conversionHistory.ToList();
+                
+                // Apply filter
+                if (filter != "Все")
+                {
+                    historyList = historyList.Where(h => h.Type == filter).ToList();
+                }
+                
+                // Apply search
+                if (!string.IsNullOrEmpty(searchText))
+                {
+                    historyList = historyList.Where(h => 
+                        h.Operation.ToLower().Contains(searchText) ||
+                        h.Result.ToLower().Contains(searchText) ||
+                        h.Type.ToLower().Contains(searchText)
+                    ).ToList();
+                }
+                
+                // Sort by date descending
+                historyList = historyList.OrderByDescending(h => h.DateTime).ToList();
+                
+                // Add to grid
+                foreach (var entry in historyList)
+                {
+                    historyDataGrid.Rows.Add(
+                        entry.DateTime.ToString("yyyy-MM-dd HH:mm:ss"),
+                        entry.Operation,
+                        entry.Result
+                    );
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ошибка обновления истории: {ex.Message}");
             }
         }
         

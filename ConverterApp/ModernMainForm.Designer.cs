@@ -748,21 +748,37 @@ namespace ConverterApp
             leftPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 80F));
             leftPanel.Padding = new Padding(50, 20, 50, 20); // Add horizontal padding
             
-            // Type selection panel
+            // Type selection panel with centered layout
             this.typePanel = new Panel();
             this.typePanel.Dock = DockStyle.Fill;
-            this.typePanel.Padding = new Padding(20);
+            
+            // Create a centered container panel
+            var centerContainer = new TableLayoutPanel();
+            centerContainer.Dock = DockStyle.Fill;
+            centerContainer.RowCount = 3;
+            centerContainer.ColumnCount = 3;
+            centerContainer.RowStyles.Add(new RowStyle(SizeType.Percent, 20F));
+            centerContainer.RowStyles.Add(new RowStyle(SizeType.Absolute, 70F));
+            centerContainer.RowStyles.Add(new RowStyle(SizeType.Percent, 80F));
+            centerContainer.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            centerContainer.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 450F));
+            centerContainer.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            
+            // Create inner panel for label and combobox
+            var innerPanel = new Panel();
+            innerPanel.Size = new Size(450, 70);
             
             this.lblConversionType = new Label();
             this.lblConversionType.Text = "Выберите тип конвертации:";
-            this.lblConversionType.Font = new Font("Segoe UI", 12F);
-            this.lblConversionType.Location = new Point(20, 10);
-            this.lblConversionType.Size = new Size(300, 25);
+            this.lblConversionType.Font = new Font("Segoe UI", 14F, FontStyle.Regular);
+            this.lblConversionType.Location = new Point(0, 0);
+            this.lblConversionType.Size = new Size(450, 30);
+            this.lblConversionType.TextAlign = ContentAlignment.MiddleCenter;
             
             this.cboType = new ComboBox();
-            this.cboType.Font = new Font("Segoe UI", 11F);
+            this.cboType.Font = new Font("Segoe UI", 12F);
             this.cboType.DropDownStyle = ComboBoxStyle.DropDownList;
-            this.cboType.Location = new Point(20, 40);
+            this.cboType.Location = new Point(25, 35);
             this.cboType.Size = new Size(400, 35);
             this.cboType.Items.AddRange(new object[] {
                 "🌡️ Температура",
@@ -777,8 +793,11 @@ namespace ConverterApp
                 "🌊 Давление"
             });
             
-            this.typePanel.Controls.Add(this.lblConversionType);
-            this.typePanel.Controls.Add(this.cboType);
+            innerPanel.Controls.Add(this.lblConversionType);
+            innerPanel.Controls.Add(this.cboType);
+            
+            centerContainer.Controls.Add(innerPanel, 1, 1);
+            this.typePanel.Controls.Add(centerContainer);
             
             // Conversion panel
             this.conversionPanel = new TableLayoutPanel();
@@ -860,11 +879,20 @@ namespace ConverterApp
             this.conversionPanel.Controls.Add(this.arrowLabel, 1, 0);
             this.conversionPanel.Controls.Add(this.outputGroupBox, 2, 0);
             
-            // Button panel
+            // Button panel with centered layout
+            var buttonContainer = new TableLayoutPanel();
+            buttonContainer.Dock = DockStyle.Fill;
+            buttonContainer.RowCount = 1;
+            buttonContainer.ColumnCount = 3;
+            buttonContainer.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            buttonContainer.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 650F));
+            buttonContainer.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            
             this.buttonPanel = new FlowLayoutPanel();
-            this.buttonPanel.Dock = DockStyle.Fill;
             this.buttonPanel.FlowDirection = FlowDirection.LeftToRight;
-            this.buttonPanel.Padding = new Padding(20);
+            this.buttonPanel.AutoSize = true;
+            this.buttonPanel.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            this.buttonPanel.Anchor = AnchorStyles.None;
             
             this.btnConvert = CreateStyledButton("Расчитать", Color.FromArgb(33, 150, 243));
             this.btnClear = CreateStyledButton("Очистить", Color.FromArgb(158, 158, 158));
@@ -876,9 +904,11 @@ namespace ConverterApp
             this.buttonPanel.Controls.Add(this.btnExport);
             this.buttonPanel.Controls.Add(this.btnExportPrint);
             
+            buttonContainer.Controls.Add(this.buttonPanel, 1, 0);
+            
             leftPanel.Controls.Add(this.typePanel, 0, 0);
             leftPanel.Controls.Add(this.conversionPanel, 0, 1);
-            leftPanel.Controls.Add(this.buttonPanel, 0, 3);
+            leftPanel.Controls.Add(buttonContainer, 0, 3);
             
             this.converterPanel.Controls.Add(leftPanel, 0, 0);
             
