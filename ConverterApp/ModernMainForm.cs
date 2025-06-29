@@ -594,7 +594,6 @@ namespace ConverterApp
                 Console.WriteLine($"Разделитель тысяч: {useThousandsSeparator}");
                 Console.WriteLine($"Анимации включены: {isAnimationEnabled}");
                 Console.WriteLine($"Автоконвертация: {isAutoConvertEnabled}");
-                Console.WriteLine($"Текущий режим калькулятора: {currentCalcMode}");
                 
                 Console.WriteLine("\n=== КУРСЫ ВАЛЮТ ===");
                 foreach (var rate in currencyRates)
