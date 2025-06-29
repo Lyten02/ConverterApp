@@ -25,7 +25,6 @@ namespace ConverterApp
         private readonly object historyLock = new object();
         private CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
         private readonly Dictionary<Control, OriginalColors> originalColors = new Dictionary<Control, OriginalColors>();
-        
         private class OriginalColors
         {
             public Color BackColor { get; set; }
@@ -75,7 +74,6 @@ namespace ConverterApp
             public bool UseThousandsSeparator { get; set; } = true;
             public bool AnimationsEnabled { get; set; } = true;
             public bool AutoConvert { get; set; } = false;
-            // Тема удалена - всегда используется светлая
             public string LastConversionType { get; set; } = "";
             public int WindowWidth { get; set; } = 1024;
             public int WindowHeight { get; set; } = 768;
@@ -98,7 +96,6 @@ namespace ConverterApp
             this.FormClosing += (s, e) => SaveSettings();
             SaveOriginalColors(this);
         }
-        
         private void SaveOriginalColors(Control control)
         {
             if (!originalColors.ContainsKey(control))
@@ -110,32 +107,25 @@ namespace ConverterApp
                     IsColoredElement = !IsNeutralColor(control.BackColor) || !IsNeutralColor(control.ForeColor)
                 };
             }
-            
             foreach (Control child in control.Controls)
             {
                 SaveOriginalColors(child);
             }
         }
-        
         private bool IsNeutralColor(Color color)
         {
-            if (color == Color.White || color == Color.Black || 
+            if (color == Color.White || color == Color.Black ||
                 color == Color.WhiteSmoke || color == Color.Transparent ||
                 color == SystemColors.Control || color == SystemColors.ControlText ||
                 color == SystemColors.Window || color == SystemColors.WindowText)
                 return true;
-                
             int r = color.R;
             int g = color.G;
             int b = color.B;
-            
             if (r == g && g == b)
                 return true;
-                
             return false;
         }
-        
-        // Метод IsSystemDarkMode удален - темы больше не поддерживаются
         private void SetupEventHandlers()
         {
             if (isInitialized) return;
@@ -164,7 +154,6 @@ namespace ConverterApp
                 btnConvert.Click -= BtnConvert_Click;
                 btnConvert.Click += BtnConvert_Click;
             }
-            // Обработчик темы удален - темы больше не поддерживаются
             if (btnClear != null)
             {
                 btnClear.Click -= BtnClear_Click;
@@ -236,19 +225,17 @@ namespace ConverterApp
                         case Keys.Tab:
                             if (e.Shift)
                             {
-                                // Ctrl+Shift+Tab - предыдущая вкладка
                                 int prevIndex = mainTabControl.SelectedIndex - 1;
                                 if (prevIndex < 0) prevIndex = mainTabControl.TabCount - 1;
                                 mainTabControl.SelectedIndex = prevIndex;
                             }
                             else
                             {
-                                // Ctrl+Tab - следующая вкладка
                                 int nextIndex = (mainTabControl.SelectedIndex + 1) % mainTabControl.TabCount;
                                 mainTabControl.SelectedIndex = nextIndex;
                             }
-                            e.Handled = true; // Предотвращаем стандартную обработку
-                            e.SuppressKeyPress = true; // Предотвращаем дальнейшую обработку
+                            e.Handled = true;
+                            e.SuppressKeyPress = true;
                             break;
                     }
                 }
@@ -319,7 +306,6 @@ namespace ConverterApp
             Console.WriteLine("\n--- ТЕСТ 18: Экспорт во все форматы ---");
             TestAllExportFormats();
             Console.WriteLine("\n--- ТЕСТ 19: Переключение тем ---");
-            // TestThemeSwitching удален - темы больше не поддерживаются
             Console.WriteLine("\n--- ТЕСТ 20: Анимации ---");
             TestAnimations();
             Console.WriteLine("\n--- ТЕСТ 21: Память и производительность ---");
@@ -727,7 +713,6 @@ namespace ConverterApp
             catch { Console.WriteLine("  PDF библиотека: НЕ доступна ✗"); }
             Console.WriteLine("  Предпросмотр печати: доступен OK");
         }
-        // Метод TestThemeSwitching удален - темы больше не поддерживаются
         private void TestAnimations()
         {
             Console.WriteLine("Тестирование анимаций:");
@@ -789,7 +774,6 @@ namespace ConverterApp
         }
         private void ApplyTheme(string themeName = null)
         {
-            // Просто вызываем основной метод, так как темы больше не поддерживаются
             ApplyTheme();
         }
         private async void UpdateCurrencyRates()
@@ -857,8 +841,6 @@ namespace ConverterApp
                 BtnConvert_Click(null, null);
             }
         }
-        // Метод CboTheme_SelectedIndexChanged удален
-        
         private void BtnConvert_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrEmpty(txtInput.Text)) return;
@@ -1100,11 +1082,9 @@ namespace ConverterApp
             Button button = sender as Button;
             if (button == null) return;
             string buttonText = button.Text;
-            
             TextBox currentDisplay = (mainTabControl != null && mainTabControl.SelectedTab == tabCalculator)
                 ? calcTabDisplay : null;
             if (currentDisplay == null) return;
-            
             switch (buttonText)
             {
                 case "0":
@@ -1127,7 +1107,6 @@ namespace ConverterApp
                         currentDisplay.Text += buttonText;
                     }
                     break;
-                    
                 case ".":
                     if (!currentDisplay.Text.Contains("."))
                     {
@@ -1135,7 +1114,6 @@ namespace ConverterApp
                         calcNewNumber = false;
                     }
                     break;
-                    
                 case "+":
                 case "-":
                 case "×":
@@ -1143,11 +1121,9 @@ namespace ConverterApp
                 case "%":
                     SetOperation(buttonText);
                     break;
-                    
                 case "=":
                     PerformCalculation();
                     break;
-                    
                 case "C":
                 case "CE":
                     currentDisplay.Text = "0";
@@ -1155,7 +1131,6 @@ namespace ConverterApp
                     calcOperation = "";
                     calcNewNumber = true;
                     break;
-                    
                 case "←":
                     if (currentDisplay.Text.Length > 1)
                     {
@@ -1167,7 +1142,6 @@ namespace ConverterApp
                         calcNewNumber = true;
                     }
                     break;
-                    
                 case "±":
                     if (double.TryParse(currentDisplay.Text, out double value))
                     {
@@ -1425,25 +1399,20 @@ namespace ConverterApp
                 chkAnimations.Checked = true;
                 chkScientificNotation.Checked = false;
                 chkSoundEffects.Checked = false;
-                // cboTheme удален - темы не поддерживаются
                 BtnApplySettings_Click(sender, e);
                 lblStatus.Text = "Настройки сброшены";
             }
         }
         private void ApplyTheme()
         {
-            // Всегда используем светлую тему
             Color backColor = Color.FromArgb(245, 245, 245);
             Color foreColor = Color.Black;
             Color panelColor = Color.White;
-            
             ApplyThemeToControl(this, backColor, foreColor, panelColor);
         }
         private void ApplyThemeToControl(Control control, Color backColor, Color foreColor, Color panelColor)
         {
-            // Всегда светлая тема
             bool isDarkTheme = false;
-            
             if (originalColors.TryGetValue(control, out var original) && original.IsColoredElement)
             {
                 control.BackColor = original.BackColor;
@@ -1453,23 +1422,18 @@ namespace ConverterApp
             {
                 Color buttonBackColor = isDarkTheme ? Color.FromArgb(70, 70, 70) : Color.FromArgb(225, 225, 225);
                 Color buttonForeColor = isDarkTheme ? Color.White : Color.Black;
-                
                 if (control is Button btn)
                 {
-                    // Не изменяем цвета кнопок калькулятора и кнопок с установленным цветом в Tag
                     bool isCalculatorButton = btn.Parent == calcTabButtonPanel;
                     bool hasColorTag = btn.Tag is Color tagColor && tagColor != Color.Empty;
-                    
                     if (isCalculatorButton || hasColorTag)
                     {
-                        // Для цветных кнопок сохраняем их оригинальные цвета
                         if (btn.Tag == null)
                         {
                             btn.Tag = btn.BackColor;
                         }
-                        // Обновляем только границы для соответствия теме
-                        btn.FlatAppearance.BorderColor = isDarkTheme ? 
-                            ControlPaint.Dark(btn.BackColor, 0.2f) : 
+                        btn.FlatAppearance.BorderColor = isDarkTheme ?
+                            ControlPaint.Dark(btn.BackColor, 0.2f) :
                             ControlPaint.Dark(btn.BackColor, 0.1f);
                     }
                     else if (!original?.IsColoredElement ?? true)
@@ -1478,7 +1442,6 @@ namespace ConverterApp
                         btn.ForeColor = buttonForeColor;
                         btn.FlatStyle = FlatStyle.Flat;
                         btn.FlatAppearance.BorderColor = isDarkTheme ? Color.FromArgb(100, 100, 100) : Color.FromArgb(200, 200, 200);
-                        // Обновляем Tag для корректной работы hover эффектов
                         btn.Tag = btn.BackColor;
                     }
                 }
@@ -1523,7 +1486,6 @@ namespace ConverterApp
                     }
                 }
             }
-            
             foreach (Control child in control.Controls)
             {
                 ApplyThemeToControl(child, backColor, foreColor, panelColor);
@@ -2019,57 +1981,47 @@ namespace ConverterApp
             button.Dock = DockStyle.Fill;
             button.Font = new Font("Segoe UI", 14F);
             button.FlatStyle = FlatStyle.Flat;
-            button.BackColor = Color.White; // Белый фон по умолчанию
+            button.BackColor = Color.White;
             button.FlatAppearance.BorderColor = Color.FromArgb(206, 212, 218);
             button.FlatAppearance.BorderSize = 1;
             button.Cursor = Cursors.Hand;
             button.Margin = new Padding(2);
-            
-            // Операции
             if ("+-×÷".Contains(text) && text.Length == 1)
             {
-                button.BackColor = Color.FromArgb(0, 123, 255); // Яркий синий
+                button.BackColor = Color.FromArgb(0, 123, 255);
                 button.ForeColor = Color.White;
                 button.Font = new Font("Segoe UI", 16F, FontStyle.Bold);
             }
-            // Кнопка равно
             else if (text == "=")
             {
-                button.BackColor = Color.FromArgb(40, 167, 69); // Яркий зеленый
+                button.BackColor = Color.FromArgb(40, 167, 69);
                 button.ForeColor = Color.White;
                 button.Font = new Font("Segoe UI", 18F, FontStyle.Bold);
             }
-            // Кнопки очистки
             else if (text == "CE" || text == "C")
             {
-                button.BackColor = Color.FromArgb(220, 53, 69); // Насыщенный красный
+                button.BackColor = Color.FromArgb(220, 53, 69);
                 button.ForeColor = Color.White;
                 button.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
             }
-            // Кнопки функций
             else if (text == "%" || text == "sqrt" || text == "^" || text == "1/x")
             {
-                button.BackColor = Color.FromArgb(255, 193, 7); // Яркий желтый
+                button.BackColor = Color.FromArgb(255, 193, 7);
                 button.ForeColor = Color.Black;
             }
-            // Специальные кнопки
             else if (text == "←" || text == "±")
             {
-                button.BackColor = Color.FromArgb(108, 117, 125); // Серый
+                button.BackColor = Color.FromArgb(108, 117, 125);
                 button.ForeColor = Color.White;
                 button.Font = new Font("Segoe UI", 14F, FontStyle.Bold);
             }
-            // Цифры
             else if (char.IsDigit(text, 0) || text == ".")
             {
                 button.BackColor = Color.White;
-                button.ForeColor = Color.FromArgb(33, 37, 41); // Темно-серый текст
+                button.ForeColor = Color.FromArgb(33, 37, 41);
                 button.Font = new Font("Segoe UI", 16F);
             }
-            // Сохраняем оригинальный цвет кнопки в Tag для использования в обработчиках
             button.Tag = button.BackColor;
-            
-            // Добавляем эффекты наведения
             button.MouseEnter += (s, e) => {
                 if (s is Button btn && btn.Tag is Color originalColor)
                 {
@@ -2082,11 +2034,9 @@ namespace ConverterApp
                     btn.BackColor = originalColor;
                 }
             };
-            
             button.Click += CalcButton_Click;
             return button;
         }
-
         private void LoadSettings()
         {
             try
@@ -2106,7 +2056,6 @@ namespace ConverterApp
                         if (chkThousandsSeparator != null) chkThousandsSeparator.Checked = useThousandsSeparator;
                         if (chkAnimations != null) chkAnimations.Checked = isAnimationEnabled;
                         if (chkScientificNotation != null) chkScientificNotation.Checked = isAutoConvertEnabled;
-                        // Загрузка темы удалена - темы больше не поддерживаются
                         if (settings.WindowX != -1 && settings.WindowY != -1)
                         {
                             this.Location = new Point(settings.WindowX, settings.WindowY);
@@ -2124,7 +2073,6 @@ namespace ConverterApp
                 System.Diagnostics.Debug.WriteLine($"Error loading settings: {ex.Message}");
             }
         }
-
         private void SaveSettings()
         {
             try
@@ -2135,7 +2083,6 @@ namespace ConverterApp
                     UseThousandsSeparator = useThousandsSeparator,
                     AnimationsEnabled = isAnimationEnabled,
                     AutoConvert = isAutoConvertEnabled,
-                    // Theme удален - темы больше не поддерживаются
                     WindowX = this.WindowState == FormWindowState.Normal ? this.Location.X : this.RestoreBounds.X,
                     WindowY = this.WindowState == FormWindowState.Normal ? this.Location.Y : this.RestoreBounds.Y,
                     WindowWidth = this.WindowState == FormWindowState.Normal ? this.Width : this.RestoreBounds.Width,
@@ -2151,7 +2098,6 @@ namespace ConverterApp
                 System.Diagnostics.Debug.WriteLine($"Error saving settings: {ex.Message}");
             }
         }
-
         private void CboUnit_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (isUpdatingComboBox) return;
@@ -2164,7 +2110,6 @@ namespace ConverterApp
                 }
             }
         }
-
         private void TxtInput_TextChanged(object sender, EventArgs e)
         {
             if (isAutoConvertEnabled && !string.IsNullOrEmpty(txtInput.Text))
@@ -2176,7 +2121,6 @@ namespace ConverterApp
                 }
             }
         }
-
         private void OpenFile_Click(object sender, EventArgs e)
         {
             using (var openDialog = new OpenFileDialog())
@@ -2199,13 +2143,12 @@ namespace ConverterApp
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show($"Ошибка при открытии файла: {ex.Message}", 
+                        MessageBox.Show($"Ошибка при открытии файла: {ex.Message}",
                             "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
             }
         }
-
         private void SaveFile_Click(object sender, EventArgs e)
         {
             if (!string.IsNullOrEmpty(txtInput.Text) && !string.IsNullOrEmpty(txtOutput.Text))
@@ -2228,7 +2171,7 @@ namespace ConverterApp
                         }
                         catch (Exception ex)
                         {
-                            MessageBox.Show($"Ошибка при сохранении: {ex.Message}", 
+                            MessageBox.Show($"Ошибка при сохранении: {ex.Message}",
                                 "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         }
                     }
@@ -2236,22 +2179,18 @@ namespace ConverterApp
             }
             else
             {
-                MessageBox.Show("Нет данных для сохранения", "Информация", 
+                MessageBox.Show("Нет данных для сохранения", "Информация",
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
-
         private void SaveAsFile_Click(object sender, EventArgs e)
         {
             SaveFile_Click(sender, e);
         }
-
         private void ImportData_Click(object sender, EventArgs e)
         {
             OpenFile_Click(sender, e);
         }
-
-
         private void SaveAsPDF(string filename)
         {
             using (var saveDialog = new SaveFileDialog())
@@ -2269,52 +2208,45 @@ namespace ConverterApp
                             XFont font = new XFont("Arial", 12);
                             XFont titleFont = new XFont("Arial", 16, XFontStyle.Bold);
                             double y = 40;
-                            
-                            gfx.DrawString("Универсальный конвертер - Отчет", titleFont, 
+                            gfx.DrawString("Универсальный конвертер - Отчет", titleFont,
                                 XBrushes.Black, 40, y);
                             y += 30;
-                            
-                            gfx.DrawString($"Дата: {DateTime.Now:yyyy-MM-dd HH:mm:ss}", font, 
+                            gfx.DrawString($"Дата: {DateTime.Now:yyyy-MM-dd HH:mm:ss}", font,
                                 XBrushes.Black, 40, y);
                             y += 20;
-                            
                             if (!string.IsNullOrEmpty(txtInput.Text) && !string.IsNullOrEmpty(txtOutput.Text))
                             {
                                 gfx.DrawString("Текущий результат:", font, XBrushes.Black, 40, y);
                                 y += 20;
-                                gfx.DrawString($"Тип: {cboType.SelectedItem}", font, 
+                                gfx.DrawString($"Тип: {cboType.SelectedItem}", font,
                                     XBrushes.Black, 60, y);
                                 y += 20;
                                 gfx.DrawString($"{txtInput.Text} {cboFromUnit.SelectedItem} = " +
-                                    $"{txtOutput.Text} {cboToUnit.SelectedItem}", font, 
+                                    $"{txtOutput.Text} {cboToUnit.SelectedItem}", font,
                                     XBrushes.Black, 60, y);
                                 y += 30;
                             }
-                            
                             gfx.DrawString("История конвертаций:", font, XBrushes.Black, 40, y);
                             y += 20;
-                            
                             foreach (var entry in conversionHistory.Take(20))
                             {
                                 if (y > page.Height - 40) break;
-                                gfx.DrawString($"{entry.DateTime:HH:mm:ss} - {entry.Operation} = {entry.Result}", 
+                                gfx.DrawString($"{entry.DateTime:HH:mm:ss} - {entry.Operation} = {entry.Result}",
                                     font, XBrushes.Black, 60, y);
                                 y += 20;
                             }
-                            
                             document.Save(saveDialog.FileName);
                             lblStatus.Text = "PDF файл сохранен";
                         }
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show($"Ошибка при сохранении PDF: {ex.Message}", 
+                        MessageBox.Show($"Ошибка при сохранении PDF: {ex.Message}",
                             "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
             }
         }
-
         private void SaveAsText(string filename)
         {
             try
@@ -2323,7 +2255,6 @@ namespace ConverterApp
                 sb.AppendLine("Универсальный конвертер - Отчет");
                 sb.AppendLine($"Дата: {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
                 sb.AppendLine();
-                
                 if (!string.IsNullOrEmpty(txtInput.Text) && !string.IsNullOrEmpty(txtOutput.Text))
                 {
                     sb.AppendLine("Текущий результат:");
@@ -2332,24 +2263,21 @@ namespace ConverterApp
                         $"{txtOutput.Text} {cboToUnit.SelectedItem}");
                     sb.AppendLine();
                 }
-                
                 sb.AppendLine("История конвертаций:");
                 foreach (var entry in conversionHistory.Take(50))
                 {
                     sb.AppendLine($"  {entry.DateTime:yyyy-MM-dd HH:mm:ss} - " +
                         $"{entry.Operation} = {entry.Result}");
                 }
-                
                 File.WriteAllText(filename, sb.ToString());
                 lblStatus.Text = "Текстовый файл сохранен";
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка при сохранении файла: {ex.Message}", 
+                MessageBox.Show($"Ошибка при сохранении файла: {ex.Message}",
                     "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-
         private void ImportJSONData(string json)
         {
             try
@@ -2366,11 +2294,10 @@ namespace ConverterApp
             }
             catch
             {
-                MessageBox.Show("Ошибка при импорте JSON данных", "Ошибка", 
+                MessageBox.Show("Ошибка при импорте JSON данных", "Ошибка",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-
         private void ImportCSVData(string csv)
         {
             try
@@ -2398,7 +2325,7 @@ namespace ConverterApp
             }
             catch
             {
-                MessageBox.Show("Ошибка при импорте CSV данных", "Ошибка", 
+                MessageBox.Show("Ошибка при импорте CSV данных", "Ошибка",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }

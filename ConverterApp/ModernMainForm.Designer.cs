@@ -614,10 +614,10 @@ namespace ConverterApp
             this.buttonPanel.AutoSize = true;
             this.buttonPanel.AutoSizeMode = AutoSizeMode.GrowAndShrink;
             this.buttonPanel.Anchor = AnchorStyles.None;
-            this.btnConvert = CreateStyledButton("Рассчитать", Color.FromArgb(0, 123, 255)); // Яркий синий
-            this.btnClear = CreateStyledButton("Очистить", Color.FromArgb(108, 117, 125)); // Современный серый
-            this.btnExport = CreateStyledButton("Экспорт", Color.FromArgb(40, 167, 69)); // Насыщенный зеленый
-            this.btnExportPrint = CreateStyledButton("Печать", Color.FromArgb(255, 193, 7)); // Яркий желтый
+            this.btnConvert = CreateStyledButton("Рассчитать", Color.FromArgb(0, 123, 255)); 
+            this.btnClear = CreateStyledButton("Очистить", Color.FromArgb(108, 117, 125)); 
+            this.btnExport = CreateStyledButton("Экспорт", Color.FromArgb(40, 167, 69)); 
+            this.btnExportPrint = CreateStyledButton("Печать", Color.FromArgb(255, 193, 7)); 
             this.buttonPanel.Controls.Add(this.btnConvert);
             this.buttonPanel.Controls.Add(this.btnClear);
             this.buttonPanel.Controls.Add(this.btnExport);
@@ -663,7 +663,7 @@ namespace ConverterApp
             this.btnHistorySearch.Size = new Size(40, 25);
             this.btnHistorySearch.Font = new Font("Segoe UI", 10F);
             this.btnHistorySearch.FlatStyle = FlatStyle.Flat;
-            this.btnHistorySearch.BackColor = Color.FromArgb(0, 123, 255); // Яркий синий
+            this.btnHistorySearch.BackColor = Color.FromArgb(0, 123, 255); 
             this.btnHistorySearch.ForeColor = Color.White;
             this.btnHistorySearch.FlatAppearance.BorderSize = 1;
             this.btnHistorySearch.FlatAppearance.BorderColor = ControlPaint.Dark(Color.FromArgb(0, 123, 255), 0.1f);
@@ -690,9 +690,9 @@ namespace ConverterApp
             this.historyButtonPanel.Dock = DockStyle.Fill;
             this.historyButtonPanel.FlowDirection = FlowDirection.LeftToRight;
             this.historyButtonPanel.Padding = new Padding(10);
-            this.btnClearHistory = CreateStyledButton("Очистить историю", Color.FromArgb(220, 53, 69)); // Насыщенный красный
-            this.btnExportCSV = CreateStyledButton("Экспорт в CSV", Color.FromArgb(40, 167, 69)); // Насыщенный зеленый
-            this.btnExportPDF = CreateStyledButton("Экспорт в PDF", Color.FromArgb(23, 162, 184)); // Бирюзовый
+            this.btnClearHistory = CreateStyledButton("Очистить историю", Color.FromArgb(220, 53, 69)); 
+            this.btnExportCSV = CreateStyledButton("Экспорт в CSV", Color.FromArgb(40, 167, 69)); 
+            this.btnExportPDF = CreateStyledButton("Экспорт в PDF", Color.FromArgb(23, 162, 184)); 
             this.historyButtonPanel.Controls.Add(this.btnClearHistory);
             this.historyButtonPanel.Controls.Add(this.btnExportCSV);
             this.historyButtonPanel.Controls.Add(this.btnExportPDF);
@@ -782,7 +782,7 @@ namespace ConverterApp
             this.chkAnimations.Checked = true;
             this.chkSoundEffects = new CheckBox();
             this.chkSoundEffects.Text = "Звуковые эффекты";
-            // Темы удалены, оставляем только анимации и звуки
+            
             appearancePanel.Controls.Add(this.chkAnimations, 0, 0);
             appearancePanel.Controls.Add(this.chkSoundEffects, 0, 1);
             this.appearanceGroup.Controls.Add(appearancePanel);
@@ -805,8 +805,8 @@ namespace ConverterApp
             this.settingsButtonPanel.FlowDirection = FlowDirection.RightToLeft;
             this.settingsButtonPanel.Padding = new Padding(10);
             this.btnSaveSettings = CreateStyledButton("Сохранить", Color.FromArgb(76, 175, 80));
-            this.btnApplySettings = CreateStyledButton("Применить", Color.FromArgb(40, 167, 69)); // Зеленый для применения
-            this.btnResetSettings = CreateStyledButton("Сбросить настройки", Color.FromArgb(108, 117, 125)); // Современный серый
+            this.btnApplySettings = CreateStyledButton("Применить", Color.FromArgb(40, 167, 69)); 
+            this.btnResetSettings = CreateStyledButton("Сбросить настройки", Color.FromArgb(108, 117, 125)); 
             this.settingsButtonPanel.Controls.Add(this.btnSaveSettings);
             this.settingsButtonPanel.Controls.Add(this.btnApplySettings);
             this.settingsButtonPanel.Controls.Add(this.btnResetSettings);
