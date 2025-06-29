@@ -2555,6 +2555,21 @@ namespace ConverterApp
             }
         }
         
+        private string FormatNumber(double value)
+        {
+            // Format number according to current settings
+            string format = useThousandsSeparator ? "N" : "F";
+            format += decimalPlaces.ToString();
+            
+            // Check if scientific notation should be used for very large/small numbers
+            if (Math.Abs(value) >= 1e9 || (Math.Abs(value) < 0.0001 && value != 0))
+            {
+                return value.ToString($"E{decimalPlaces}");
+            }
+            
+            return value.ToString(format);
+        }
+        
         private void ExportPDF_Click(object sender, EventArgs e)
         {
             SaveAsPDF(null);
