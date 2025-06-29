@@ -94,8 +94,8 @@ namespace ConverterApp
             this.chkThousandsSeparator = new System.Windows.Forms.CheckBox();
             this.chkScientificNotation = new System.Windows.Forms.CheckBox();
             this.appearanceGroup = new System.Windows.Forms.GroupBox();
-            this.lblTheme = new System.Windows.Forms.Label();
-            this.cboTheme = new System.Windows.Forms.ComboBox();
+            // this.lblTheme = new System.Windows.Forms.Label(); // удалено
+            // this.cboTheme = new System.Windows.Forms.ComboBox(); // удалено
             this.chkAnimations = new System.Windows.Forms.CheckBox();
             this.chkSoundEffects = new System.Windows.Forms.CheckBox();
             this.hotkeyGroup = new System.Windows.Forms.GroupBox();
@@ -614,10 +614,10 @@ namespace ConverterApp
             this.buttonPanel.AutoSize = true;
             this.buttonPanel.AutoSizeMode = AutoSizeMode.GrowAndShrink;
             this.buttonPanel.Anchor = AnchorStyles.None;
-            this.btnConvert = CreateStyledButton("Расчитать", Color.FromArgb(33, 150, 243));
-            this.btnClear = CreateStyledButton("Очистить", Color.FromArgb(158, 158, 158));
-            this.btnExport = CreateStyledButton("Экспорт", Color.FromArgb(76, 175, 80));
-            this.btnExportPrint = CreateStyledButton("Экспорт и Печать", Color.FromArgb(255, 152, 0));
+            this.btnConvert = CreateStyledButton("Рассчитать", Color.FromArgb(0, 123, 255)); // Яркий синий
+            this.btnClear = CreateStyledButton("Очистить", Color.FromArgb(108, 117, 125)); // Современный серый
+            this.btnExport = CreateStyledButton("Экспорт", Color.FromArgb(40, 167, 69)); // Насыщенный зеленый
+            this.btnExportPrint = CreateStyledButton("Экспорт и Печать", Color.FromArgb(255, 193, 7)); // Яркий желтый
             this.buttonPanel.Controls.Add(this.btnConvert);
             this.buttonPanel.Controls.Add(this.btnClear);
             this.buttonPanel.Controls.Add(this.btnExport);
@@ -680,9 +680,9 @@ namespace ConverterApp
             this.historyButtonPanel.Dock = DockStyle.Fill;
             this.historyButtonPanel.FlowDirection = FlowDirection.LeftToRight;
             this.historyButtonPanel.Padding = new Padding(10);
-            this.btnClearHistory = CreateStyledButton("Очистить историю", Color.FromArgb(244, 67, 54));
-            this.btnExportCSV = CreateStyledButton("Экспорт в CSV", Color.FromArgb(76, 175, 80));
-            this.btnExportPDF = CreateStyledButton("Экспорт в PDF", Color.FromArgb(33, 150, 243));
+            this.btnClearHistory = CreateStyledButton("Очистить историю", Color.FromArgb(220, 53, 69)); // Насыщенный красный
+            this.btnExportCSV = CreateStyledButton("Экспорт в CSV", Color.FromArgb(40, 167, 69)); // Насыщенный зеленый
+            this.btnExportPDF = CreateStyledButton("Экспорт в PDF", Color.FromArgb(23, 162, 184)); // Бирюзовый
             this.historyButtonPanel.Controls.Add(this.btnClearHistory);
             this.historyButtonPanel.Controls.Add(this.btnExportCSV);
             this.historyButtonPanel.Controls.Add(this.btnExportPDF);
@@ -767,23 +767,15 @@ namespace ConverterApp
             appearancePanel.RowCount = 3;
             appearancePanel.ColumnCount = 2;
             appearancePanel.Padding = new Padding(10);
-            this.lblTheme = new Label();
-            this.lblTheme.Text = "Тема:";
-            this.lblTheme.Size = new Size(100, 25);
-            this.cboTheme = new ComboBox();
-            this.cboTheme.DropDownStyle = ComboBoxStyle.DropDownList;
-            this.cboTheme.Items.AddRange(new[] { "Светлая", "Темная", "Системная" });
-            this.cboTheme.SelectedIndex = 0;
-            this.cboTheme.Size = new Size(150, 25);
+            // lblTheme и cboTheme удалены - темы больше не поддерживаются
             this.chkAnimations = new CheckBox();
             this.chkAnimations.Text = "Анимации";
             this.chkAnimations.Checked = true;
             this.chkSoundEffects = new CheckBox();
             this.chkSoundEffects.Text = "Звуковые эффекты";
-            appearancePanel.Controls.Add(this.lblTheme, 0, 0);
-            appearancePanel.Controls.Add(this.cboTheme, 1, 0);
-            appearancePanel.Controls.Add(this.chkAnimations, 0, 1);
-            appearancePanel.Controls.Add(this.chkSoundEffects, 0, 2);
+            // Темы удалены, оставляем только анимации и звуки
+            appearancePanel.Controls.Add(this.chkAnimations, 0, 0);
+            appearancePanel.Controls.Add(this.chkSoundEffects, 0, 1);
             this.appearanceGroup.Controls.Add(appearancePanel);
             this.hotkeyGroup = new GroupBox();
             this.hotkeyGroup.Text = "⌨️ Горячие клавиши";
@@ -804,8 +796,8 @@ namespace ConverterApp
             this.settingsButtonPanel.FlowDirection = FlowDirection.RightToLeft;
             this.settingsButtonPanel.Padding = new Padding(10);
             this.btnSaveSettings = CreateStyledButton("Сохранить", Color.FromArgb(76, 175, 80));
-            this.btnApplySettings = CreateStyledButton("Применить", Color.FromArgb(33, 150, 243));
-            this.btnResetSettings = CreateStyledButton("Сбросить настройки", Color.FromArgb(158, 158, 158));
+            this.btnApplySettings = CreateStyledButton("Применить", Color.FromArgb(40, 167, 69)); // Зеленый для применения
+            this.btnResetSettings = CreateStyledButton("Сбросить настройки", Color.FromArgb(108, 117, 125)); // Современный серый
             this.settingsButtonPanel.Controls.Add(this.btnSaveSettings);
             this.settingsButtonPanel.Controls.Add(this.btnApplySettings);
             this.settingsButtonPanel.Controls.Add(this.btnResetSettings);
@@ -820,11 +812,12 @@ namespace ConverterApp
             var button = new Button();
             button.Text = text;
             button.Size = new Size(140, 40);
-            button.Font = new Font("Segoe UI", 10F);
+            button.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
             button.FlatStyle = FlatStyle.Flat;
             button.BackColor = color;
             button.ForeColor = Color.White;
-            button.FlatAppearance.BorderSize = 0;
+            button.FlatAppearance.BorderSize = 1;
+            button.FlatAppearance.BorderColor = ControlPaint.Dark(color, 0.1f);
             button.Cursor = Cursors.Hand;
             button.Margin = new Padding(5);
             button.Tag = color;
@@ -921,8 +914,8 @@ namespace ConverterApp
         private System.Windows.Forms.CheckBox chkThousandsSeparator;
         private System.Windows.Forms.CheckBox chkScientificNotation;
         private System.Windows.Forms.GroupBox appearanceGroup;
-        private System.Windows.Forms.Label lblTheme;
-        private System.Windows.Forms.ComboBox cboTheme;
+        // private System.Windows.Forms.Label lblTheme; // удалено
+        // private System.Windows.Forms.ComboBox cboTheme; // удалено
         private System.Windows.Forms.CheckBox chkAnimations;
         private System.Windows.Forms.CheckBox chkSoundEffects;
         private System.Windows.Forms.GroupBox hotkeyGroup;

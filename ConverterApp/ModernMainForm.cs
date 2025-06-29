@@ -75,7 +75,7 @@ namespace ConverterApp
             public bool UseThousandsSeparator { get; set; } = true;
             public bool AnimationsEnabled { get; set; } = true;
             public bool AutoConvert { get; set; } = false;
-            public string Theme { get; set; } = "Светлая";
+            // Тема удалена - всегда используется светлая
             public string LastConversionType { get; set; } = "";
             public int WindowWidth { get; set; } = 1024;
             public int WindowHeight { get; set; } = 768;
@@ -135,30 +135,7 @@ namespace ConverterApp
             return false;
         }
         
-        private bool IsSystemDarkMode()
-        {
-            try
-            {
-                using (var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize"))
-                {
-                    if (key != null)
-                    {
-                        var value = key.GetValue("AppsUseLightTheme");
-                        if (value != null)
-                        {
-                            return (int)value == 0;
-                        }
-                    }
-                }
-            }
-            catch
-            {
-            }
-            
-            Color avgColor = SystemColors.Control;
-            int brightness = (avgColor.R + avgColor.G + avgColor.B) / 3;
-            return brightness < 128;
-        }
+        // Метод IsSystemDarkMode удален - темы больше не поддерживаются
         private void SetupEventHandlers()
         {
             if (isInitialized) return;
@@ -187,11 +164,7 @@ namespace ConverterApp
                 btnConvert.Click -= BtnConvert_Click;
                 btnConvert.Click += BtnConvert_Click;
             }
-            if (cboTheme != null)
-            {
-                cboTheme.SelectedIndexChanged -= CboTheme_SelectedIndexChanged;
-                cboTheme.SelectedIndexChanged += CboTheme_SelectedIndexChanged;
-            }
+            // Обработчик темы удален - темы больше не поддерживаются
             if (btnClear != null)
             {
                 btnClear.Click -= BtnClear_Click;
@@ -333,7 +306,7 @@ namespace ConverterApp
             Console.WriteLine("\n--- ТЕСТ 18: Экспорт во все форматы ---");
             TestAllExportFormats();
             Console.WriteLine("\n--- ТЕСТ 19: Переключение тем ---");
-            TestThemeSwitching();
+            // TestThemeSwitching удален - темы больше не поддерживаются
             Console.WriteLine("\n--- ТЕСТ 20: Анимации ---");
             TestAnimations();
             Console.WriteLine("\n--- ТЕСТ 21: Память и производительность ---");
@@ -741,16 +714,7 @@ namespace ConverterApp
             catch { Console.WriteLine("  PDF библиотека: НЕ доступна ✗"); }
             Console.WriteLine("  Предпросмотр печати: доступен OK");
         }
-        private void TestThemeSwitching()
-        {
-            Console.WriteLine("Тестирование переключения тем:");
-            ApplyTheme("Светлая");
-            Console.WriteLine("  Светлая тема применена OK");
-            ApplyTheme("Темная");
-            Console.WriteLine("  Темная тема применена OK");
-            ApplyTheme();
-            Console.WriteLine("  Тема восстановлена OK");
-        }
+        // Метод TestThemeSwitching удален - темы больше не поддерживаются
         private void TestAnimations()
         {
             Console.WriteLine("Тестирование анимаций:");
@@ -812,21 +776,7 @@ namespace ConverterApp
         }
         private void ApplyTheme(string themeName = null)
         {
-            if (string.IsNullOrEmpty(themeName))
-            {
-                ApplyTheme();
-                return;
-            }
-            
-            if (cboTheme != null)
-            {
-                int index = cboTheme.Items.IndexOf(themeName);
-                if (index >= 0)
-                {
-                    cboTheme.SelectedIndex = index;
-                }
-            }
-            
+            // Просто вызываем основной метод, так как темы больше не поддерживаются
             ApplyTheme();
         }
         private async void UpdateCurrencyRates()
@@ -894,11 +844,7 @@ namespace ConverterApp
                 BtnConvert_Click(null, null);
             }
         }
-        private void CboTheme_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            ApplyTheme();
-            lblStatus.Text = "Тема применена";
-        }
+        // Метод CboTheme_SelectedIndexChanged удален
         
         private void BtnConvert_Click(object sender, EventArgs e)
         {
@@ -1466,41 +1412,24 @@ namespace ConverterApp
                 chkAnimations.Checked = true;
                 chkScientificNotation.Checked = false;
                 chkSoundEffects.Checked = false;
-                cboTheme.SelectedIndex = 0;
+                // cboTheme удален - темы не поддерживаются
                 BtnApplySettings_Click(sender, e);
                 lblStatus.Text = "Настройки сброшены";
             }
         }
         private void ApplyTheme()
         {
-            var theme = cboTheme.SelectedItem?.ToString() ?? "Светлая";
-            
-            if (theme == "Системная")
-            {
-                theme = IsSystemDarkMode() ? "Темная" : "Светлая";
-            }
-            
+            // Всегда используем светлую тему
             Color backColor = Color.FromArgb(245, 245, 245);
             Color foreColor = Color.Black;
             Color panelColor = Color.White;
-            
-            if (theme == "Темная")
-            {
-                backColor = Color.FromArgb(45, 45, 48);
-                foreColor = Color.White;
-                panelColor = Color.FromArgb(30, 30, 30);
-            }
             
             ApplyThemeToControl(this, backColor, foreColor, panelColor);
         }
         private void ApplyThemeToControl(Control control, Color backColor, Color foreColor, Color panelColor)
         {
-            var theme = cboTheme.SelectedItem?.ToString() ?? "Светлая";
-            if (theme == "Системная")
-            {
-                theme = IsSystemDarkMode() ? "Темная" : "Светлая";
-            }
-            bool isDarkTheme = theme == "Темная";
+            // Всегда светлая тема
+            bool isDarkTheme = false;
             
             if (originalColors.TryGetValue(control, out var original) && original.IsColoredElement)
             {
@@ -2060,20 +1989,73 @@ namespace ConverterApp
             button.Dock = DockStyle.Fill;
             button.Font = new Font("Segoe UI", 14F);
             button.FlatStyle = FlatStyle.Flat;
-            button.BackColor = Color.White;
-            button.FlatAppearance.BorderColor = Color.FromArgb(200, 200, 200);
+            button.BackColor = Color.FromArgb(248, 249, 250); // Светло-серый фон для цифр
+            button.FlatAppearance.BorderColor = Color.FromArgb(206, 212, 218);
+            button.FlatAppearance.BorderSize = 1;
             button.Cursor = Cursors.Hand;
             button.Margin = new Padding(2);
-            if ("+-×÷=%".Contains(text) && text.Length == 1)
+            
+            // Операции
+            if ("+-×÷".Contains(text) && text.Length == 1)
             {
-                button.BackColor = Color.FromArgb(33, 150, 243);
+                button.BackColor = Color.FromArgb(0, 123, 255); // Яркий синий
                 button.ForeColor = Color.White;
+                button.Font = new Font("Segoe UI", 16F, FontStyle.Bold);
             }
+            // Кнопка равно
+            else if (text == "=")
+            {
+                button.BackColor = Color.FromArgb(40, 167, 69); // Яркий зеленый
+                button.ForeColor = Color.White;
+                button.Font = new Font("Segoe UI", 18F, FontStyle.Bold);
+            }
+            // Кнопки очистки
             else if (text == "CE" || text == "C" || text == "AC")
             {
-                button.BackColor = Color.FromArgb(244, 67, 54);
+                button.BackColor = Color.FromArgb(220, 53, 69); // Насыщенный красный
                 button.ForeColor = Color.White;
+                button.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
             }
+            // Кнопки функций
+            else if (text == "%" || text == "sqrt" || text == "^" || text == "1/x")
+            {
+                button.BackColor = Color.FromArgb(255, 193, 7); // Яркий желтый
+                button.ForeColor = Color.Black;
+            }
+            // Цифры
+            else if (char.IsDigit(text, 0) || text == ".")
+            {
+                button.BackColor = Color.White;
+                button.ForeColor = Color.FromArgb(33, 37, 41); // Темно-серый текст
+                button.Font = new Font("Segoe UI", 16F);
+            }
+            // Добавляем эффекты наведения
+            button.MouseEnter += (s, e) => {
+                if (s is Button btn)
+                {
+                    btn.BackColor = ControlPaint.Light(btn.BackColor, 0.1f);
+                }
+            };
+            button.MouseLeave += (s, e) => {
+                if (s is Button btn)
+                {
+                    // Восстанавливаем исходный цвет
+                    var originalText = btn.Text;
+                    if ("+-×÷".Contains(originalText) && originalText.Length == 1)
+                        btn.BackColor = Color.FromArgb(0, 123, 255);
+                    else if (originalText == "=")
+                        btn.BackColor = Color.FromArgb(40, 167, 69);
+                    else if (originalText == "CE" || originalText == "C" || originalText == "AC")
+                        btn.BackColor = Color.FromArgb(220, 53, 69);
+                    else if (originalText == "%" || originalText == "sqrt" || originalText == "^" || originalText == "1/x")
+                        btn.BackColor = Color.FromArgb(255, 193, 7);
+                    else if (char.IsDigit(originalText, 0) || originalText == ".")
+                        btn.BackColor = Color.White;
+                    else
+                        btn.BackColor = Color.FromArgb(248, 249, 250);
+                }
+            };
+            
             button.Click += CalcButton_Click;
             return button;
         }
@@ -2097,11 +2079,7 @@ namespace ConverterApp
                         if (chkThousandsSeparator != null) chkThousandsSeparator.Checked = useThousandsSeparator;
                         if (chkAnimations != null) chkAnimations.Checked = isAnimationEnabled;
                         if (chkScientificNotation != null) chkScientificNotation.Checked = isAutoConvertEnabled;
-                        if (cboTheme != null && !string.IsNullOrEmpty(settings.Theme))
-                        {
-                            int index = cboTheme.Items.IndexOf(settings.Theme);
-                            if (index >= 0) cboTheme.SelectedIndex = index;
-                        }
+                        // Загрузка темы удалена - темы больше не поддерживаются
                         if (settings.WindowX != -1 && settings.WindowY != -1)
                         {
                             this.Location = new Point(settings.WindowX, settings.WindowY);
@@ -2130,7 +2108,7 @@ namespace ConverterApp
                     UseThousandsSeparator = useThousandsSeparator,
                     AnimationsEnabled = isAnimationEnabled,
                     AutoConvert = isAutoConvertEnabled,
-                    Theme = cboTheme?.SelectedItem?.ToString() ?? "Светлая",
+                    // Theme удален - темы больше не поддерживаются
                     WindowX = this.WindowState == FormWindowState.Normal ? this.Location.X : this.RestoreBounds.X,
                     WindowY = this.WindowState == FormWindowState.Normal ? this.Location.Y : this.RestoreBounds.Y,
                     WindowWidth = this.WindowState == FormWindowState.Normal ? this.Width : this.RestoreBounds.Width,
