@@ -183,7 +183,7 @@ namespace ConverterApp
                             SaveFile_Click(null, null);
                             break;
                         case Keys.P:
-                            PrintResults_Click(null, null);
+                            BtnExportPrint_Click(null, null);
                             break;
                         case Keys.Tab:
                             int nextIndex = (mainTabControl.SelectedIndex + 1) % mainTabControl.TabCount;
