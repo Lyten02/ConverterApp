@@ -234,8 +234,21 @@ namespace ConverterApp
                             BtnExportPrint_Click(null, null);
                             break;
                         case Keys.Tab:
-                            int nextIndex = (mainTabControl.SelectedIndex + 1) % mainTabControl.TabCount;
-                            mainTabControl.SelectedIndex = nextIndex;
+                            if (e.Shift)
+                            {
+                                // Ctrl+Shift+Tab - предыдущая вкладка
+                                int prevIndex = mainTabControl.SelectedIndex - 1;
+                                if (prevIndex < 0) prevIndex = mainTabControl.TabCount - 1;
+                                mainTabControl.SelectedIndex = prevIndex;
+                            }
+                            else
+                            {
+                                // Ctrl+Tab - следующая вкладка
+                                int nextIndex = (mainTabControl.SelectedIndex + 1) % mainTabControl.TabCount;
+                                mainTabControl.SelectedIndex = nextIndex;
+                            }
+                            e.Handled = true; // Предотвращаем стандартную обработку
+                            e.SuppressKeyPress = true; // Предотвращаем дальнейшую обработку
                             break;
                     }
                 }
