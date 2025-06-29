@@ -24,6 +24,14 @@ namespace ConverterApp
         private readonly ConcurrentBag<string> calcHistory = new ConcurrentBag<string>();
         private readonly object historyLock = new object();
         private CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+        private readonly Dictionary<Control, OriginalColors> originalColors = new Dictionary<Control, OriginalColors>();
+        
+        private class OriginalColors
+        {
+            public Color BackColor { get; set; }
+            public Color ForeColor { get; set; }
+            public bool IsColoredElement { get; set; }
+        }
         private Dictionary<string, List<string>> unitCategories = new Dictionary<string, List<string>>
         {
             ["🌡️ Температура"] = new List<string> { "°C", "°F", "K", "°R" },
@@ -88,6 +96,68 @@ namespace ConverterApp
             ApplyTheme();
             SetupKeyboardShortcuts();
             this.FormClosing += (s, e) => SaveSettings();
+            SaveOriginalColors(this);
+        }
+        
+        private void SaveOriginalColors(Control control)
+        {
+            if (!originalColors.ContainsKey(control))
+            {
+                originalColors[control] = new OriginalColors
+                {
+                    BackColor = control.BackColor,
+                    ForeColor = control.ForeColor,
+                    IsColoredElement = !IsNeutralColor(control.BackColor) || !IsNeutralColor(control.ForeColor)
+                };
+            }
+            
+            foreach (Control child in control.Controls)
+            {
+                SaveOriginalColors(child);
+            }
+        }
+        
+        private bool IsNeutralColor(Color color)
+        {
+            if (color == Color.White || color == Color.Black || 
+                color == Color.WhiteSmoke || color == Color.Transparent ||
+                color == SystemColors.Control || color == SystemColors.ControlText ||
+                color == SystemColors.Window || color == SystemColors.WindowText)
+                return true;
+                
+            int r = color.R;
+            int g = color.G;
+            int b = color.B;
+            
+            if (r == g && g == b)
+                return true;
+                
+            return false;
+        }
+        
+        private bool IsSystemDarkMode()
+        {
+            try
+            {
+                using (var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize"))
+                {
+                    if (key != null)
+                    {
+                        var value = key.GetValue("AppsUseLightTheme");
+                        if (value != null)
+                        {
+                            return (int)value == 0;
+                        }
+                    }
+                }
+            }
+            catch
+            {
+            }
+            
+            Color avgColor = SystemColors.Control;
+            int brightness = (avgColor.R + avgColor.G + avgColor.B) / 3;
+            return brightness < 128;
         }
         private void SetupEventHandlers()
         {
@@ -116,6 +186,11 @@ namespace ConverterApp
             {
                 btnConvert.Click -= BtnConvert_Click;
                 btnConvert.Click += BtnConvert_Click;
+            }
+            if (cboTheme != null)
+            {
+                cboTheme.SelectedIndexChanged -= CboTheme_SelectedIndexChanged;
+                cboTheme.SelectedIndexChanged += CboTheme_SelectedIndexChanged;
             }
             if (btnClear != null)
             {
@@ -742,17 +817,17 @@ namespace ConverterApp
                 ApplyTheme();
                 return;
             }
-            switch (themeName)
+            
+            if (cboTheme != null)
             {
-                case "Темная":
-                    this.BackColor = Color.FromArgb(45, 45, 48);
-                    this.ForeColor = Color.White;
-                    break;
-                case "Светлая":
-                    this.BackColor = SystemColors.Control;
-                    this.ForeColor = SystemColors.ControlText;
-                    break;
+                int index = cboTheme.Items.IndexOf(themeName);
+                if (index >= 0)
+                {
+                    cboTheme.SelectedIndex = index;
+                }
             }
+            
+            ApplyTheme();
         }
         private async void UpdateCurrencyRates()
         {
@@ -819,6 +894,12 @@ namespace ConverterApp
                 BtnConvert_Click(null, null);
             }
         }
+        private void CboTheme_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            ApplyTheme();
+            lblStatus.Text = "Тема применена";
+        }
+        
         private void BtnConvert_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrEmpty(txtInput.Text)) return;
@@ -1393,55 +1474,95 @@ namespace ConverterApp
         private void ApplyTheme()
         {
             var theme = cboTheme.SelectedItem?.ToString() ?? "Светлая";
+            
+            if (theme == "Системная")
+            {
+                theme = IsSystemDarkMode() ? "Темная" : "Светлая";
+            }
+            
             Color backColor = Color.FromArgb(245, 245, 245);
             Color foreColor = Color.Black;
             Color panelColor = Color.White;
+            
             if (theme == "Темная")
             {
                 backColor = Color.FromArgb(45, 45, 48);
                 foreColor = Color.White;
                 panelColor = Color.FromArgb(30, 30, 30);
             }
+            
             ApplyThemeToControl(this, backColor, foreColor, panelColor);
         }
         private void ApplyThemeToControl(Control control, Color backColor, Color foreColor, Color panelColor)
         {
-            Color buttonBackColor = Color.FromArgb(70, 70, 70);
-            Color buttonForeColor = Color.White;
-            
-            if (cboTheme.SelectedItem?.ToString() == "Светлая")
+            var theme = cboTheme.SelectedItem?.ToString() ?? "Светлая";
+            if (theme == "Системная")
             {
-                buttonBackColor = Color.FromArgb(225, 225, 225);
-                buttonForeColor = Color.Black;
+                theme = IsSystemDarkMode() ? "Темная" : "Светлая";
             }
-
-            if (control is Button btn)
-            {
-                btn.BackColor = buttonBackColor;
-                btn.ForeColor = buttonForeColor;
-                btn.FlatStyle = FlatStyle.Flat;
-                btn.FlatAppearance.BorderColor = Color.FromArgb(100, 100, 100);
-                return;
-            }
+            bool isDarkTheme = theme == "Темная";
             
-            if (control is ComboBox cbo)
+            if (originalColors.TryGetValue(control, out var original) && original.IsColoredElement)
             {
-                cbo.BackColor = buttonBackColor;
-                cbo.ForeColor = buttonForeColor;
-                cbo.FlatStyle = FlatStyle.Flat;
-                return;
+                control.BackColor = original.BackColor;
+                control.ForeColor = original.ForeColor;
             }
-            
-            if (control is TextBox txt)
+            else
             {
-                txt.BackColor = buttonBackColor;
-                txt.ForeColor = buttonForeColor;
-                txt.BorderStyle = BorderStyle.FixedSingle;
-                return;
+                Color buttonBackColor = isDarkTheme ? Color.FromArgb(70, 70, 70) : Color.FromArgb(225, 225, 225);
+                Color buttonForeColor = isDarkTheme ? Color.White : Color.Black;
+                
+                if (control is Button btn)
+                {
+                    if (!original?.IsColoredElement ?? true)
+                    {
+                        btn.BackColor = buttonBackColor;
+                        btn.ForeColor = buttonForeColor;
+                        btn.FlatStyle = FlatStyle.Flat;
+                        btn.FlatAppearance.BorderColor = isDarkTheme ? Color.FromArgb(100, 100, 100) : Color.FromArgb(200, 200, 200);
+                    }
+                }
+                else if (control is ComboBox cbo)
+                {
+                    if (!original?.IsColoredElement ?? true)
+                    {
+                        cbo.BackColor = buttonBackColor;
+                        cbo.ForeColor = buttonForeColor;
+                        cbo.FlatStyle = FlatStyle.Flat;
+                    }
+                }
+                else if (control is TextBox txt)
+                {
+                    if (!original?.IsColoredElement ?? true)
+                    {
+                        txt.BackColor = buttonBackColor;
+                        txt.ForeColor = buttonForeColor;
+                        txt.BorderStyle = BorderStyle.FixedSingle;
+                    }
+                }
+                else if (control is DataGridView dgv)
+                {
+                    if (!original?.IsColoredElement ?? true)
+                    {
+                        dgv.BackgroundColor = panelColor;
+                        dgv.DefaultCellStyle.BackColor = isDarkTheme ? Color.FromArgb(50, 50, 50) : Color.White;
+                        dgv.DefaultCellStyle.ForeColor = foreColor;
+                        dgv.DefaultCellStyle.SelectionBackColor = isDarkTheme ? Color.FromArgb(80, 80, 80) : Color.LightBlue;
+                        dgv.DefaultCellStyle.SelectionForeColor = isDarkTheme ? Color.White : Color.Black;
+                        dgv.ColumnHeadersDefaultCellStyle.BackColor = isDarkTheme ? Color.FromArgb(60, 60, 60) : Color.FromArgb(240, 240, 240);
+                        dgv.ColumnHeadersDefaultCellStyle.ForeColor = foreColor;
+                        dgv.GridColor = isDarkTheme ? Color.FromArgb(80, 80, 80) : Color.FromArgb(220, 220, 220);
+                    }
+                }
+                else
+                {
+                    if (!original?.IsColoredElement ?? true)
+                    {
+                        control.BackColor = control is Panel || control is GroupBox ? panelColor : backColor;
+                        control.ForeColor = foreColor;
+                    }
+                }
             }
-            
-            control.BackColor = control is Panel || control is GroupBox ? panelColor : backColor;
-            control.ForeColor = foreColor;
             
             foreach (Control child in control.Controls)
             {
