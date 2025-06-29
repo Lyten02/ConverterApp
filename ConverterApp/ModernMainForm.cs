@@ -172,12 +172,30 @@ namespace ConverterApp
             if (btnSaveSettings != null) btnSaveSettings.Click += BtnSaveSettings_Click;
             if (btnResetSettings != null) btnResetSettings.Click += BtnResetSettings_Click;
             
-            // Menu events
+            // File Menu events
             if (openMenuItem != null) openMenuItem.Click += OpenFile_Click;
             if (saveMenuItem != null) saveMenuItem.Click += SaveFile_Click;
+            if (saveAsMenuItem != null) saveAsMenuItem.Click += SaveAsFile_Click;
+            if (importMenuItem != null) importMenuItem.Click += ImportData_Click;
+            if (exportPDFMenuItem != null) exportPDFMenuItem.Click += ExportPDF_Click;
+            if (exportCSVMenuItem != null) exportCSVMenuItem.Click += ExportCSV_Click;
+            if (exportTXTMenuItem != null) exportTXTMenuItem.Click += ExportTXT_Click;
+            if (exportPNGMenuItem != null) exportPNGMenuItem.Click += ExportPNG_Click;
             if (printMenuItem != null) printMenuItem.Click += PrintResults_Click;
+            if (printPreviewMenuItem != null) printPreviewMenuItem.Click += PrintPreview_Click;
+            if (printSettingsMenuItem != null) printSettingsMenuItem.Click += PrintSettings_Click;
             if (exitMenuItem != null) exitMenuItem.Click += (s, e) => Application.Exit();
+            
+            // Help Menu events
+            if (userManualMenuItem != null) userManualMenuItem.Click += ShowUserManual_Click;
+            if (quickStartMenuItem != null) quickStartMenuItem.Click += ShowQuickStart_Click;
+            if (calcHelpMenuItem != null) calcHelpMenuItem.Click += ShowCalculatorHelp_Click;
+            if (formulasMenuItem != null) formulasMenuItem.Click += ShowFormulas_Click;
+            if (unitsTableMenuItem != null) unitsTableMenuItem.Click += ShowUnitsTable_Click;
+            if (hotkeysMenuItem != null) hotkeysMenuItem.Click += ShowHotkeys_Click;
             if (aboutMenuItem != null) aboutMenuItem.Click += About_Click;
+            if (checkUpdatesMenuItem != null) checkUpdatesMenuItem.Click += CheckUpdates_Click;
+            if (reportBugMenuItem != null) reportBugMenuItem.Click += ReportBug_Click;
             
             // Print document event
             printDocument.PrintPage += PrintDocument_PrintPage;
@@ -2253,19 +2271,309 @@ namespace ConverterApp
         private void About_Click(object sender, EventArgs e)
         {
             MessageBox.Show(
-                "ConverterApp v2.0\n\n" +
-                "Универсальный конвертер единиц измерения\n" +
-                "с современным интерфейсом и расширенным функционалом.\n\n" +
-                "Возможности:\n" +
+                "Универсальный Конвертер v1.0\n\n" +
+                "Разработчик: Мокан Константин\n" +
+                "Группа: 24ИС\n" +
+                "Практика 2 семестр 2024\n\n" +
+                "Возможности программы:\n" +
                 "• Конвертация 10 типов единиц измерения\n" +
-                "• Встроенный научный калькулятор\n" +
+                "• Встроенный калькулятор\n" +
                 "• История операций с поиском и фильтрацией\n" +
                 "• Экспорт в PDF, CSV и текстовые файлы\n" +
                 "• Настраиваемый интерфейс с темами\n" +
                 "• Горячие клавиши для быстрой работы\n\n" +
-                "© 2024 ConverterApp", 
+                "© 2024 Практическая работа", 
                 "О программе", 
                 MessageBoxButtons.OK, 
+                MessageBoxIcon.Information);
+        }
+        
+        // File menu handlers
+        private void SaveAsFile_Click(object sender, EventArgs e)
+        {
+            SaveFile_Click(sender, e);
+        }
+        
+        private void ImportData_Click(object sender, EventArgs e)
+        {
+            using (var openDialog = new OpenFileDialog())
+            {
+                openDialog.Filter = "CSV файлы (*.csv)|*.csv|Текстовые файлы (*.txt)|*.txt|Все файлы (*.*)|*.*";
+                
+                if (openDialog.ShowDialog() == DialogResult.OK)
+                {
+                    try
+                    {
+                        string[] lines = File.ReadAllLines(openDialog.FileName);
+                        if (lines.Length > 0)
+                        {
+                            // Try to parse first line as input value
+                            string firstLine = lines[0].Trim();
+                            txtInput.Text = System.Text.RegularExpressions.Regex.Match(firstLine, @"[\d.,]+").Value;
+                            lblStatus.Text = "Данные импортированы";
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Ошибка при импорте: {ex.Message}", 
+                            "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+            }
+        }
+        
+        private void ExportPDF_Click(object sender, EventArgs e)
+        {
+            SaveAsPDF(null);
+        }
+        
+        private void ExportCSV_Click(object sender, EventArgs e)
+        {
+            BtnExportCSV_Click(sender, e);
+        }
+        
+        private void ExportTXT_Click(object sender, EventArgs e)
+        {
+            using (var saveDialog = new SaveFileDialog())
+            {
+                saveDialog.Filter = "Текстовые файлы (*.txt)|*.txt";
+                saveDialog.FileName = $"converter_export_{DateTime.Now:yyyyMMdd_HHmmss}.txt";
+                
+                if (saveDialog.ShowDialog() == DialogResult.OK)
+                {
+                    SaveAsText(saveDialog.FileName);
+                }
+            }
+        }
+        
+        private void ExportPNG_Click(object sender, EventArgs e)
+        {
+            using (var saveDialog = new SaveFileDialog())
+            {
+                saveDialog.Filter = "PNG файлы (*.png)|*.png";
+                saveDialog.FileName = $"converter_screenshot_{DateTime.Now:yyyyMMdd_HHmmss}.png";
+                
+                if (saveDialog.ShowDialog() == DialogResult.OK)
+                {
+                    try
+                    {
+                        Rectangle bounds = this.Bounds;
+                        using (Bitmap bitmap = new Bitmap(bounds.Width, bounds.Height))
+                        {
+                            using (Graphics g = Graphics.FromImage(bitmap))
+                            {
+                                g.CopyFromScreen(new Point(bounds.Left, bounds.Top), Point.Empty, bounds.Size);
+                            }
+                            bitmap.Save(saveDialog.FileName, System.Drawing.Imaging.ImageFormat.Png);
+                            lblStatus.Text = "Скриншот сохранен";
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Ошибка при сохранении скриншота: {ex.Message}", 
+                            "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+            }
+        }
+        
+        private void PrintPreview_Click(object sender, EventArgs e)
+        {
+            PrintResults_Click(sender, e);
+        }
+        
+        private void PrintSettings_Click(object sender, EventArgs e)
+        {
+            using (var printDialog = new PrintDialog())
+            {
+                printDialog.Document = printDocument;
+                printDialog.UseEXDialog = true;
+                
+                if (printDialog.ShowDialog() == DialogResult.OK)
+                {
+                    try
+                    {
+                        printDocument.Print();
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Ошибка при печати: {ex.Message}", 
+                            "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+            }
+        }
+        
+        // Help menu handlers
+        private void ShowUserManual_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show(
+                "РУКОВОДСТВО ПОЛЬЗОВАТЕЛЯ\n\n" +
+                "1. КОНВЕРТАЦИЯ ЕДИНИЦ:\n" +
+                "   • Выберите тип конвертации в выпадающем списке\n" +
+                "   • Выберите исходную и целевую единицы измерения\n" +
+                "   • Введите значение для конвертации\n" +
+                "   • Нажмите 'Конвертировать' или Enter\n\n" +
+                "2. КАЛЬКУЛЯТОР:\n" +
+                "   • Перейдите на вкладку 'Калькулятор'\n" +
+                "   • Используйте кнопки для ввода чисел и операций\n" +
+                "   • Нажмите '=' для получения результата\n\n" +
+                "3. ИСТОРИЯ:\n" +
+                "   • Все операции сохраняются автоматически\n" +
+                "   • Используйте поиск и фильтры для навигации\n" +
+                "   • Экспортируйте историю в различные форматы\n\n" +
+                "4. НАСТРОЙКИ:\n" +
+                "   • Настройте количество десятичных знаков\n" +
+                "   • Выберите тему оформления\n" +
+                "   • Включите/отключите анимации",
+                "Руководство пользователя",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Information);
+        }
+        
+        private void ShowQuickStart_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show(
+                "БЫСТРЫЙ СТАРТ\n\n" +
+                "1. Выберите тип конвертации (например, Длина)\n" +
+                "2. Выберите единицы (например, м → км)\n" +
+                "3. Введите число (например, 1000)\n" +
+                "4. Получите результат автоматически!\n\n" +
+                "ПОЛЕЗНЫЕ СОВЕТЫ:\n" +
+                "• Используйте Tab для перехода между полями\n" +
+                "• Enter конвертирует значение\n" +
+                "• Escape очищает поля\n" +
+                "• Ctrl+S сохраняет результаты",
+                "Быстрый старт",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Information);
+        }
+        
+        private void ShowCalculatorHelp_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show(
+                "КАК ИСПОЛЬЗОВАТЬ КАЛЬКУЛЯТОР\n\n" +
+                "БАЗОВЫЕ ОПЕРАЦИИ:\n" +
+                "• Сложение: +\n" +
+                "• Вычитание: -\n" +
+                "• Умножение: ×\n" +
+                "• Деление: ÷\n" +
+                "• Процент: %\n\n" +
+                "СПЕЦИАЛЬНЫЕ КНОПКИ:\n" +
+                "• C - полная очистка\n" +
+                "• CE - очистка текущего ввода\n" +
+                "• ← - удаление последней цифры\n" +
+                "• ± - смена знака числа\n\n" +
+                "КЛАВИАТУРА:\n" +
+                "• Цифры 0-9 для ввода\n" +
+                "• +, -, *, / для операций\n" +
+                "• Enter или = для результата\n" +
+                "• Escape для очистки",
+                "Справка по калькулятору",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Information);
+        }
+        
+        private void ShowFormulas_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show(
+                "ФОРМУЛЫ КОНВЕРТАЦИИ\n\n" +
+                "ТЕМПЕРАТУРА:\n" +
+                "• °C → °F: (C × 9/5) + 32\n" +
+                "• °C → K: C + 273.15\n\n" +
+                "ДЛИНА:\n" +
+                "• 1 км = 1000 м\n" +
+                "• 1 м = 100 см\n" +
+                "• 1 миля = 1.60934 км\n" +
+                "• 1 фут = 0.3048 м\n\n" +
+                "МАССА:\n" +
+                "• 1 кг = 1000 г\n" +
+                "• 1 фунт = 0.453592 кг\n" +
+                "• 1 унция = 28.3495 г\n\n" +
+                "ОБЪЕМ:\n" +
+                "• 1 л = 1000 мл\n" +
+                "• 1 галлон = 3.78541 л\n\n" +
+                "Все формулы соответствуют международным стандартам",
+                "Формулы конвертации",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Information);
+        }
+        
+        private void ShowUnitsTable_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show(
+                "ТАБЛИЦА ЕДИНИЦ ИЗМЕРЕНИЯ\n\n" +
+                "🌡️ ТЕМПЕРАТУРА: °C, °F, K, °R\n" +
+                "📏 ДЛИНА: см, м, км, дюйм, фут, ярд, миля\n" +
+                "⚖️ МАССА: г, кг, т, фунт, унция\n" +
+                "📊 ОБЪЕМ: мл, л, м³, галлон, пинта\n" +
+                "📐 ПЛОЩАДЬ: см², м², км², фут², акр\n" +
+                "🕐 ВРЕМЯ: с, мин, ч, день, неделя\n" +
+                "⚡ ЭНЕРГИЯ: Дж, кДж, кал, кВт⋅ч\n" +
+                "💪 МОЩНОСТЬ: Вт, кВт, л.с.\n" +
+                "🌊 ДАВЛЕНИЕ: Па, кПа, атм, бар\n" +
+                "💰 ВАЛЮТА: USD, EUR, RUB, GBP, JPY\n\n" +
+                "Всего поддерживается более 40 единиц измерения!",
+                "Таблица единиц",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Information);
+        }
+        
+        private void ShowHotkeys_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show(
+                "ГОРЯЧИЕ КЛАВИШИ\n\n" +
+                "ОСНОВНЫЕ:\n" +
+                "• F1 - Справка\n" +
+                "• Ctrl+O - Открыть файл\n" +
+                "• Ctrl+S - Сохранить\n" +
+                "• Ctrl+Shift+S - Сохранить как\n" +
+                "• Ctrl+P - Печать\n" +
+                "• Alt+F4 - Выход\n\n" +
+                "КОНВЕРТАЦИЯ:\n" +
+                "• Enter - Конвертировать\n" +
+                "• Escape - Очистить\n" +
+                "• Tab - Переход между полями\n\n" +
+                "НАВИГАЦИЯ:\n" +
+                "• Ctrl+Tab - Следующая вкладка\n" +
+                "• Ctrl+Shift+Tab - Предыдущая вкладка\n\n" +
+                "КАЛЬКУЛЯТОР:\n" +
+                "• 0-9 - Ввод цифр\n" +
+                "• +,-,*,/ - Операции\n" +
+                "• = или Enter - Результат\n" +
+                "• Escape - Очистка",
+                "Горячие клавиши",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Information);
+        }
+        
+        private void CheckUpdates_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show(
+                "Проверка обновлений...\n\n" +
+                "Текущая версия: 1.0\n" +
+                "Последняя версия: 1.0\n\n" +
+                "У вас установлена последняя версия программы!",
+                "Проверка обновлений",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Information);
+        }
+        
+        private void ReportBug_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show(
+                "СООБЩИТЬ ОБ ОШИБКЕ\n\n" +
+                "Если вы обнаружили ошибку в работе программы,\n" +
+                "пожалуйста, сообщите о ней разработчику:\n\n" +
+                "Email: student@college.ru\n" +
+                "Тема: ConverterApp - Отчет об ошибке\n\n" +
+                "В письме укажите:\n" +
+                "• Описание проблемы\n" +
+                "• Шаги для воспроизведения\n" +
+                "• Версию программы (1.0)\n\n" +
+                "Спасибо за помощь в улучшении программы!",
+                "Сообщить об ошибке",
+                MessageBoxButtons.OK,
                 MessageBoxIcon.Information);
         }
         

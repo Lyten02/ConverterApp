@@ -48,11 +48,32 @@ namespace ConverterApp
             this.fileMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.saveAsMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
+            this.importMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.exportMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.exportPDFMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.exportCSVMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.exportTXTMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.exportPNGMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.printMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.printPreviewMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.printSettingsMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.exitMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.userManualMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.quickStartMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.calcHelpMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
+            this.formulasMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.unitsTableMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.hotkeysMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
             this.aboutMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.checkUpdatesMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.reportBugMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             
             // Tab Control
             this.mainTabControl = new System.Windows.Forms.TabControl();
@@ -144,19 +165,116 @@ namespace ConverterApp
             this.fileMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
                 this.openMenuItem,
                 this.saveMenuItem,
+                this.saveAsMenuItem,
+                this.toolStripSeparator2,
+                this.importMenuItem,
+                this.exportMenuItem,
+                this.toolStripSeparator3,
                 this.printMenuItem,
+                this.printPreviewMenuItem,
+                this.printSettingsMenuItem,
                 this.toolStripSeparator1,
                 this.exitMenuItem});
             this.fileMenuItem.Name = "fileMenuItem";
             this.fileMenuItem.Size = new System.Drawing.Size(48, 20);
             this.fileMenuItem.Text = "Файл";
             
+            // File menu items configuration
+            this.openMenuItem.Name = "openMenuItem";
+            this.openMenuItem.ShortcutKeys = Keys.Control | Keys.O;
+            this.openMenuItem.Text = "📂 Открыть...";
+            
+            this.saveMenuItem.Name = "saveMenuItem";
+            this.saveMenuItem.ShortcutKeys = Keys.Control | Keys.S;
+            this.saveMenuItem.Text = "💾 Сохранить";
+            
+            this.saveAsMenuItem.Name = "saveAsMenuItem";
+            this.saveAsMenuItem.ShortcutKeys = Keys.Control | Keys.Shift | Keys.S;
+            this.saveAsMenuItem.Text = "💾 Сохранить как...";
+            
+            this.importMenuItem.Name = "importMenuItem";
+            this.importMenuItem.Text = "📥 Импорт данных...";
+            
+            // Export submenu
+            this.exportMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+                this.exportPDFMenuItem,
+                this.exportCSVMenuItem,
+                this.exportTXTMenuItem,
+                this.exportPNGMenuItem});
+            this.exportMenuItem.Name = "exportMenuItem";
+            this.exportMenuItem.Text = "📤 Экспорт результатов";
+            
+            this.exportPDFMenuItem.Name = "exportPDFMenuItem";
+            this.exportPDFMenuItem.Text = "📄 PDF";
+            
+            this.exportCSVMenuItem.Name = "exportCSVMenuItem";
+            this.exportCSVMenuItem.Text = "📊 CSV (Excel)";
+            
+            this.exportTXTMenuItem.Name = "exportTXTMenuItem";
+            this.exportTXTMenuItem.Text = "📝 TXT";
+            
+            this.exportPNGMenuItem.Name = "exportPNGMenuItem";
+            this.exportPNGMenuItem.Text = "🖼️ PNG (Скриншот)";
+            
+            this.printMenuItem.Name = "printMenuItem";
+            this.printMenuItem.ShortcutKeys = Keys.Control | Keys.P;
+            this.printMenuItem.Text = "🖨️ Печать...";
+            
+            this.printPreviewMenuItem.Name = "printPreviewMenuItem";
+            this.printPreviewMenuItem.Text = "👁️ Предпросмотр печати";
+            
+            this.printSettingsMenuItem.Name = "printSettingsMenuItem";
+            this.printSettingsMenuItem.Text = "⚙️ Настройка печати...";
+            
+            this.exitMenuItem.Name = "exitMenuItem";
+            this.exitMenuItem.ShortcutKeys = Keys.Alt | Keys.F4;
+            this.exitMenuItem.Text = "❌ Выход";
+            
             // Help Menu
             this.helpMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-                this.aboutMenuItem});
+                this.userManualMenuItem,
+                this.quickStartMenuItem,
+                this.calcHelpMenuItem,
+                this.toolStripSeparator4,
+                this.formulasMenuItem,
+                this.unitsTableMenuItem,
+                this.hotkeysMenuItem,
+                this.toolStripSeparator5,
+                this.aboutMenuItem,
+                this.checkUpdatesMenuItem,
+                this.reportBugMenuItem});
             this.helpMenuItem.Name = "helpMenuItem";
             this.helpMenuItem.Size = new System.Drawing.Size(65, 20);
             this.helpMenuItem.Text = "Справка";
+            
+            // Help menu items configuration
+            this.userManualMenuItem.Name = "userManualMenuItem";
+            this.userManualMenuItem.ShortcutKeys = Keys.F1;
+            this.userManualMenuItem.Text = "📖 Руководство пользователя";
+            
+            this.quickStartMenuItem.Name = "quickStartMenuItem";
+            this.quickStartMenuItem.Text = "🚀 Быстрый старт";
+            
+            this.calcHelpMenuItem.Name = "calcHelpMenuItem";
+            this.calcHelpMenuItem.Text = "🔧 Как использовать калькулятор";
+            
+            this.formulasMenuItem.Name = "formulasMenuItem";
+            this.formulasMenuItem.Text = "📐 Формулы конвертации";
+            
+            this.unitsTableMenuItem.Name = "unitsTableMenuItem";
+            this.unitsTableMenuItem.Text = "📊 Таблица единиц";
+            
+            this.hotkeysMenuItem.Name = "hotkeysMenuItem";
+            this.hotkeysMenuItem.Text = "⌨️ Горячие клавиши";
+            
+            this.aboutMenuItem.Name = "aboutMenuItem";
+            this.aboutMenuItem.Text = "ℹ️ О программе";
+            
+            this.checkUpdatesMenuItem.Name = "checkUpdatesMenuItem";
+            this.checkUpdatesMenuItem.Text = "🔄 Проверить обновления";
+            
+            this.reportBugMenuItem.Name = "reportBugMenuItem";
+            this.reportBugMenuItem.Text = "🐛 Сообщить об ошибке";
             
             this.menuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
                 this.fileMenuItem,
@@ -676,11 +794,32 @@ namespace ConverterApp
         private System.Windows.Forms.ToolStripMenuItem fileMenuItem;
         private System.Windows.Forms.ToolStripMenuItem openMenuItem;
         private System.Windows.Forms.ToolStripMenuItem saveMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem saveAsMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
+        private System.Windows.Forms.ToolStripMenuItem importMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem exportMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem exportPDFMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem exportCSVMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem exportTXTMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem exportPNGMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
         private System.Windows.Forms.ToolStripMenuItem printMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem printPreviewMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem printSettingsMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.ToolStripMenuItem exitMenuItem;
         private System.Windows.Forms.ToolStripMenuItem helpMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem userManualMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem quickStartMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem calcHelpMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
+        private System.Windows.Forms.ToolStripMenuItem formulasMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem unitsTableMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem hotkeysMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator5;
         private System.Windows.Forms.ToolStripMenuItem aboutMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem checkUpdatesMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem reportBugMenuItem;
         
         private System.Windows.Forms.TabControl mainTabControl;
         private System.Windows.Forms.TabPage tabConverter;
