@@ -1443,7 +1443,10 @@ namespace ConverterApp
                 
                 if (control is Button btn)
                 {
-                    if (!original?.IsColoredElement ?? true)
+                    // Не изменяем цвета кнопок калькулятора
+                    bool isCalculatorButton = btn.Parent == calcTabButtonPanel;
+                    
+                    if (!isCalculatorButton && (!original?.IsColoredElement ?? true))
                     {
                         btn.BackColor = buttonBackColor;
                         btn.ForeColor = buttonForeColor;
@@ -2029,30 +2032,20 @@ namespace ConverterApp
                 button.ForeColor = Color.FromArgb(33, 37, 41); // Темно-серый текст
                 button.Font = new Font("Segoe UI", 16F);
             }
+            // Сохраняем оригинальный цвет кнопки
+            Color originalBackColor = button.BackColor;
+            
             // Добавляем эффекты наведения
             button.MouseEnter += (s, e) => {
                 if (s is Button btn)
                 {
-                    btn.BackColor = ControlPaint.Light(btn.BackColor, 0.1f);
+                    btn.BackColor = ControlPaint.Light(originalBackColor, 0.1f);
                 }
             };
             button.MouseLeave += (s, e) => {
                 if (s is Button btn)
                 {
-                    // Восстанавливаем исходный цвет
-                    var originalText = btn.Text;
-                    if ("+-×÷".Contains(originalText) && originalText.Length == 1)
-                        btn.BackColor = Color.FromArgb(0, 123, 255);
-                    else if (originalText == "=")
-                        btn.BackColor = Color.FromArgb(40, 167, 69);
-                    else if (originalText == "CE" || originalText == "C" || originalText == "AC")
-                        btn.BackColor = Color.FromArgb(220, 53, 69);
-                    else if (originalText == "%" || originalText == "sqrt" || originalText == "^" || originalText == "1/x")
-                        btn.BackColor = Color.FromArgb(255, 193, 7);
-                    else if (char.IsDigit(originalText, 0) || originalText == ".")
-                        btn.BackColor = Color.White;
-                    else
-                        btn.BackColor = Color.White;
+                    btn.BackColor = originalBackColor;
                 }
             };
             
