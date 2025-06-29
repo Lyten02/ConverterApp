@@ -94,8 +94,8 @@ namespace ConverterApp
             this.chkThousandsSeparator = new System.Windows.Forms.CheckBox();
             this.chkScientificNotation = new System.Windows.Forms.CheckBox();
             this.appearanceGroup = new System.Windows.Forms.GroupBox();
-            // this.lblTheme = new System.Windows.Forms.Label(); // удалено
-            // this.cboTheme = new System.Windows.Forms.ComboBox(); // удалено
+            this.lblTheme = new System.Windows.Forms.Label();
+            this.cboTheme = new System.Windows.Forms.ComboBox();
             this.chkAnimations = new System.Windows.Forms.CheckBox();
             this.chkSoundEffects = new System.Windows.Forms.CheckBox();
             this.hotkeyGroup = new System.Windows.Forms.GroupBox();
@@ -767,7 +767,6 @@ namespace ConverterApp
             appearancePanel.RowCount = 3;
             appearancePanel.ColumnCount = 2;
             appearancePanel.Padding = new Padding(10);
-            // lblTheme и cboTheme удалены - темы больше не поддерживаются
             this.chkAnimations = new CheckBox();
             this.chkAnimations.Text = "Анимации";
             this.chkAnimations.Checked = true;
@@ -914,8 +913,8 @@ namespace ConverterApp
         private System.Windows.Forms.CheckBox chkThousandsSeparator;
         private System.Windows.Forms.CheckBox chkScientificNotation;
         private System.Windows.Forms.GroupBox appearanceGroup;
-        // private System.Windows.Forms.Label lblTheme; // удалено
-        // private System.Windows.Forms.ComboBox cboTheme; // удалено
+        private System.Windows.Forms.Label lblTheme;
+        private System.Windows.Forms.ComboBox cboTheme;
         private System.Windows.Forms.CheckBox chkAnimations;
         private System.Windows.Forms.CheckBox chkSoundEffects;
         private System.Windows.Forms.GroupBox hotkeyGroup;
